@@ -38,7 +38,7 @@ export const PRIMARY_NAV_ITEMS: PrimaryNavItem[] = [
   { id: 'crm', title: 'CRM', href: '/crm', icon: Layers, matchPrefixes: ['/crm', '/companies'] },
   { id: 'campaigns', title: 'Campaigns', href: '/campaigns', icon: Zap, matchPrefixes: ['/campaigns', '/app/campaigns'] },
   { id: 'linkedin', title: 'LinkedIn', href: '/linkedin', icon: Linkedin, matchPrefixes: ['/linkedin'] },
-  { id: 'email', title: 'Email', href: '/email/campaigns', icon: Mail, matchPrefixes: ['/email', '/cold-email', '/deliverability'] },
+  { id: 'inbox', title: 'Mail', href: '/inbox', icon: Mail, matchPrefixes: ['/inbox', '/mail', '/messages', '/app/inbox', '/app/mail'] },
   { id: 'calls', title: 'Calling', href: '/voice-ai', icon: PhoneCall, matchPrefixes: ['/voice-ai', '/calls'] },
   { id: 'upwork', title: 'Upwork', href: '/upwork', icon: Briefcase, matchPrefixes: ['/upwork'] },
   { id: 'workflows', title: 'Workflows', href: '/flow-builder', icon: Workflow, matchPrefixes: ['/flow-builder', '/workflows', '/integrations', '/api'] },
@@ -146,7 +146,11 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
             const active = isItemActive(item);
             const Icon = item.icon;
             const existingTab = tabs.find((t) => t.id === item.id || t.module === item.id);
-            const targetHref = item.id === 'copilot' ? '/' : (existingTab ? existingTab.path : item.href);
+            const targetHref = item.id === 'copilot' 
+              ? '/' 
+              : item.id === 'inbox'
+              ? '/inbox'
+              : (existingTab ? existingTab.path : item.href);
 
             return (
               <Tooltip key={item.id} content={item.title} placement="right" delay={400}>

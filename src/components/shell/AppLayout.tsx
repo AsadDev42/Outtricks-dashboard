@@ -125,6 +125,20 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     currentPath === '/app/copilot' ||
     currentPath === '/app/dashboard';
 
+  const isInboxOrMail =
+    activePrimaryId === 'inbox' ||
+    activePrimaryId === 'mail' ||
+    currentPath === '/inbox' ||
+    currentPath.startsWith('/inbox/') ||
+    currentPath === '/mail' ||
+    currentPath.startsWith('/mail/') ||
+    currentPath === '/messages' ||
+    currentPath.startsWith('/messages/') ||
+    currentPath === '/app/inbox' ||
+    currentPath.startsWith('/app/inbox/') ||
+    currentPath === '/app/mail' ||
+    currentPath.startsWith('/app/mail/');
+
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-[#080808] text-slate-900 dark:text-slate-100 flex font-sans transition-colors duration-150 overflow-x-hidden">
       
@@ -134,7 +148,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           activePrimaryId={activePrimaryId}
           onSelectPrimary={setActivePrimaryId}
         />
-        {!isMasterBoxOrAiChat && activePrimaryId !== 'inbox' && (
+        {!isMasterBoxOrAiChat && !isInboxOrMail && (
           <AppSubSidebar
             activePrimaryId={activePrimaryId}
           />
@@ -158,7 +172,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 setActivePrimaryId(id);
               }}
             />
-            {!isMasterBoxOrAiChat && activePrimaryId !== 'inbox' && (
+            {!isMasterBoxOrAiChat && !isInboxOrMail && (
               <AppSubSidebar
                 activePrimaryId={activePrimaryId}
               />

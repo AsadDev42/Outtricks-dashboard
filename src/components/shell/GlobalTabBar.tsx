@@ -17,6 +17,7 @@ import {
   ShieldCheck, 
   Settings, 
   Bot,
+  Zap,
   LayoutDashboard
 } from 'lucide-react';
 import { useGlobalTabs, GlobalTab } from '../../context/GlobalTabsContext';
@@ -27,7 +28,8 @@ function getModuleIcon(module: string) {
     case 'copilot': return Sparkles;
     case 'crm': return Layers;
     case 'lead-finder': return Search;
-    case 'inbox': return Inbox;
+    case 'inbox': return Mail;
+    case 'campaigns': return Zap;
     case 'email': return Mail;
     case 'linkedin': return Linkedin;
     case 'calls': return PhoneCall;

@@ -132,11 +132,17 @@ export const App: React.FC = () => {
                                                   <Route path="/app/leads" element={<AppLeadsPage />} />
                                                   <Route path="/prospects" element={<AppLeadsPage />} />
 
-                                                  {/* 5. Master Multi-Channel Inbox */}
+                                                  {/* 5. Master Multi-Channel Inbox & Mail */}
                                                   <Route path="/inbox" element={<AppInboxPage />} />
                                                   <Route path="/inbox/*" element={<AppInboxPage />} />
                                                   <Route path="/app/inbox" element={<AppInboxPage />} />
                                                   <Route path="/app/inbox/*" element={<AppInboxPage />} />
+                                                  <Route path="/mail" element={<AppInboxPage />} />
+                                                  <Route path="/mail/*" element={<AppInboxPage />} />
+                                                  <Route path="/app/mail" element={<AppInboxPage />} />
+                                                  <Route path="/app/mail/*" element={<AppInboxPage />} />
+                                                  <Route path="/messages" element={<AppInboxPage />} />
+                                                  <Route path="/messages/*" element={<AppInboxPage />} />
 
                                                   {/* 6. Cold Email Outreach & Deliverability */}
                                                   <Route path="/email" element={<AppColdEmailPage />} />

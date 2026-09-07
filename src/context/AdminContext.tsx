@@ -2031,8 +2031,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Access Control Query Helpers
   const hasModuleAccess = useCallback((moduleId: string): boolean => {
+    const canonicalId = moduleId === 'mail' ? 'inbox' : moduleId;
     // 1. Is module globally disabled?
-    const modConfig = modules.find(m => m.id === moduleId);
+    const modConfig = modules.find(m => m.id === canonicalId);
     if (modConfig && !modConfig.enabled) {
       return false;
     }

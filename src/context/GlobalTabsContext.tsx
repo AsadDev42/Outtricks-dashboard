@@ -118,26 +118,48 @@ export function getRouteMetadata(pathname: string): { title: string; module: str
   if (p.startsWith('/lead-finder/imports')) return { title: 'Imports', module: 'lead-finder' };
   if (p.startsWith('/lead-finder') || p.startsWith('/app/lead-finder')) return { title: 'Lead Finder', module: 'lead-finder' };
 
-  // 5. Master Inbox
-  if (p === '/inbox' || p === '/inbox/all' || p === '/app/inbox') return { title: 'All Messages', module: 'inbox' };
-  if (p.startsWith('/inbox/unread')) return { title: 'Unread', module: 'inbox' };
-  if (p.startsWith('/inbox/interested')) return { title: 'Interested', module: 'inbox' };
-  if (p.startsWith('/inbox/meetings')) return { title: 'Meetings', module: 'inbox' };
-  if (p.startsWith('/inbox/archived')) return { title: 'Archived', module: 'inbox' };
-  if (p.startsWith('/inbox/labels')) return { title: 'Labels', module: 'inbox' };
-  if (p.startsWith('/inbox') || p.startsWith('/app/inbox')) return { title: 'Master Inbox', module: 'inbox' };
+  // 5. Master Inbox / Mail (All Messages)
+  if (
+    p === '/inbox' || 
+    p === '/inbox/all' || 
+    p === '/app/inbox' || 
+    p === '/mail' || 
+    p === '/mail/all' || 
+    p === '/app/mail' || 
+    p === '/messages' ||
+    p === '/messages/all'
+  ) {
+    return { title: 'All Messages', module: 'inbox' };
+  }
+  if (p.startsWith('/inbox/unread') || p.startsWith('/mail/unread')) return { title: 'Unread', module: 'inbox' };
+  if (p.startsWith('/inbox/interested') || p.startsWith('/mail/interested')) return { title: 'Interested', module: 'inbox' };
+  if (p.startsWith('/inbox/meetings') || p.startsWith('/mail/meetings')) return { title: 'Meetings', module: 'inbox' };
+  if (p.startsWith('/inbox/archived') || p.startsWith('/mail/archived')) return { title: 'Archived', module: 'inbox' };
+  if (p.startsWith('/inbox/labels') || p.startsWith('/mail/labels')) return { title: 'Labels', module: 'inbox' };
+  if (
+    p.startsWith('/inbox') || 
+    p.startsWith('/app/inbox') || 
+    p.startsWith('/mail') || 
+    p.startsWith('/app/mail') || 
+    p.startsWith('/messages')
+  ) {
+    return { title: 'All Messages', module: 'inbox' };
+  }
 
-  // 6. Cold Email & Deliverability
+  // 6. Multi-Channel Campaigns
+  if (p === '/campaigns' || p === '/campaigns/' || p === '/app/campaigns' || p.startsWith('/campaigns/')) {
+    return { title: 'Campaigns', module: 'campaigns' };
+  }
+
+  // 7. Cold Email Outreach & Deliverability
   if (
     p === '/email' ||
     p === '/email/campaigns' ||
     p === '/cold-email' ||
-    p === '/campaigns' ||
     p === '/app/email' ||
-    p === '/app/cold-email' ||
-    p === '/app/campaigns'
+    p === '/app/cold-email'
   ) {
-    return { title: 'Campaigns', module: 'email' };
+    return { title: 'Email Sequences', module: 'email' };
   }
   if (p.startsWith('/email/sequences')) return { title: 'Sequences', module: 'email' };
   if (p.startsWith('/email/templates')) return { title: 'Templates', module: 'email' };

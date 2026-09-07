@@ -614,7 +614,21 @@ export const AppSubSidebar: React.FC<AppSubSidebarProps> = ({
     p === '/app/copilot' ||
     p === '/app/dashboard';
 
-  if (isMasterBoxPath) {
+  const isInboxOrMailPath =
+    activePrimaryId === 'inbox' ||
+    activePrimaryId === 'mail' ||
+    p === '/inbox' ||
+    p.startsWith('/inbox/') ||
+    p === '/mail' ||
+    p.startsWith('/mail/') ||
+    p === '/messages' ||
+    p.startsWith('/messages/') ||
+    p === '/app/inbox' ||
+    p.startsWith('/app/inbox/') ||
+    p === '/app/mail' ||
+    p.startsWith('/app/mail/');
+
+  if (isMasterBoxPath || isInboxOrMailPath) {
     return null;
   }
 
