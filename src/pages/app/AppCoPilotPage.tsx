@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { CoPilotProvider, useCoPilot } from '../../context/CoPilotContext';
 import { 
   CoPilotChatView, 
@@ -9,13 +10,35 @@ import {
 import { SEOHead } from '../../components/seo/SEOHead';
 
 const CoPilotContent: React.FC = () => {
-  const { activeTab } = useCoPilot();
+  const { activeTab, setActiveTab } = useCoPilot();
+  const location = useLocation();
+
+  useEffect(() => {
+    const p = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+    if (
+      p === '/' ||
+      p === '/master-box' ||
+      p === '/copilot' ||
+      p === '/chat' ||
+      p === '/ai-chat' ||
+      p === '/app' ||
+      p === '/app/copilot'
+    ) {
+      setActiveTab('chat');
+    } else if (p.includes('/actions')) {
+      setActiveTab('actions');
+    } else if (p.includes('/prompts')) {
+      setActiveTab('prompts');
+    } else if (p.includes('/kb')) {
+      setActiveTab('kb');
+    }
+  }, [location.pathname, setActiveTab]);
 
   return (
     <div className="w-full h-full font-sans animate-in fade-in duration-150">
       <SEOHead
-        title="Tricksy AI Assistant & Revenue Orchestration | Outtricks"
-        description="Autonomous Tricksy AI revenue assistant connected to your lead database, cold email inboxes, Voice SDR, and Deals CRM."
+        title="Master Box - AI Chat & Revenue Assistant | Outtricks"
+        description="Autonomous Master Box AI revenue assistant connected to your lead database, cold email inboxes, Voice SDR, and Deals CRM."
       />
 
       {activeTab === 'chat' && <CoPilotChatView />}

@@ -909,7 +909,7 @@ const INITIAL_BUNDLES: AdminBundle[] = [
 ];
 
 const INITIAL_MODULES: AdminModuleConfig[] = [
-  { id: 'copilot', name: 'Tricksy AI / AI Assistant', description: 'Tricksy AI assistant and conversational orchestrator.', icon: 'Sparkles', enabled: true, maintenanceMode: false, visibility: 'all', order: 1 },
+  { id: 'copilot', name: 'Master Box / AI Chat', description: 'Master Box autonomous AI chat and conversational orchestrator.', icon: 'Sparkles', enabled: true, maintenanceMode: false, visibility: 'all', order: 1 },
   { id: 'agents', name: 'AI Agents', description: 'Autonomous agent fleet executing multi-step outbound missions.', icon: 'Bot', enabled: true, maintenanceMode: false, visibility: 'all', order: 2 },
   { id: 'crm', name: 'Deals CRM', description: 'Pipeline stages, revenue forecasting, contracts, and deal stages.', icon: 'Layers', enabled: true, maintenanceMode: false, visibility: 'all', order: 3 },
   { id: 'lead-finder', name: '8D Lead Finder', description: 'Prospect search engine across 480M+ global profiles.', icon: 'Search', enabled: true, maintenanceMode: false, visibility: 'all', order: 4 },

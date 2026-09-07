@@ -75,37 +75,6 @@ export interface SubSidebarConfig {
 }
 
 export const SUB_SIDEBAR_CONFIGS: Record<string, SubSidebarConfig> = {
-  copilot: {
-    sectionTitle: 'Tricksy AI',
-    groups: [
-      {
-        heading: 'AI ASSISTANT',
-        items: [
-          { title: 'Chat & Tricksy AI', href: '/' },
-          { title: 'Actions', href: '/copilot/actions' },
-          { title: 'Prompts Library', href: '/copilot/prompts' },
-          { title: 'Knowledge Base', href: '/copilot/kb' },
-        ],
-      },
-      {
-        heading: 'AGENTS',
-        items: [
-          { title: 'Autonomous SDR', href: '/ai-agents/sdr-outreach' },
-          { title: 'LinkedIn Agent', href: '/ai-agents/linkedin-safe-bot' },
-          { title: 'Upwork Bidder', href: '/ai-agents/upwork-bidding' },
-          { title: 'Research Agent', href: '/ai-agents/deepcontext-researcher' },
-        ],
-      },
-      {
-        heading: 'EXECUTION',
-        items: [
-          { title: 'Active Runs', href: '/ai-agents/execution-runs' },
-          { title: 'Task Backlog', href: '/ai-agents/task-backlog' },
-          { title: 'Telemetry', href: '/ai-agents/performance' },
-        ],
-      },
-    ],
-  },
   agents: {
     sectionTitle: 'Agents',
     groups: [
@@ -626,7 +595,26 @@ export const AppSubSidebar: React.FC<AppSubSidebarProps> = ({
     });
   };
 
-  if (activePrimaryId === 'copilot') {
+  const p = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+  const isMasterBoxPath = 
+    activePrimaryId === 'copilot' ||
+    activePrimaryId === 'master-box' ||
+    p === '/' ||
+    p === '/master-box' ||
+    p.startsWith('/master-box/') ||
+    p === '/copilot' ||
+    p.startsWith('/copilot/') ||
+    p === '/chat' ||
+    p.startsWith('/chat/') ||
+    p === '/ai-chat' ||
+    p.startsWith('/ai-chat/') ||
+    p === '/dashboard' ||
+    p === '/command-center' ||
+    p === '/app' ||
+    p === '/app/copilot' ||
+    p === '/app/dashboard';
+
+  if (isMasterBoxPath) {
     return null;
   }
 

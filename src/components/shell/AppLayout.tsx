@@ -20,8 +20,27 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
 
   const [activePrimaryId, setActivePrimaryId] = useState<string>(() => {
+    const p = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+    if (
+      p === '/' ||
+      p === '/master-box' ||
+      p.startsWith('/master-box/') ||
+      p === '/copilot' ||
+      p.startsWith('/copilot/') ||
+      p === '/chat' ||
+      p.startsWith('/chat/') ||
+      p === '/ai-chat' ||
+      p.startsWith('/ai-chat/') ||
+      p === '/dashboard' ||
+      p === '/command-center' ||
+      p === '/app' ||
+      p === '/app/copilot' ||
+      p === '/app/dashboard'
+    ) {
+      return 'copilot';
+    }
     const matched = PRIMARY_NAV_ITEMS.find((item) =>
-      item.matchPrefixes.some((p) => location.pathname.startsWith(p))
+      item.matchPrefixes.some((pref) => p === pref || p.startsWith(`${pref}/`))
     );
     return matched?.id || 'copilot';
   });
@@ -35,8 +54,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     const currentPath = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
     if (
       currentPath === '/' || 
-      currentPath === '/dashboard' || 
+      currentPath === '/master-box' ||
+      currentPath.startsWith('/master-box/') ||
       currentPath === '/copilot' || 
+      currentPath.startsWith('/copilot/') ||
+      currentPath === '/chat' ||
+      currentPath.startsWith('/chat/') ||
+      currentPath === '/ai-chat' ||
+      currentPath.startsWith('/ai-chat/') ||
+      currentPath === '/dashboard' || 
       currentPath === '/command-center' || 
       currentPath === '/app' || 
       currentPath === '/app/dashboard' || 
@@ -80,6 +106,25 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     );
   }
 
+  const currentPath = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+  const isMasterBoxOrAiChat = 
+    activePrimaryId === 'copilot' ||
+    activePrimaryId === 'master-box' ||
+    currentPath === '/' ||
+    currentPath === '/master-box' ||
+    currentPath.startsWith('/master-box/') ||
+    currentPath === '/copilot' ||
+    currentPath.startsWith('/copilot/') ||
+    currentPath === '/chat' ||
+    currentPath.startsWith('/chat/') ||
+    currentPath === '/ai-chat' ||
+    currentPath.startsWith('/ai-chat/') ||
+    currentPath === '/dashboard' ||
+    currentPath === '/command-center' ||
+    currentPath === '/app' ||
+    currentPath === '/app/copilot' ||
+    currentPath === '/app/dashboard';
+
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-[#080808] text-slate-900 dark:text-slate-100 flex font-sans transition-colors duration-150 overflow-x-hidden">
       
@@ -89,7 +134,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           activePrimaryId={activePrimaryId}
           onSelectPrimary={setActivePrimaryId}
         />
-        {activePrimaryId !== 'copilot' && activePrimaryId !== 'inbox' && (
+        {!isMasterBoxOrAiChat && activePrimaryId !== 'inbox' && (
           <AppSubSidebar
             activePrimaryId={activePrimaryId}
           />
@@ -113,7 +158,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 setActivePrimaryId(id);
               }}
             />
-            {activePrimaryId !== 'copilot' && activePrimaryId !== 'inbox' && (
+            {!isMasterBoxOrAiChat && activePrimaryId !== 'inbox' && (
               <AppSubSidebar
                 activePrimaryId={activePrimaryId}
               />

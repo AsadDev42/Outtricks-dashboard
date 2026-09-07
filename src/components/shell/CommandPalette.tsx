@@ -66,10 +66,10 @@ export const CommandPalette: React.FC<{ isOpen: boolean; onClose: () => void }> 
     {
       id: 'cmd_copilot',
       category: 'Modules',
-      title: 'Tricksy AI Strategic Assistant',
-      subtitle: 'Ask Tricksy AI questions, diagnose pipeline health, and draft campaigns',
+      title: 'Master Box (AI Chat)',
+      subtitle: 'Direct AI chat workspace, diagnose pipeline health, and orchestrate revenue',
       icon: <Sparkles className="w-4 h-4 text-primary" />,
-      action: () => handleNavigate('/copilot'),
+      action: () => handleNavigate('/'),
     },
     {
       id: 'cmd_agents',

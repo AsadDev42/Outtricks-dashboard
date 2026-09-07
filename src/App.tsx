@@ -90,8 +90,12 @@ export const App: React.FC = () => {
                                               <CustomCursor />
                                               <AppLayout>
                                                 <Routes>
-                                                  {/* 1. Co-Pilot / AI Assistant */}
+                                                  {/* 1. Master Box / Co-Pilot / AI Assistant */}
                                                   <Route path="/" element={<AppCoPilotPage />} />
+                                                  <Route path="/master-box" element={<AppCoPilotPage />} />
+                                                  <Route path="/master-box/*" element={<AppCoPilotPage />} />
+                                                  <Route path="/chat" element={<AppCoPilotPage />} />
+                                                  <Route path="/ai-chat" element={<AppCoPilotPage />} />
                                                   <Route path="/copilot" element={<AppCoPilotPage />} />
                                                   <Route path="/copilot/*" element={<AppCoPilotPage />} />
                                                   <Route path="/app/copilot" element={<AppCoPilotPage />} />

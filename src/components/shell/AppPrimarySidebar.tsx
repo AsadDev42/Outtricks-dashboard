@@ -33,7 +33,7 @@ export interface PrimaryNavItem {
 }
 
 export const PRIMARY_NAV_ITEMS: PrimaryNavItem[] = [
-  { id: 'copilot', title: 'Home', href: '/', icon: Sparkles, matchPrefixes: ['/copilot', '/dashboard', '/command-center'] },
+  { id: 'copilot', title: 'Master Box', href: '/', icon: Sparkles, matchPrefixes: ['/copilot', '/master-box', '/chat', '/ai-chat', '/dashboard', '/command-center'] },
   { id: 'lead-finder', title: 'Leads', href: '/lead-finder', icon: Search, matchPrefixes: ['/lead-finder', '/leads', '/prospects'] },
   { id: 'crm', title: 'CRM', href: '/crm', icon: Layers, matchPrefixes: ['/crm', '/companies'] },
   { id: 'campaigns', title: 'Campaigns', href: '/campaigns', icon: Zap, matchPrefixes: ['/campaigns', '/app/campaigns'] },
@@ -83,8 +83,15 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
   const activeItem = React.useMemo(() => {
     if (
       currentPath === '/' || 
+      currentPath === '/master-box' ||
+      currentPath.startsWith('/master-box/') ||
+      currentPath === '/copilot' ||
+      currentPath.startsWith('/copilot/') ||
+      currentPath === '/chat' ||
+      currentPath.startsWith('/chat/') ||
+      currentPath === '/ai-chat' ||
+      currentPath.startsWith('/ai-chat/') ||
       currentPath === '/dashboard' || 
-      currentPath === '/copilot' || 
       currentPath === '/command-center' || 
       currentPath === '/app' || 
       currentPath === '/app/dashboard' || 
@@ -126,8 +133,9 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
       <div className="space-y-3.5 flex flex-col items-center">
         <Link
           to="/"
+          onClick={() => onSelectPrimary('copilot')}
           className="w-10 h-10 rounded-2xl bg-[#111111] border border-[#2A2A2A] flex items-center justify-center overflow-hidden shadow-lg shadow-black/40 hover:scale-105 transition-transform"
-          title="Outtricks Platform"
+          title="Master Box - Outtricks Platform"
         >
           <img src="/logo.png" alt="Outtricks Logo" className="w-full h-full object-cover rounded-2xl" />
         </Link>
@@ -138,7 +146,7 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
             const active = isItemActive(item);
             const Icon = item.icon;
             const existingTab = tabs.find((t) => t.id === item.id || t.module === item.id);
-            const targetHref = existingTab ? existingTab.path : item.href;
+            const targetHref = item.id === 'copilot' ? '/' : (existingTab ? existingTab.path : item.href);
 
             return (
               <Tooltip key={item.id} content={item.title} placement="right" delay={400}>

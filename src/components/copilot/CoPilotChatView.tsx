@@ -203,16 +203,16 @@ export const CoPilotChatView: React.FC = () => {
         
         {/* Left: Brand / Title */}
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+          <div className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center shadow-xs">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-sm text-slate-950 dark:text-white tracking-tight">
-                Tricksy AI
+                Master Box
               </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 Live Revenue OS
               </span>
             </div>
@@ -224,7 +224,7 @@ export const CoPilotChatView: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-emerald-500 transition-colors shadow-2xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-primary transition-colors shadow-2xs"
           >
             <span>{MODEL_LABELS[selectedModel]}</span>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
@@ -243,12 +243,12 @@ export const CoPilotChatView: React.FC = () => {
                   }}
                   className={`w-full text-left px-3 py-2 rounded-xl font-medium transition-colors flex items-center justify-between ${
                     selectedModel === key
-                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-bold'
+                      ? 'bg-primary/10 text-primary font-bold'
                       : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.04]'
                   }`}
                 >
                   <span>{MODEL_LABELS[key]}</span>
-                  {selectedModel === key && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                  {selectedModel === key && <Check className="w-3.5 h-3.5 text-primary" />}
                 </button>
               ))}
             </div>
@@ -311,7 +311,7 @@ export const CoPilotChatView: React.FC = () => {
             <div className="space-y-3 flex-1 flex flex-col min-h-0">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-[#202020]">
                 <div className="flex items-center gap-2">
-                  <History className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <History className="w-4 h-4 text-primary" />
                   <span className="font-extrabold text-sm text-slate-900 dark:text-white">
                     Conversation History
                   </span>
@@ -333,7 +333,7 @@ export const CoPilotChatView: React.FC = () => {
                   value={historySearchQuery}
                   onChange={(e) => setHistorySearchQuery(e.target.value)}
                   placeholder="Search past conversations..."
-                  className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-[#2A2A2A] text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-[#2A2A2A] text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -350,7 +350,7 @@ export const CoPilotChatView: React.FC = () => {
                       }}
                       className={`group p-2.5 rounded-xl text-xs font-medium cursor-pointer transition-all flex items-start justify-between gap-2 ${
                         isActive
-                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40 font-bold'
+                          ? 'bg-primary/10 text-primary border border-primary/30 font-bold'
                           : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.04]'
                       }`}
                     >
@@ -402,7 +402,7 @@ export const CoPilotChatView: React.FC = () => {
           {/* Empty State Welcome Screen */}
           {messages.length <= 1 && (
             <div className="py-8 sm:py-12 text-center space-y-6 animate-in fade-in duration-300">
-              <div className="w-14 h-14 rounded-3xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto border border-emerald-200 dark:border-emerald-800/60 shadow-md">
+              <div className="w-14 h-14 rounded-3xl bg-primary/10 text-primary flex items-center justify-center mx-auto border border-primary/20 shadow-md">
                 <Sparkles className="w-7 h-7" />
               </div>
 
@@ -425,10 +425,10 @@ export const CoPilotChatView: React.FC = () => {
                       onClick={() => {
                         sendMessage(item.prompt);
                       }}
-                      className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200/80 dark:border-[#2A2A2A] hover:border-emerald-400 dark:hover:border-emerald-600/60 transition-all cursor-pointer group shadow-2xs space-y-1"
+                      className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200/80 dark:border-[#2A2A2A] hover:border-primary transition-all cursor-pointer group shadow-2xs space-y-1"
                     >
-                      <div className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                        <Icon className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+                        <Icon className="w-4 h-4 text-primary shrink-0" />
                         <span>{item.title}</span>
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
@@ -486,7 +486,7 @@ export const CoPilotChatView: React.FC = () => {
                           <Terminal className="w-3.5 h-3.5 text-primary" />
                           <span>Action: {msg.toolCall.name}</span>
                         </div>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
                           {msg.toolCall.status}
                         </span>
                       </div>
@@ -526,7 +526,7 @@ export const CoPilotChatView: React.FC = () => {
                           </Button>
                         </div>
                       ) : (
-                        <div className="text-[11px] font-bold text-emerald-600 flex items-center gap-1 pt-1">
+                        <div className="text-[11px] font-bold text-primary flex items-center gap-1 pt-1">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>Action Approved & Executed</span>
                         </div>
@@ -543,7 +543,7 @@ export const CoPilotChatView: React.FC = () => {
                         className="p-1 rounded-md hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-white/10 transition-colors"
                         title="Copy Response"
                       >
-                        {copiedMessageId === msg.id ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedMessageId === msg.id ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
                       <button
                         type="button"

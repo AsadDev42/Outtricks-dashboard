@@ -23,7 +23,7 @@ const ACTIVE_TAB_STORAGE_KEY = 'outtricks_global_active_tab_v3';
 
 export const DEFAULT_HOME_TAB: GlobalTab = {
   id: 'copilot',
-  title: 'Tricksy AI',
+  title: 'Master Box',
   path: '/',
   module: 'copilot',
   closable: false,
@@ -33,17 +33,24 @@ export const DEFAULT_HOME_TAB: GlobalTab = {
 export function getRouteMetadata(pathname: string): { title: string; module: string } {
   const p = pathname.toLowerCase();
 
-  // 1. Tricksy AI / Dashboard
+  // 1. Master Box / AI Chat / Dashboard
   if (
     p === '/' ||
+    p === '/master-box' ||
+    p.startsWith('/master-box') ||
     p === '/copilot' ||
+    p.startsWith('/copilot') ||
+    p === '/chat' ||
+    p.startsWith('/chat') ||
+    p === '/ai-chat' ||
+    p.startsWith('/ai-chat') ||
     p === '/dashboard' ||
     p === '/command-center' ||
     p === '/app' ||
     p === '/app/copilot' ||
     p === '/app/dashboard'
   ) {
-    return { title: 'Tricksy AI', module: 'copilot' };
+    return { title: 'Master Box', module: 'copilot' };
   }
 
   // 2. Agents / Autonomous Workforce
