@@ -19,8 +19,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
 
-  const [activePrimaryId, setActivePrimaryId] = useState<string>(() => {
-    const p = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+  const resolveActivePrimary = (pathname: string): string => {
+    const p = pathname.toLowerCase().replace(/\/$/, '') || '/';
     if (
       p === '/' ||
       p === '/master-box' ||
@@ -39,11 +39,46 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     ) {
       return 'copilot';
     }
-    const matched = PRIMARY_NAV_ITEMS.find((item) =>
-      item.matchPrefixes.some((pref) => p === pref || p.startsWith(`${pref}/`))
+
+    if (
+      p === '/ai-agents' ||
+      p.startsWith('/ai-agents/') ||
+      p === '/agents' ||
+      p.startsWith('/agents/') ||
+      p === '/app/ai-agents' ||
+      p.startsWith('/app/ai-agents/') ||
+      p === '/app/agents' ||
+      p.startsWith('/app/agents/')
+    ) {
+      return 'agents';
+    }
+
+    if (
+      p === '/email' ||
+      p.startsWith('/email/') ||
+      p === '/cold-email' ||
+      p.startsWith('/cold-email/') ||
+      p === '/deliverability' ||
+      p.startsWith('/deliverability/') ||
+      p === '/app/email' ||
+      p.startsWith('/app/email/')
+    ) {
+      return 'email';
+    }
+
+    const sorted = [...PRIMARY_NAV_ITEMS].sort((a, b) => {
+      const maxA = Math.max(...a.matchPrefixes.map((prefix) => prefix.length));
+      const maxB = Math.max(...b.matchPrefixes.map((prefix) => prefix.length));
+      return maxB - maxA;
+    });
+
+    const matched = sorted.find((item) =>
+      item.matchPrefixes.some((prefix) => p === prefix || p.startsWith(`${prefix}/`))
     );
     return matched?.id || 'copilot';
-  });
+  };
+
+  const [activePrimaryId, setActivePrimaryId] = useState<string>(() => resolveActivePrimary(location.pathname));
 
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
@@ -51,37 +86,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   // Sync active primary id on location change & close mobile nav
   useEffect(() => {
-    const currentPath = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
-    if (
-      currentPath === '/' || 
-      currentPath === '/master-box' ||
-      currentPath.startsWith('/master-box/') ||
-      currentPath === '/copilot' || 
-      currentPath.startsWith('/copilot/') ||
-      currentPath === '/chat' ||
-      currentPath.startsWith('/chat/') ||
-      currentPath === '/ai-chat' ||
-      currentPath.startsWith('/ai-chat/') ||
-      currentPath === '/dashboard' || 
-      currentPath === '/command-center' || 
-      currentPath === '/app' || 
-      currentPath === '/app/dashboard' || 
-      currentPath === '/app/copilot'
-    ) {
-      setActivePrimaryId('copilot');
-    } else {
-      const sorted = [...PRIMARY_NAV_ITEMS].sort((a, b) => {
-        const maxA = Math.max(...a.matchPrefixes.map((p) => p.length));
-        const maxB = Math.max(...b.matchPrefixes.map((p) => p.length));
-        return maxB - maxA;
-      });
-      const matched = sorted.find((item) =>
-        item.matchPrefixes.some((prefix) => currentPath === prefix || currentPath.startsWith(`${prefix}/`))
-      );
-      if (matched) {
-        setActivePrimaryId(matched.id);
-      }
-    }
+    setActivePrimaryId(resolveActivePrimary(location.pathname));
     setIsMobileNavOpen(false);
   }, [location.pathname]);
 

@@ -21,7 +21,6 @@ import { UserProfileMenu } from './UserProfileMenu';
 import { useAuth } from '../../context/AuthContext';
 import { useAdmin } from '../../context/AdminContext';
 import { useAppearance } from '../../context/ThemeContext';
-import { useGlobalTabs } from '../../context/GlobalTabsContext';
 
 export interface PrimaryNavItem {
   id: string;
@@ -35,7 +34,7 @@ export interface PrimaryNavItem {
 export const PRIMARY_NAV_ITEMS: PrimaryNavItem[] = [
   { id: 'copilot', title: 'Master Box', href: '/', icon: Sparkles, matchPrefixes: ['/copilot', '/master-box', '/chat', '/ai-chat', '/dashboard', '/command-center'] },
   { id: 'lead-finder', title: 'Leads', href: '/lead-finder', icon: Search, matchPrefixes: ['/lead-finder', '/leads', '/prospects'] },
-  { id: 'crm', title: 'CRM', href: '/crm', icon: Layers, matchPrefixes: ['/crm', '/companies'] },
+  { id: 'crm', title: 'CRM', href: '/crm', icon: Layers, matchPrefixes: ['/crm', '/companies', '/accounts'] },
   { id: 'campaigns', title: 'Campaigns', href: '/campaigns', icon: Zap, matchPrefixes: ['/campaigns', '/app/campaigns'] },
   { id: 'linkedin', title: 'LinkedIn', href: '/linkedin', icon: Linkedin, matchPrefixes: ['/linkedin'] },
   { id: 'inbox', title: 'Mail', href: '/inbox', icon: Mail, matchPrefixes: ['/inbox', '/mail', '/messages', '/app/inbox', '/app/mail'] },
@@ -59,7 +58,6 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
   const { user } = useAuth();
   const { hasModuleAccess, currentAdminRole, isAdmin, hasPermission } = useAdmin();
   const { sidebarDensity } = useAppearance();
-  const { tabs } = useGlobalTabs();
   const location = useLocation();
 
   const isUserAdmin = isAdmin || 
@@ -145,12 +143,7 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
           {visibleNavItems.map((item) => {
             const active = isItemActive(item);
             const Icon = item.icon;
-            const existingTab = tabs.find((t) => t.id === item.id || t.module === item.id);
-            const targetHref = item.id === 'copilot' 
-              ? '/' 
-              : item.id === 'inbox'
-              ? '/inbox'
-              : (existingTab ? existingTab.path : item.href);
+            const targetHref = item.href;
 
             return (
               <Tooltip key={item.id} content={item.title} placement="right" delay={400}>

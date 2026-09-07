@@ -147,8 +147,17 @@ export function getRouteMetadata(pathname: string): { title: string; module: str
   }
 
   // 6. Multi-Channel Campaigns
+  if (p === '/campaigns/email' || p === '/app/campaigns/email') {
+    return { title: 'Email Sequences', module: 'campaigns' };
+  }
+  if (p === '/campaigns/linkedin' || p === '/app/campaigns/linkedin') {
+    return { title: 'LinkedIn Automations', module: 'campaigns' };
+  }
+  if (p === '/campaigns/voice' || p === '/app/campaigns/voice' || p === '/campaigns/calls' || p === '/app/campaigns/calls') {
+    return { title: 'Voice AI Calling', module: 'campaigns' };
+  }
   if (p === '/campaigns' || p === '/campaigns/' || p === '/app/campaigns' || p.startsWith('/campaigns/')) {
-    return { title: 'Campaigns', module: 'campaigns' };
+    return { title: 'All Campaigns', module: 'campaigns' };
   }
 
   // 7. Cold Email Outreach & Deliverability
@@ -268,6 +277,7 @@ export function getRouteMetadata(pathname: string): { title: string; module: str
   if (p === '/settings' || p === '/settings/overview' || p === '/app/settings' || p === '/app/settings/overview') return { title: 'Settings', module: 'settings' };
   if (p.startsWith('/settings/profile') || p.startsWith('/app/settings/profile')) return { title: 'Profile', module: 'settings' };
   if (p.startsWith('/settings/account') || p.startsWith('/app/settings/account')) return { title: 'Account', module: 'settings' };
+  if (p.startsWith('/settings/security') || p.startsWith('/app/settings/security')) return { title: 'Security', module: 'settings' };
   if (p.startsWith('/settings/organization') || p.startsWith('/app/settings/organization')) return { title: 'Organization', module: 'settings' };
   if (p.startsWith('/settings/team') || p.startsWith('/app/settings/team')) return { title: 'Team', module: 'settings' };
   if (p.startsWith('/settings/billing') || p.startsWith('/app/settings/billing')) return { title: 'Billing & Credits', module: 'settings' };

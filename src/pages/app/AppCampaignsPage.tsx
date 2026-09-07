@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { GsapPageTransition } from '../../components/ui/GsapPageTransition';
 import { Button } from '../../components/ui/Button';
@@ -54,6 +54,7 @@ interface UnifiedCampaignItem {
 
 export const AppCampaignsPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { campaigns: emailCampaigns, toggleCampaignStatus: toggleEmailStatus } = useEmail();
   const { campaigns: linkedInCampaigns, toggleCampaignStatus: toggleLinkedInStatus } = useLinkedIn();
   const { voiceCampaigns, toggleVoiceCampaignStatus: toggleVoiceStatus } = useVoiceAi();
@@ -62,6 +63,20 @@ export const AppCampaignsPage: React.FC = () => {
   const [channelFilter, setChannelFilter] = useState<ChannelFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Synchronize channelFilter with URL subroute
+  useEffect(() => {
+    const p = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+    if (p === '/campaigns/email' || p === '/app/campaigns/email') {
+      setChannelFilter('email');
+    } else if (p === '/campaigns/linkedin' || p === '/app/campaigns/linkedin') {
+      setChannelFilter('linkedin');
+    } else if (p === '/campaigns/voice' || p === '/app/campaigns/voice' || p === '/campaigns/calls' || p === '/app/campaigns/calls') {
+      setChannelFilter('voice');
+    } else if (p === '/campaigns' || p === '/app/campaigns') {
+      setChannelFilter('all');
+    }
+  }, [location.pathname]);
 
   // Modals
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -277,7 +292,11 @@ export const AppCampaignsPage: React.FC = () => {
             <button
               key={ch}
               type="button"
-              onClick={() => setChannelFilter(ch)}
+              onClick={() => {
+                setChannelFilter(ch);
+                const targetPath = ch === 'all' ? '/campaigns' : `/campaigns/${ch}`;
+                navigate(targetPath);
+              }}
               className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer capitalize shrink-0 flex items-center gap-1.5 ${
                 channelFilter === ch
                   ? 'bg-emerald-500 text-white shadow-xs'

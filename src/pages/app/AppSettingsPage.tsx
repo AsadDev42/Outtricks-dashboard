@@ -30,6 +30,7 @@ export const resolveSettingsSection = (pathname: string): SettingsSubTab => {
   const p = pathname.toLowerCase();
   if (p.includes('/profile')) return 'profile';
   if (p.includes('/account') && !p.includes('/connected-accounts')) return 'account';
+  if (p.includes('/security')) return 'account';
   if (p.includes('/organization') || p.includes('/org')) return 'organization';
   if (p.includes('/team') || p.includes('/members')) return 'team';
   if (p.includes('/billing') || p.includes('/credits') || p.includes('/billing-credits')) return 'billing-credits';

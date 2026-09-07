@@ -144,10 +144,10 @@ export const SUB_SIDEBAR_CONFIGS: Record<string, SubSidebarConfig> = {
       {
         heading: 'MULTI-CHANNEL OUTBOUND',
         items: [
-          { title: 'All Campaigns', href: '/campaigns' },
-          { title: 'Email Sequences', href: '/email/campaigns' },
-          { title: 'LinkedIn Automations', href: '/linkedin/campaigns' },
-          { title: 'Voice AI Calling', href: '/voice-ai/campaigns' },
+          { title: 'All Campaigns', href: '/campaigns', icon: Zap },
+          { title: 'Email Sequences', href: '/campaigns/email', icon: Mail },
+          { title: 'LinkedIn Automations', href: '/campaigns/linkedin', icon: Linkedin },
+          { title: 'Voice AI Calling', href: '/campaigns/voice', icon: PhoneCall },
         ],
       },
     ],
@@ -218,12 +218,13 @@ export const SUB_SIDEBAR_CONFIGS: Record<string, SubSidebarConfig> = {
       {
         heading: '',
         items: [
+          { title: 'Overview', href: '/voice-ai/overview', icon: BarChart3 },
           { title: 'Call Console & Live Center', href: '/voice-ai/call-center', icon: Headphones },
           { title: 'Voice Agents & Prompts', href: '/voice-ai/ai-agents', icon: Bot },
           { title: 'Voice Campaigns', href: '/voice-ai/campaigns', icon: PhoneForwarded },
           { title: 'Call History & Recordings', href: '/voice-ai/history', icon: History },
           { title: 'Phone Numbers', href: '/voice-ai/phone-numbers', icon: Hash },
-          { title: 'Analytics & Transcripts', href: '/voice-ai/analytics', icon: BarChart3 },
+          { title: 'Analytics & Transcripts', href: '/voice-ai/analytics', icon: Activity },
           { title: 'CRM Sync & Knowledge', href: '/voice-ai/crm-sync', icon: Database },
         ],
       },
@@ -449,11 +450,17 @@ export function checkSubItemActive(itemHref: string, currentPath: string): boole
   )) return true;
   if (h === '/flow-builder/saved-components' && (p === '/flow-builder/saved-components' || p === '/app/flow-builder/saved-components' || p === '/workflows/saved-components' || p === '/app/workflows/saved-components')) return true;
 
+  // 4.5 Campaigns
+  if (h === '/campaigns' && (p === '/campaigns' || p === '/app/campaigns')) return true;
+  if (h === '/campaigns/email' && (p === '/campaigns/email' || p === '/app/campaigns/email')) return true;
+  if (h === '/campaigns/linkedin' && (p === '/campaigns/linkedin' || p === '/app/campaigns/linkedin')) return true;
+  if (h === '/campaigns/voice' && (p === '/campaigns/voice' || p === '/app/campaigns/voice' || p === '/campaigns/calls' || p === '/app/campaigns/calls')) return true;
+
   // 5. CRM
   if (h === '/crm/overview' && (p === '/crm' || p === '/crm/overview' || p === '/app/crm' || p === '/app/crm/overview')) return true;
-  if (h === '/crm/leads' && (p === '/crm/leads' || p === '/leads' || p === '/prospects' || p === '/app/crm/leads')) return true;
+  if (h === '/crm/leads' && (p === '/crm/leads' || p === '/app/crm/leads')) return true;
   if (h === '/crm/contacts' && (p === '/crm/contacts' || p.startsWith('/crm/contacts/') || p === '/app/crm/contacts')) return true;
-  if (h === '/crm/companies' && (p === '/crm/companies' || p === '/companies' || p === '/accounts' || p === '/app/companies' || p === '/app/crm/companies')) return true;
+  if (h === '/crm/companies' && (p === '/crm/companies' || p.startsWith('/crm/companies/') || p === '/app/crm/companies')) return true;
   if (h === '/crm/deals' && (p === '/crm/deals' || p.startsWith('/crm/deals/') || p === '/app/crm/deals')) return true;
   if (h === '/crm/pipeline' && (p === '/crm/pipeline' || p.startsWith('/crm/pipeline/') || p === '/app/crm/pipeline')) return true;
   if (h === '/crm/activities' && (p === '/crm/activities' || p.startsWith('/crm/activities/') || p === '/app/crm/activities')) return true;
@@ -463,12 +470,12 @@ export function checkSubItemActive(itemHref: string, currentPath: string): boole
   // 6. Lead Finder
   if (h === '/lead-finder/find-people' && (p === '/lead-finder' || p === '/lead-finder/find-people' || p === '/app/lead-finder' || p === '/app/lead-finder/find-people' || p === '/lead-finder/overview')) return true;
   if (h === '/lead-finder/saved-searches' && (p === '/lead-finder/saved-searches' || p.startsWith('/lead-finder/saved-searches/') || p === '/app/lead-finder/saved-searches')) return true;
-  if (h === '/lead-finder/prospect-lists' && (p === '/lead-finder/prospect-lists' || p.startsWith('/lead-finder/prospect-lists/') || p === '/app/lead-finder/prospect-lists' || p === '/lead-finder/my-leads' || p === '/app/lead-finder/my-leads')) return true;
+  if (h === '/lead-finder/prospect-lists' && (p === '/lead-finder/prospect-lists' || p.startsWith('/lead-finder/prospect-lists/') || p === '/app/lead-finder/prospect-lists' || p === '/lead-finder/my-leads' || p === '/app/lead-finder/my-leads' || p === '/leads' || p === '/prospects' || p === '/app/leads')) return true;
   if (h === '/lead-finder/imports' && (p === '/lead-finder/imports' || p.startsWith('/lead-finder/imports/') || p === '/app/lead-finder/imports' || p === '/lead-finder/search-history' || p.startsWith('/lead-finder/search-history/'))) return true;
 
   // 7. Email
   if (h === '/email/mailboxes' && (p === '/email/mailboxes' || p.startsWith('/email/mailboxes/') || p === '/email/inboxes' || p.startsWith('/email/inboxes/'))) return true;
-  if (h === '/email/campaigns' && (p === '/email' || p === '/cold-email' || p === '/campaigns' || p === '/email/campaigns' || p === '/app/email' || p === '/app/cold-email' || p === '/app/campaigns' || p === '/email/overview')) return true;
+  if (h === '/email/campaigns' && (p === '/email' || p === '/cold-email' || p === '/email/campaigns' || p === '/app/email' || p === '/app/cold-email' || p === '/email/overview')) return true;
   if (h === '/email/sequences' && (p === '/email/sequences' || p.startsWith('/email/sequences/') || p === '/email/templates')) return true;
   if (h === '/email/warmup' && (p === '/email/warmup' || p === '/email/suppression' || p.startsWith('/email/warmup/'))) return true;
   if (h === '/email/analytics' && (p === '/email/analytics' || p.startsWith('/email/analytics/'))) return true;
@@ -495,19 +502,22 @@ export function checkSubItemActive(itemHref: string, currentPath: string): boole
   if (h === '/inbox/labels' && (p === '/inbox/labels' || p === '/app/inbox/labels')) return true;
 
   // 10. LinkedIn
-  if (h === '/linkedin/overview' && (p === '/linkedin/overview' || p === '/app/linkedin/overview')) return true;
+  if (h === '/linkedin/overview' && (p === '/linkedin' || p === '/linkedin/overview' || p === '/app/linkedin' || p === '/app/linkedin/overview')) return true;
   if (h === '/linkedin/accounts' && (p === '/linkedin/accounts' || p.startsWith('/linkedin/accounts/') || p === '/linkedin/proxies')) return true;
-  if (h === '/linkedin/campaigns' && (p === '/linkedin' || p === '/linkedin/campaigns' || p === '/app/linkedin' || p === '/linkedin/automation' || p === '/linkedin/sequences')) return true;
+  if (h === '/linkedin/campaigns' && (p === '/linkedin/campaigns' || p === '/app/linkedin/campaigns' || p === '/linkedin/automation' || p === '/linkedin/sequences')) return true;
   if (h === '/linkedin/messages' && (p === '/linkedin/messages' || p.startsWith('/linkedin/messages/') || p === '/linkedin/inbox')) return true;
   if (h === '/linkedin/activity' && (p === '/linkedin/activity' || p === '/linkedin/execution-logs' || p === '/linkedin/logs')) return true;
   if (h === '/linkedin/analytics' && (p === '/linkedin/analytics' || p.startsWith('/linkedin/analytics/'))) return true;
   if (h === '/linkedin/settings' && (p === '/linkedin/settings' || p.startsWith('/linkedin/settings/'))) return true;
 
   // 11. Calls / Voice AI
+  if (h === '/voice-ai/overview' && (
+    p === '/voice-ai' || p === '/calls' || p === '/voice-ai/overview' || p === '/calls/overview' ||
+    p === '/app/voice-ai' || p === '/app/calls' || p === '/app/voice-ai/overview' || p === '/app/calls/overview'
+  )) return true;
   if (h === '/voice-ai/call-center' && (
     p === '/voice-ai/call-center' || p === '/calls/call-center' ||
-    p === '/voice-ai' || p === '/calls' || p === '/voice-ai/overview' || p === '/calls/overview' ||
-    p === '/app/voice-ai' || p === '/app/calls'
+    p === '/app/voice-ai/call-center' || p === '/app/calls/call-center'
   )) return true;
   if (h === '/voice-ai/ai-agents' && (p === '/voice-ai/ai-agents' || p === '/calls/ai-agents')) return true;
   if (h === '/voice-ai/campaigns' && (p === '/voice-ai/campaigns' || p === '/calls/campaigns' || p === '/voice-ai/queue' || p === '/calls/queue')) return true;
@@ -541,9 +551,10 @@ export function checkSubItemActive(itemHref: string, currentPath: string): boole
   if (h === '/admin/global-settings' && (p === '/admin/global-settings' || p === '/admin/configuration' || p === '/admin/notifications' || p === '/admin/branding' || p === '/app/admin/global-settings')) return true;
 
   // 14. Settings
-  if (h === '/settings/profile' && (p === '/settings/profile' || p === '/settings/account' || p === '/settings/overview' || p === '/settings' || p === '/app/settings')) return true;
+  if (h === '/settings/profile' && (p === '/settings/profile' || p === '/settings/overview' || p === '/settings' || p === '/app/settings')) return true;
   if (h === '/settings/organization' && (p === '/settings/organization' || p === '/app/settings/organization')) return true;
   if (h === '/settings/team' && (p === '/settings/team' || p === '/app/settings/team')) return true;
+  if (h === '/settings/security' && (p === '/settings/security' || p === '/settings/account' || p === '/app/settings/security' || p === '/app/settings/account')) return true;
   if (h === '/settings/billing-credits' && (p === '/settings/billing-credits' || p === '/settings/billing' || p === '/app/settings/billing-credits')) return true;
   if (h === '/settings/connected-accounts' && (p === '/settings/connected-accounts' || p === '/settings/channels' || p === '/settings/sending-inboxes' || p === '/app/settings/connected-accounts')) return true;
   if (h === '/settings/autonomous-agents' && (p === '/settings/autonomous-agents' || p === '/settings/agents' || p === '/settings/ai-assistant' || p === '/settings/developer-api' || p === '/settings/api' || p === '/app/settings/autonomous-agents')) return true;
@@ -632,7 +643,10 @@ export const AppSubSidebar: React.FC<AppSubSidebarProps> = ({
     return null;
   }
 
-  const config = SUB_SIDEBAR_CONFIGS[activePrimaryId] || SUB_SIDEBAR_CONFIGS.crm;
+  const config = SUB_SIDEBAR_CONFIGS[activePrimaryId];
+  if (!config) {
+    return null;
+  }
   const credits = currentWorkspace?.credits ?? 1840;
   const maxCredits = 2500;
   const creditPercent = Math.min(100, Math.round((credits / maxCredits) * 100));
