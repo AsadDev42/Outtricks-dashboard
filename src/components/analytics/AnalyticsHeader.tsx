@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
+import { ComparisonDropdown } from './ComparisonDropdown';
 import { 
   useAnalytics, 
   DateRangeType, 
@@ -52,13 +53,6 @@ export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({ currentSection
     { id: 'THIS_QUARTER', label: 'This Qtr' },
     { id: 'YTD', label: 'YTD' },
     { id: '12M', label: '12M' },
-  ];
-
-  const COMPARISON_OPTIONS: { id: ComparisonPeriod; label: string }[] = [
-    { id: 'PREVIOUS_PERIOD', label: 'vs Prev Period' },
-    { id: 'PREVIOUS_MONTH', label: 'vs Prev Month' },
-    { id: 'PREVIOUS_QUARTER', label: 'vs Prev Quarter' },
-    { id: 'PREVIOUS_YEAR', label: 'vs Prev Year' },
   ];
 
   const hasActiveFilterOverrides = 
@@ -113,15 +107,10 @@ export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({ currentSection
           </div>
 
           {/* Comparison Selector */}
-          <select
+          <ComparisonDropdown
             value={comparison}
-            onChange={(e) => setComparison(e.target.value as ComparisonPeriod)}
-            className="pl-3 pr-7 py-1.5 rounded-xl bg-[#1C1C1C] border border-[#2A2A2A] text-xs font-mono text-slate-300 cursor-pointer focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-          >
-            {COMPARISON_OPTIONS.map((c) => (
-              <option key={c.id} value={c.id}>{c.label}</option>
-            ))}
-          </select>
+            onChange={setComparison}
+          />
 
           {/* Refresh Action */}
           <Button
