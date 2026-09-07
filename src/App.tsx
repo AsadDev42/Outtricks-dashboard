@@ -70,7 +70,7 @@ export const App: React.FC = () => {
         <AuthProvider>
           <AdminProvider>
             <CursorProvider>
-              <BrowserRouter>
+              <BrowserRouter basename={import.meta.env.BASE_URL}>
                 <SettingsProvider>
                   <CrmProvider>
                     <CompaniesProvider>
