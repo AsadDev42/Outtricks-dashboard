@@ -5,3 +5,4 @@ export * from './ContactCrmSidebar';
 export * from './AddLabelModal';
 export * from './ScheduleMeetingModal';
 export * from './KeyboardShortcutsModal';
+export * from './InboxFilterPopover';

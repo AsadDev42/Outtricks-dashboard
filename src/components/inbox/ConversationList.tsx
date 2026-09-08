@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Search, 
   Mail, 
@@ -12,11 +12,11 @@ import {
   Inbox,
   Archive,
   Filter,
-  Plus,
-  Keyboard
+  Plus
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useMasterInbox, MasterInboxThread } from '../../context/MasterInboxContext';
+import { InboxFilterPopover } from './InboxFilterPopover';
 
 export interface ConversationListProps {
   onSelectThreadMobile?: () => void;
@@ -48,9 +48,35 @@ export const ConversationList: React.FC<ConversationListProps> = ({
     setFilterAssignee,
     filterLabel,
     setFilterLabel,
+    selectedAccountIds,
     markAsRead,
     resetFilters
   } = useMasterInbox();
+
+  const [isFilterPopoverOpen, setIsFilterPopoverOpen] = useState(false);
+
+  const hasActiveFilters = 
+    selectedAccountIds.length > 0 ||
+    filterChannel !== 'all' ||
+    filterLabel !== 'all' ||
+    filterAssignee !== 'all';
+
+  const activeFiltersCount = 
+    selectedAccountIds.length + 
+    (filterChannel !== 'all' ? 1 : 0) + 
+    (filterLabel !== 'all' ? 1 : 0);
+
+  const filterSummaryParts: string[] = [];
+  if (filterChannel !== 'all') {
+    filterSummaryParts.push(filterChannel === 'email' ? 'Email' : filterChannel === 'linkedin' ? 'LinkedIn' : 'Calls');
+  }
+  if (selectedAccountIds.length > 0) {
+    filterSummaryParts.push(`${selectedAccountIds.length} ${selectedAccountIds.length === 1 ? 'account' : 'accounts'}`);
+  }
+  if (filterLabel !== 'all') {
+    filterSummaryParts.push(filterLabel);
+  }
+  const filterSummaryText = filterSummaryParts.join(' · ');
 
   const handleSelect = (thread: MasterInboxThread) => {
     setActiveConversationId(thread.id);
@@ -143,7 +169,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
           <select
             value={filterChannel}
             onChange={(e) => setFilterChannel(e.target.value)}
-            className="flex-1 px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-[11px] font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
+            className="flex-1 min-w-0 px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-[11px] font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer truncate"
           >
             <option value="all">All Channels</option>
             <option value="email">Cold Email</option>
@@ -154,7 +180,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
           <select
             value={filterLabel}
             onChange={(e) => setFilterLabel(e.target.value)}
-            className="flex-1 px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-[11px] font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
+            className="flex-1 min-w-0 px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-[11px] font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer truncate"
           >
             <option value="all">All Labels</option>
             {labelsList.map((lbl) => (
@@ -162,39 +188,64 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             ))}
           </select>
 
-          {(searchQuery || filterChannel !== 'all' || filterAssignee !== 'all' || filterLabel !== 'all') && (
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="p-1 text-slate-400 hover:text-rose-500 cursor-pointer shrink-0"
-              title="Reset filters"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
-          )}
-
           {onOpenAddLabelModal && (
             <button
               type="button"
               onClick={onOpenAddLabelModal}
-              className="p-1 rounded-lg bg-slate-50 dark:bg-white/[0.04] text-blue-600 dark:text-blue-400 hover:bg-blue-50 cursor-pointer shrink-0"
+              className="p-1.5 rounded-lg bg-slate-50 dark:bg-white/[0.04] text-blue-600 dark:text-blue-400 hover:bg-blue-50 cursor-pointer shrink-0 border border-slate-200/80 dark:border-[#202020]"
               title="Add Label"
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
           )}
 
-          {onOpenShortcutsModal && (
+          {/* Filters Popover Anchor Button */}
+          <div className="relative shrink-0">
             <button
               type="button"
-              onClick={onOpenShortcutsModal}
-              className="p-1 rounded-lg bg-slate-50 dark:bg-white/[0.04] text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer shrink-0"
-              title="Keyboard Shortcuts (?)"
+              onClick={() => setIsFilterPopoverOpen((prev) => !prev)}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold transition-all cursor-pointer ${
+                hasActiveFilters
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                  : 'bg-slate-50 dark:bg-[#1C1C1C] border-slate-200/80 dark:border-[#202020] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.08]'
+              }`}
+              title="Filter by connected accounts and channels"
+              aria-expanded={isFilterPopoverOpen}
             >
-              <Keyboard className="w-3.5 h-3.5" />
+              <Filter className={`w-3.5 h-3.5 shrink-0 ${hasActiveFilters ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-md ${
+                  hasActiveFilters ? 'bg-white/20 text-white' : 'bg-blue-600 text-white'
+                }`}>
+                  {activeFiltersCount}
+                </span>
+              )}
             </button>
-          )}
+
+            <InboxFilterPopover
+              isOpen={isFilterPopoverOpen}
+              onClose={() => setIsFilterPopoverOpen(false)}
+            />
+          </div>
         </div>
+
+        {/* Compact Active Filters Summary Strip */}
+        {hasActiveFilters && (
+          <div className="flex items-center justify-between px-2.5 py-1 rounded-lg bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/40 text-[10px] text-blue-900 dark:text-blue-200 animate-in fade-in duration-100">
+            <div className="flex items-center gap-1.5 truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+              <span className="font-semibold truncate">{filterSummaryText || 'Active Filters'}</span>
+            </div>
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer shrink-0 ml-2"
+            >
+              Clear filters
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 2. Conversation Items Feed */}

@@ -40,6 +40,10 @@ export interface MasterInboxThread {
   dealStage: string;
   sentiment: 'positive' | 'meeting' | 'objection' | 'neutral';
   messages: InboxMessage[];
+  accountId?: string;
+  accountEmail?: string;
+  accountName?: string;
+  accountProvider?: string;
 }
 
 export interface InboxLabelItem {
@@ -58,6 +62,7 @@ interface MasterInboxContextType {
   filterChannel: string;
   filterAssignee: string;
   filterLabel: string;
+  selectedAccountIds: string[];
   labelsList: InboxLabelItem[];
   unreadTotal: number;
   interestedTotal: number;
@@ -70,6 +75,9 @@ interface MasterInboxContextType {
   setFilterChannel: (channel: string) => void;
   setFilterAssignee: (assignee: string) => void;
   setFilterLabel: (label: string) => void;
+  setSelectedAccountIds: (ids: string[]) => void;
+  toggleAccountId: (id: string) => void;
+  clearAccountIds: () => void;
   resetFilters: () => void;
 
   // Conversation Actions
@@ -120,6 +128,10 @@ const INITIAL_CONVERSATIONS: MasterInboxThread[] = [
     dealValue: 48000,
     dealStage: 'Demo Scheduled / Briefing',
     sentiment: 'meeting',
+    accountId: 'phone_1',
+    accountEmail: '+1 (415) 892-4910',
+    accountName: 'Voice SDR Telephony Trunk',
+    accountProvider: 'Twilio Voice Telecom',
     messages: [
       {
         id: 'msg_1_1',
@@ -182,6 +194,10 @@ const INITIAL_CONVERSATIONS: MasterInboxThread[] = [
     dealValue: 32000,
     dealStage: 'Lead Qualified / Discovery',
     sentiment: 'positive',
+    accountId: 'mbx_2',
+    accountEmail: 'sdr.lead1@outbound.cloudscale.ai',
+    accountName: 'Alex Rivera',
+    accountProvider: 'Google Workspace',
     messages: [
       {
         id: 'msg_2_1',
@@ -225,6 +241,10 @@ const INITIAL_CONVERSATIONS: MasterInboxThread[] = [
     dealValue: 72000,
     dealStage: 'Security & Legal Review',
     sentiment: 'positive',
+    accountId: 'acc_1',
+    accountEmail: 'sarah.jenkins@outbound.cloudscale.ai',
+    accountName: 'Sarah Jenkins',
+    accountProvider: 'LinkedIn Profile',
     messages: [
       {
         id: 'msg_3_1',
@@ -268,6 +288,10 @@ const INITIAL_CONVERSATIONS: MasterInboxThread[] = [
     dealValue: 36000,
     dealStage: 'Proposal / Contract Sent',
     sentiment: 'positive',
+    accountId: 'mbx_3',
+    accountEmail: 'growth@send.cloudscale.ai',
+    accountName: 'Marcus Vance',
+    accountProvider: 'Microsoft 365',
     messages: [
       {
         id: 'msg_4_1',
@@ -311,6 +335,10 @@ const INITIAL_CONVERSATIONS: MasterInboxThread[] = [
     dealValue: 18000,
     dealStage: 'Lead Qualified / Discovery',
     sentiment: 'objection',
+    accountId: 'acc_asad',
+    accountEmail: 'asad@outtricks.com',
+    accountName: 'Asad Farooq',
+    accountProvider: 'LinkedIn Profile',
     messages: [
       {
         id: 'msg_5_1',
@@ -320,6 +348,205 @@ const INITIAL_CONVERSATIONS: MasterInboxThread[] = [
         channel: 'linkedin',
         content: 'How does your multi-inbox pricing compare to Instantly and Smartlead for an agency with 40 client mailboxes?',
         timestamp: 'Today, 08:15 AM',
+      },
+    ],
+  },
+  {
+    id: 'inbox_6',
+    contactName: 'Nathaniel Sterling',
+    contactTitle: 'Chief Revenue Officer',
+    companyName: 'HyperGrowth Systems',
+    companyDomain: 'hypergrowth.io',
+    companyLogo: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=120&q=80',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80',
+    email: 'nathaniel@hypergrowth.io',
+    phone: '+1 (415) 890-2134',
+    channel: 'email',
+    lastMessage: 'Deliverability benchmarks look incredible. Let\'s schedule the onboarding kickoff call.',
+    timestamp: '1h ago',
+    unread: true,
+    interested: true,
+    isMeeting: true,
+    archived: false,
+    labels: ['Enterprise Deal', 'High Priority'],
+    assignedTo: 'Sarah Jenkins',
+    dealValue: 54000,
+    dealStage: 'Proposal / Contract Sent',
+    sentiment: 'meeting',
+    accountId: 'mbx_1',
+    accountEmail: 'sarah.j@outbound.cloudscale.ai',
+    accountName: 'Sarah Jenkins',
+    accountProvider: 'Google Workspace',
+    messages: [
+      {
+        id: 'msg_6_1',
+        sender: 'user',
+        senderName: 'Sarah Jenkins',
+        senderAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+        channel: 'email',
+        content: 'Hi Nathaniel, saw HyperGrowth is deploying cold outbound across 20+ accounts. Would love to share how our DNS isolation prevents Google throttling.',
+        timestamp: 'Aug 26, 09:15 AM',
+      },
+      {
+        id: 'msg_6_2',
+        sender: 'prospect',
+        senderName: 'Nathaniel Sterling',
+        senderAvatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80',
+        channel: 'email',
+        content: 'Deliverability benchmarks look incredible. Let\'s schedule the onboarding kickoff call for Friday morning.',
+        timestamp: 'Today, 10:45 AM',
+      },
+    ],
+  },
+  {
+    id: 'inbox_7',
+    contactName: 'Michelle Zhang',
+    contactTitle: 'VP of Sales Development',
+    companyName: 'NexusScale Labs',
+    companyDomain: 'nexusscale.co',
+    companyLogo: 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?auto=format&fit=crop&w=120&q=80',
+    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80',
+    email: 'michelle@nexusscale.co',
+    phone: '+1 (650) 412-8877',
+    channel: 'email',
+    lastMessage: 'Received your case study on multi-inbox rotation. Quick question on Google Workspace setup.',
+    timestamp: '3h ago',
+    unread: false,
+    interested: true,
+    isMeeting: false,
+    archived: false,
+    labels: ['Follow-Up Required'],
+    assignedTo: 'Sarah Jenkins',
+    dealValue: 24000,
+    dealStage: 'Lead Qualified / Discovery',
+    sentiment: 'positive',
+    accountId: 'mbx_1',
+    accountEmail: 'sarah.j@outbound.cloudscale.ai',
+    accountName: 'Sarah Jenkins',
+    accountProvider: 'Google Workspace',
+    messages: [
+      {
+        id: 'msg_7_1',
+        sender: 'prospect',
+        senderName: 'Michelle Zhang',
+        senderAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80',
+        channel: 'email',
+        content: 'Received your case study on multi-inbox rotation. Quick question on Google Workspace setup: do you manage secondary MX records automatically?',
+        timestamp: 'Today, 09:00 AM',
+      },
+    ],
+  },
+  {
+    id: 'inbox_8',
+    contactName: 'Tariq Mansoor',
+    contactTitle: 'Managing Partner',
+    companyName: 'Horizon Ventures',
+    companyDomain: 'horizonvc.com',
+    companyLogo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=120&q=80',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
+    email: 'tariq@horizonvc.com',
+    phone: '+1 (415) 998-1144',
+    channel: 'linkedin',
+    lastMessage: 'Enjoyed your latest post on AI SDR agents. Would love to connect over coffee next week.',
+    timestamp: '2h ago',
+    unread: false,
+    interested: true,
+    isMeeting: false,
+    archived: false,
+    labels: ['High Priority'],
+    assignedTo: 'Alex Rivera',
+    dealValue: 65000,
+    dealStage: 'Security & Legal Review',
+    sentiment: 'positive',
+    accountId: 'acc_asad',
+    accountEmail: 'asad@outtricks.com',
+    accountName: 'Asad Farooq',
+    accountProvider: 'LinkedIn Profile',
+    messages: [
+      {
+        id: 'msg_8_1',
+        sender: 'prospect',
+        senderName: 'Tariq Mansoor',
+        senderAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
+        channel: 'linkedin',
+        content: 'Hey Asad, really enjoyed your breakdown on how autonomous AI agents replace SDR grunt work. Let\'s sync up next week!',
+        timestamp: 'Today, 10:10 AM',
+      },
+    ],
+  },
+  {
+    id: 'inbox_9',
+    contactName: 'Liam O\'Connor',
+    contactTitle: 'Head of Outbound Operations',
+    companyName: 'SwiftMetrics Cloud',
+    companyDomain: 'swiftmetrics.io',
+    companyLogo: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=120&q=80',
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80',
+    email: 'liam@swiftmetrics.io',
+    phone: '+1 (617) 555-9011',
+    channel: 'email',
+    lastMessage: 'What is the recommended warmup ramp for Microsoft 365 inboxes?',
+    timestamp: '5h ago',
+    unread: false,
+    interested: false,
+    isMeeting: false,
+    archived: false,
+    labels: ['Follow-Up Required'],
+    assignedTo: 'Marcus Vance',
+    dealValue: 19000,
+    dealStage: 'Lead Qualified / Discovery',
+    sentiment: 'neutral',
+    accountId: 'mbx_4',
+    accountEmail: 'outreach.mkt@cloudscalerev.io',
+    accountName: 'David Kim',
+    accountProvider: 'Microsoft 365',
+    messages: [
+      {
+        id: 'msg_9_1',
+        sender: 'prospect',
+        senderName: 'Liam O\'Connor',
+        senderAvatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80',
+        channel: 'email',
+        content: 'Hi David, what is the recommended warmup ramp for Microsoft 365 inboxes when ramping to 35 sends/day?',
+        timestamp: 'Today, 07:45 AM',
+      },
+    ],
+  },
+  {
+    id: 'inbox_10',
+    contactName: 'Sophia Martinez',
+    contactTitle: 'Chief Operating Officer',
+    companyName: 'Vertex Data Labs',
+    companyDomain: 'vertexdata.co',
+    companyLogo: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=120&q=80',
+    avatar: 'https://images.unsplash.com/photo-1534751516642-a171edd2521d?auto=format&fit=crop&w=200&q=80',
+    email: 'sophia@vertexdata.co',
+    phone: '+1 (312) 441-2900',
+    channel: 'email',
+    lastMessage: 'Custom SMTP configuration validated with our private relay host.',
+    timestamp: '6h ago',
+    unread: false,
+    interested: true,
+    isMeeting: true,
+    archived: false,
+    labels: ['Enterprise Deal', 'High Priority'],
+    assignedTo: 'Sarah Jenkins',
+    dealValue: 62000,
+    dealStage: 'Security & Legal Review',
+    sentiment: 'meeting',
+    accountId: 'mbx_5',
+    accountEmail: 'deals@relay.scalemachine.co',
+    accountName: 'Elena Rostova',
+    accountProvider: 'Custom SMTP',
+    messages: [
+      {
+        id: 'msg_10_1',
+        sender: 'prospect',
+        senderName: 'Sophia Martinez',
+        senderAvatar: 'https://images.unsplash.com/photo-1534751516642-a171edd2521d?auto=format&fit=crop&w=200&q=80',
+        channel: 'email',
+        content: 'Hi Elena, our InfoSec team reviewed the custom SMTP relay settings and approved the dedicated pool.',
+        timestamp: 'Today, 06:30 AM',
       },
     ],
   }
@@ -333,7 +560,13 @@ export const MasterInboxProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [conversations, setConversations] = useState<MasterInboxThread[]>(() => {
     try {
       const stored = localStorage.getItem('outtricks_master_inbox_threads');
-      return stored ? JSON.parse(stored) : INITIAL_CONVERSATIONS;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].accountId) {
+          return parsed;
+        }
+      }
+      return INITIAL_CONVERSATIONS;
     } catch {
       return INITIAL_CONVERSATIONS;
     }
@@ -357,6 +590,17 @@ export const MasterInboxProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [filterChannel, setFilterChannel] = useState<string>('all');
   const [filterAssignee, setFilterAssignee] = useState<string>('all');
   const [filterLabel, setFilterLabel] = useState<string>('all');
+  const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const accParam = sp.get('accounts');
+      if (accParam) return accParam.split(',').filter(Boolean);
+      const stored = localStorage.getItem('outtricks_master_inbox_accounts');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
 
   // Persist
   useEffect(() => {
@@ -366,6 +610,20 @@ export const MasterInboxProvider: React.FC<{ children: React.ReactNode }> = ({ c
   useEffect(() => {
     localStorage.setItem('outtricks_inbox_labels', JSON.stringify(labelsList));
   }, [labelsList]);
+
+  useEffect(() => {
+    localStorage.setItem('outtricks_master_inbox_accounts', JSON.stringify(selectedAccountIds));
+  }, [selectedAccountIds]);
+
+  const toggleAccountId = useCallback((id: string) => {
+    setSelectedAccountIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  }, []);
+
+  const clearAccountIds = useCallback(() => {
+    setSelectedAccountIds([]);
+  }, []);
 
   // Counts
   const unreadTotal = useMemo(() => conversations.filter((c) => c.unread && !c.archived).length, [conversations]);
@@ -419,9 +677,16 @@ export const MasterInboxProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (filterAssignee !== 'all' && c.assignedTo !== filterAssignee) return false;
       if (filterLabel !== 'all' && !c.labels.includes(filterLabel)) return false;
 
+      // 4. Account Isolation (Single or Multi-Account)
+      if (selectedAccountIds.length > 0) {
+        if (!c.accountId || !selectedAccountIds.includes(c.accountId)) {
+          return false;
+        }
+      }
+
       return true;
     });
-  }, [conversations, activeFolder, searchQuery, filterChannel, filterAssignee, filterLabel]);
+  }, [conversations, activeFolder, searchQuery, filterChannel, filterAssignee, filterLabel, selectedAccountIds]);
 
   const activeConversation = useMemo(() => {
     return conversations.find((c) => c.id === activeConversationId) || allFilteredConversations[0] || null;
@@ -433,6 +698,7 @@ export const MasterInboxProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setFilterChannel('all');
     setFilterAssignee('all');
     setFilterLabel('all');
+    setSelectedAccountIds([]);
   }, []);
 
   // Actions
@@ -583,6 +849,7 @@ export const MasterInboxProvider: React.FC<{ children: React.ReactNode }> = ({ c
         filterChannel,
         filterAssignee,
         filterLabel,
+        selectedAccountIds,
         labelsList,
         unreadTotal,
         interestedTotal,
@@ -593,6 +860,9 @@ export const MasterInboxProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setFilterChannel,
         setFilterAssignee,
         setFilterLabel,
+        setSelectedAccountIds,
+        toggleAccountId,
+        clearAccountIds,
         resetFilters,
         markAsRead,
         markAsUnread,

@@ -68,6 +68,7 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
 
   const asideRef = useRef<HTMLElement | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [focusedId, setFocusedId] = useState<string | null>(null);
   const itemRefs = useRef<Record<string, HTMLElement | null>>({});
   const [, setTick] = useState(0);
 
@@ -80,14 +81,22 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
     const timer = setTimeout(() => {
       updatePosition();
     }, 50);
+    const handleBlur = () => {
+      setHoveredId(null);
+      setFocusedId(null);
+    };
     window.addEventListener('resize', updatePosition);
+    window.addEventListener('blur', handleBlur);
     return () => {
       clearTimeout(timer);
       window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('blur', handleBlur);
     };
   }, [updatePosition]);
 
   useEffect(() => {
+    setHoveredId(null);
+    setFocusedId(null);
     updatePosition();
   }, [location.pathname, activePrimaryId, updatePosition]);
 
@@ -145,10 +154,12 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
     return activeItem?.id === item.id;
   };
 
-  // Resolve current item for the floating badge/label
-  const currentFloatingItem = hoveredId 
-    ? visibleNavItems.find((i) => i.id === hoveredId) 
-    : activeItem;
+  // Tooltip visibility is STRICTLY driven by hover / focus state
+  // Active/selected state controls styling only and is NEVER coupled to tooltip visibility
+  const activeTooltipId = hoveredId || focusedId;
+  const currentFloatingItem = activeTooltipId
+    ? (visibleNavItems.find((i) => i.id === activeTooltipId) || null)
+    : null;
 
   const targetElement = currentFloatingItem ? itemRefs.current[currentFloatingItem.id] : null;
   const targetRect = targetElement ? targetElement.getBoundingClientRect() : null;
@@ -156,6 +167,7 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
   return (
     <aside 
       ref={asideRef}
+      onMouseLeave={() => setHoveredId(null)}
       className="h-screen w-16 bg-white dark:bg-[#0B0B0C] border-r border-slate-200 dark:border-[#1F1F23] flex flex-col justify-between items-center z-40 select-none font-sans shrink-0 py-3 px-0 overflow-visible relative"
       aria-label="Primary Navigation Rail"
     >
@@ -202,9 +214,20 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
                 ref={(el) => {
                   itemRefs.current[item.id] = el;
                 }}
-                onClick={() => onSelectPrimary(item.id)}
+                onClick={(e) => {
+                  (e.currentTarget as HTMLElement)?.blur();
+                  setFocusedId(null);
+                  setHoveredId(null);
+                  onSelectPrimary(item.id);
+                }}
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
+                onFocus={(e) => {
+                  if (e.currentTarget.matches(':focus-visible')) {
+                    setFocusedId(item.id);
+                  }
+                }}
+                onBlur={() => setFocusedId(null)}
                 className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150 relative group cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0B0B0C] ${
                   active
                     ? 'bg-primary text-white shadow-md shadow-primary/20 font-bold'
@@ -225,7 +248,7 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
         <UserProfileMenu variant="sidebar" isCollapsed={true} />
       </div>
 
-      {/* 4. Floating Module Label Portal (Never clipped by sidebar overflow) */}
+      {/* 4. Floating Module Tooltip Portal (Hover / Focus only, never pinned by active state) */}
       {targetRect && currentFloatingItem && createPortal(
         <div
           role="tooltip"
