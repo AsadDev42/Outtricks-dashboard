@@ -56,7 +56,7 @@ export const AdminPlatformView: React.FC<{ initialTab?: PlatformTabType }> = ({ 
   return (
     <AdminParentSectionLayout
       title="Platform Core & AI Infrastructure"
-      description="Manage third-party OAuth providers, app-wide sidebar routing schemas, and default LLM provider configurations for TRIXIE AI Copilot."
+      description="Manage third-party OAuth providers, app-wide sidebar routing schemas, and default LLM provider configurations for TRIXIE AI."
       icon={SlidersHorizontal}
       badges={[
         { label: 'Omni-Channel Connectors', variant: 'blue' },

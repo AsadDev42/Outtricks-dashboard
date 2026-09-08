@@ -44,7 +44,7 @@ export const AdminTricksyAiView: React.FC = () => {
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
             <h2 className="text-base sm:text-lg font-extrabold text-slate-950 dark:text-white">
-              Tricksy AI Governance & LLM Fleet Management
+              TRIXIE AI Governance & LLM Fleet Management
             </h2>
             <Badge variant="primary" size="sm">Autonomous Intelligence</Badge>
           </div>
@@ -101,7 +101,7 @@ export const AdminTricksyAiView: React.FC = () => {
       {/* 3. Configuration Form */}
       <div className="p-6 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs space-y-5 text-xs">
         <h3 className="font-extrabold text-sm text-slate-950 dark:text-white uppercase tracking-wider">
-          Tricksy AI Operational Parameters
+          TRIXIE AI Operational Parameters
         </h3>
 
         <form onSubmit={handleSave} className="space-y-4">
@@ -153,7 +153,7 @@ export const AdminTricksyAiView: React.FC = () => {
 
           <div className="flex justify-end">
             <Button variant="primary" size="sm" type="submit">
-              Save Tricksy AI Configuration
+              Save TRIXIE AI Configuration
             </Button>
           </div>
         </form>

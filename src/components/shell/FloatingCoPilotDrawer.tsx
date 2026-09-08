@@ -37,7 +37,7 @@ export const FloatingCoPilotDrawer: React.FC = () => {
     {
       id: 'm-1',
       sender: 'ai',
-      text: "Hello Sarah! I'm Tricksy AI, your Outtricks Revenue Assistant. I can search 480M+ leads, generate high-converting spintax, check mailbox deliverability, or inspect your CRM pipeline. How can I accelerate your outbound pipeline today?",
+      text: "Hello Sarah! I'm TRIXIE AI, your Outtricks Revenue Assistant. I can search 480M+ leads, generate high-converting spintax, check mailbox deliverability, or inspect your CRM pipeline. How can I accelerate your outbound pipeline today?",
       time: 'Just now'
     }
   ]);
@@ -138,7 +138,7 @@ export const FloatingCoPilotDrawer: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-extrabold text-xs text-slate-900 dark:text-white">Tricksy AI</span>
+                  <span className="font-extrabold text-xs text-slate-900 dark:text-white">TRIXIE AI</span>
                   <Badge variant="primary" size="sm">Online</Badge>
                 </div>
                 <div className="text-[10px] text-slate-400 font-mono">Claude 3.5 / GPT-4o Hybrid</div>
@@ -196,7 +196,7 @@ export const FloatingCoPilotDrawer: React.FC = () => {
             {isTyping && (
               <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono italic">
                 <Sparkles className="w-3.5 h-3.5 animate-spin text-primary" />
-                <span>Tricksy AI is reasoning...</span>
+                <span>TRIXIE AI is reasoning...</span>
               </div>
             )}
 
@@ -227,7 +227,7 @@ export const FloatingCoPilotDrawer: React.FC = () => {
           >
             <input
               type="text"
-              placeholder="Ask Tricksy AI anything across your pipeline..."
+              placeholder="Ask TRIXIE AI anything across your pipeline..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="flex-1 bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-sans"

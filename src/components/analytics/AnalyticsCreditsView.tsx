@@ -47,7 +47,7 @@ export const AnalyticsCreditsView: React.FC = () => {
     { module: '8D Lead Finder', pct: 32, credits: 6832, color: '#2563EB' },
     { module: 'Cold Email Outreach', pct: 28, credits: 5978, color: '#3B82F6' },
     { module: 'Voice AI SDR Telephony', pct: 18, credits: 3843, color: '#10B981' },
-    { module: 'Tricksy Autonomous AI', pct: 14, credits: 2989, color: '#8B5CF6' },
+    { module: 'TRIXIE AI', pct: 14, credits: 2989, color: '#8B5CF6' },
     { module: 'LinkedIn Safe Automations', pct: 6, credits: 1281, color: '#0066FF' },
     { module: 'Workflows & CRM', pct: 2, credits: 427, color: '#64748B' },
   ];
@@ -56,7 +56,7 @@ export const AnalyticsCreditsView: React.FC = () => {
   const consumptionLedger = [
     { date: '2026-08-30 14:22', user: 'Sarah Jenkins', team: 'CloudScale Revenue Ops', module: '8D Lead Finder', action: 'Bulk ICP Export (250 leads)', used: 250, remaining: 21500 },
     { date: '2026-08-30 13:45', user: 'David Zhao', team: 'Apex Outbound Growth', module: 'Voice AI SDR', action: 'Automated Call Campaign (18 calls)', used: 72, remaining: 21750 },
-    { date: '2026-08-30 12:10', user: 'Alex Rivera', team: 'Solaris Strategic Deals', module: 'Tricksy AI', action: 'Personalized Email Generation', used: 45, remaining: 21822 },
+    { date: '2026-08-30 12:10', user: 'Alex Rivera', team: 'Solaris Strategic Deals', module: 'TRIXIE AI', action: 'Personalized Email Generation', used: 45, remaining: 21822 },
     { date: '2026-08-30 11:30', user: 'Elena Rostova', team: 'CloudScale Revenue Ops', module: 'Cold Email', action: 'Email Dispatch (420 sends)', used: 420, remaining: 21867 },
     { date: '2026-08-30 10:15', user: 'Sarah Jenkins', team: 'CloudScale Revenue Ops', module: 'LinkedIn Safe', action: 'Connection Invites (35 invites)', used: 35, remaining: 22287 },
   ];

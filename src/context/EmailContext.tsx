@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useMemo, useCallback } from
 import { useToast } from './ToastContext';
 
 export type CampaignStatus = 'Draft' | 'Scheduled' | 'Running' | 'Paused' | 'Completed';
+export type MailboxStatus = 'Ready' | 'Warming' | 'Paused' | 'Action Needed' | 'Disconnected' | 'Optimal';
+
 export type EmailSubTab = 
   | 'overview'
   | 'campaigns' 
@@ -15,6 +17,60 @@ export type EmailSubTab =
   | 'warmup' 
   | 'suppression' 
   | 'analytics';
+
+export interface SequenceVariantItem {
+  id: string;
+  label: string; // 'A', 'B', 'C', ... 'Z'
+  subject: string;
+  body: string;
+  weight?: number; // 0-100 distribution
+  status?: 'active' | 'paused';
+  sent?: number;
+  delivered?: number;
+  opened?: number;
+  clicked?: number;
+  replied?: number;
+  positiveReplies?: number;
+  meetings?: number;
+  bounces?: number;
+  unsubscribes?: number;
+}
+
+export interface SequenceStep {
+  id: string;
+  stepNumber: number;
+  type: 'email' | 'delay';
+  delayDays?: number;
+  delayValue?: number;
+  delayUnit?: 'minutes' | 'hours' | 'days';
+  threadMode?: 'continue' | 'new';
+  subject?: string;
+  body?: string;
+  variants?: SequenceVariantItem[];
+  activeVariantId?: string;
+}
+
+export interface CampaignSubsequence {
+  id: string;
+  name: string;
+  trigger: 'Positive Reply' | 'Meeting Booked' | 'Out of Office' | 'Wrong Person' | 'Not Interested' | 'Keyword Reply' | 'Lead Status Changed' | 'Manual';
+  triggerDetail?: string;
+  status: 'Draft' | 'Active' | 'Paused' | 'Completed';
+  inheritSettings: boolean;
+  delayHours: number;
+  steps: SequenceStep[];
+  enrolledCount: number;
+  repliedCount: number;
+}
+
+export interface ScheduleWindow {
+  id: string;
+  name: string;
+  days: string[];
+  startTime: string;
+  endTime: string;
+  timezone: string;
+}
 
 export interface EmailCampaign {
   id: string;
@@ -33,15 +89,64 @@ export interface EmailCampaign {
   createdAt: string;
   lastActivity: string;
   tags: string[];
-}
 
-export interface SequenceStep {
-  id: string;
-  stepNumber: number;
-  type: 'email' | 'delay';
-  delayDays?: number;
-  subject?: string;
-  body?: string;
+  // Professional cold email properties
+  targetPersona?: string;
+  description?: string;
+  selectedMailboxIds?: string[];
+  mailboxIds?: string[];
+  rotationMode?: 'balanced' | 'health-aware' | 'randomized';
+  providerMatching?: 'prefer' | 'enforce' | 'disabled';
+  espRoutingMatrix?: {
+    google: 'prefer' | 'allow' | 'avoid';
+    microsoft: 'prefer' | 'allow' | 'avoid';
+    custom: 'prefer' | 'allow' | 'avoid';
+  };
+  stickySender?: boolean;
+  companyDailyLimit?: number;
+  companySendLimit?: number;
+  campaignDailyLimit?: number;
+  dailyLimit?: number;
+  leadsCount?: number;
+  maxNewLeadsPerDay?: number;
+  maxLeadsPerDay?: number;
+  prioritizeNewLeads?: boolean;
+  minSendIntervalSeconds?: number;
+  slowRampEnabled?: boolean;
+  timezone?: string;
+  stopOnReply?: boolean;
+  stopOnMeeting?: boolean;
+  stopOnAutoReply?: boolean;
+  trackOpens?: boolean;
+  trackClicks?: boolean;
+  customTrackingDomain?: string | boolean;
+  scheduleWindows?: ScheduleWindow[];
+  sequence?: SequenceStep[];
+  steps?: SequenceStep[];
+  subsequences?: CampaignSubsequence[];
+  replyHandling?: {
+    stopOnReply: boolean;
+    stopOnPositiveReply: boolean;
+    stopOnAutoReply: boolean;
+    stopCompanyOnReply: boolean;
+    stopOnMeeting: boolean;
+  };
+  tracking?: {
+    openTracking: boolean;
+    clickTracking: boolean;
+    textOnlyMode: boolean;
+  };
+  safety?: {
+    bounceProtection: boolean;
+    allowRiskyEmails: boolean;
+    suppressionEnforced: boolean;
+    slowRamp: boolean;
+  };
+  compliance?: {
+    oneClickUnsubscribeHeader: boolean;
+    unsubscribeFooterText?: string;
+    ccBccEmail?: string;
+  };
 }
 
 export interface EmailSequence {
@@ -68,9 +173,11 @@ export interface AbTestItem {
   id: string;
   name: string;
   campaignName: string;
-  variantA: { subject: string; sent: number; opens: number; replies: number };
-  variantB: { subject: string; sent: number; opens: number; replies: number };
-  winner?: 'A' | 'B';
+  variantA: { subject: string; sent: number; opens: number; replies: number; positiveReplies?: number };
+  variantB: { subject: string; sent: number; opens: number; replies: number; positiveReplies?: number };
+  variants?: SequenceVariantItem[];
+  autoOptimizeMetric?: 'positive_reply_rate' | 'reply_rate' | 'click_rate' | 'open_rate';
+  winner?: string;
   status: 'Active' | 'Concluded';
 }
 
@@ -78,22 +185,37 @@ export interface ConnectedMailbox {
   id: string;
   email: string;
   senderName?: string;
+  name?: string;
+  signature?: string;
+  replyTo?: string;
   provider: 'Google Workspace' | 'Microsoft 365' | 'Custom SMTP';
-  status: 'Optimal' | 'Warming' | 'Paused' | 'Action Needed';
+  status: MailboxStatus;
   healthScore: number;
   dailySent: number;
   dailyCap: number;
-  spf: boolean;
-  dkim: boolean;
-  dmarc: boolean;
-  mx?: boolean;
+  minSendIntervalSeconds?: number;
+  slowRampEnabled?: boolean;
+  warmupStatus?: 'Active' | 'Paused' | 'Graduated' | 'Disabled';
+  warmupState?: string;
+  tags?: string[];
+  assignedCampaignIds?: string[];
+  
+  // Connection Health
   smtpAuth?: boolean;
   imapAuth?: boolean;
   sendingAccess?: boolean;
   inboxAccess?: boolean;
   sslTls?: boolean;
+  latencyMs?: number;
+
+  // Deliverability Health
+  spf: boolean;
+  dkim: boolean;
+  dmarc: boolean;
+  mx?: boolean;
   blacklistStatus?: 'Clean' | 'Warning' | 'Listed';
   customTrackingDomain: string;
+
   advancedConfig?: {
     smtpHost?: string;
     smtpPort?: string;
@@ -206,6 +328,7 @@ interface EmailContextType {
 
   // Actions
   createCampaign: (data: Partial<EmailCampaign>) => void;
+  updateCampaign: (id: string, updates: Partial<EmailCampaign>) => void;
   toggleCampaignStatus: (id: string) => void;
   deleteCampaign: (id: string) => void;
   duplicateCampaign: (id: string) => void;
@@ -220,6 +343,12 @@ interface EmailContextType {
   recheckMailboxHealth: (id: string) => void;
   toggleMailboxStatus: (id: string) => void;
   deleteMailbox: (id: string) => void;
+  bulkUpdateMailboxes: (ids: string[], updates: Partial<ConnectedMailbox>) => void;
+  bulkSetDailyLimit: (ids: string[], limit: number) => void;
+  bulkToggleWarmup: (ids: string[], enable: boolean) => void;
+  bulkAssignTag: (ids: string[], tag: string) => void;
+  bulkAssignCampaign: (ids: string[], campaignId: string) => void;
+  bulkToggleStatus: (ids: string[], status: MailboxStatus) => void;
   addSuppression: (email: string, reason: SuppressedContact['reason']) => void;
   removeSuppression: (id: string) => void;
   replyToThread: (threadId: string, replyText: string) => void;
@@ -245,6 +374,65 @@ const INITIAL_CAMPAIGNS: EmailCampaign[] = [
     createdAt: '2026-08-12',
     lastActivity: '12m ago',
     tags: ['Enterprise', 'RevOps', 'Tier 1'],
+    targetPersona: 'VP & Head of Revenue Operations at Series B-D SaaS',
+    description: 'High-touch value metric cold sequence targeting RevOps leaders scaling SDR teams.',
+    selectedMailboxIds: ['mbx_1', 'mbx_2', 'mbx_3', 'mbx_5'],
+    rotationMode: 'balanced',
+    providerMatching: 'prefer',
+    espRoutingMatrix: { google: 'prefer', microsoft: 'prefer', custom: 'allow' },
+    stickySender: true,
+    companyDailyLimit: 2,
+    campaignDailyLimit: 120,
+    maxNewLeadsPerDay: 40,
+    prioritizeNewLeads: false,
+    minSendIntervalSeconds: 90,
+    slowRampEnabled: true,
+    scheduleWindows: [
+      { id: 'w1', name: 'Weekday Prime Outreach', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], startTime: '09:00', endTime: '17:00', timezone: 'America/New_York' }
+    ],
+    replyHandling: {
+      stopOnReply: true,
+      stopOnPositiveReply: true,
+      stopOnAutoReply: false,
+      stopCompanyOnReply: true,
+      stopOnMeeting: true,
+    },
+    tracking: {
+      openTracking: true,
+      clickTracking: true,
+      textOnlyMode: false,
+    },
+    safety: {
+      bounceProtection: true,
+      allowRiskyEmails: false,
+      suppressionEnforced: true,
+      slowRamp: true,
+    },
+    compliance: {
+      oneClickUnsubscribeHeader: true,
+      unsubscribeFooterText: 'Click here to opt out from future communications',
+    },
+    subsequences: [
+      {
+        id: 'subseq_1',
+        name: 'Positive Reply → Demo Booking Acceleration',
+        trigger: 'Positive Reply',
+        status: 'Active',
+        inheritSettings: true,
+        delayHours: 2,
+        enrolledCount: 86,
+        repliedCount: 24,
+        steps: [
+          {
+            id: 'sub_s1',
+            stepNumber: 1,
+            type: 'email',
+            subject: 'Re: {{company}} outbound deliverability vs spam filters',
+            body: 'Hi {{first_name}},\n\nExcited to connect. Here is our direct calendar booking link to pick a 15-minute slot that works best for you:\n\nhttps://cal.outtricks.ai/demo\n\nLooking forward to speaking!',
+          }
+        ]
+      }
+    ]
   },
   {
     id: 'camp_2',
@@ -263,6 +451,15 @@ const INITIAL_CAMPAIGNS: EmailCampaign[] = [
     createdAt: '2026-08-15',
     lastActivity: '45m ago',
     tags: ['FinTech', 'Founders'],
+    targetPersona: 'FinTech Founders & CROs with 50-250 employees',
+    selectedMailboxIds: ['mbx_3', 'mbx_4'],
+    rotationMode: 'health-aware',
+    providerMatching: 'prefer',
+    companyDailyLimit: 1,
+    campaignDailyLimit: 60,
+    scheduleWindows: [
+      { id: 'w1', name: 'FinTech Standard Hours', days: ['Mon', 'Tue', 'Wed', 'Thu'], startTime: '08:30', endTime: '16:30', timezone: 'America/New_York' }
+    ]
   },
   {
     id: 'camp_3',
@@ -281,6 +478,10 @@ const INITIAL_CAMPAIGNS: EmailCampaign[] = [
     createdAt: '2026-08-18',
     lastActivity: '1d ago',
     tags: ['Series A/B', 'Growth'],
+    targetPersona: 'Series A/B Startup Technical Founders & VPs',
+    selectedMailboxIds: ['mbx_1', 'mbx_5'],
+    rotationMode: 'balanced',
+    campaignDailyLimit: 50
   }
 ];
 
@@ -363,11 +564,18 @@ const INITIAL_MAILBOXES: ConnectedMailbox[] = [
     id: 'mbx_1', 
     email: 'sarah.j@outbound.cloudscale.ai', 
     senderName: 'Sarah Jenkins',
+    signature: 'Best regards,\nSarah Jenkins | Outbound Growth Lead\nCloudScale AI',
+    replyTo: 'sarah.j@cloudscale.ai',
     provider: 'Google Workspace', 
-    status: 'Optimal', 
+    status: 'Ready', 
     healthScore: 100, 
     dailySent: 26, 
     dailyCap: 30, 
+    minSendIntervalSeconds: 90,
+    slowRampEnabled: true,
+    warmupStatus: 'Graduated',
+    tags: ['Tier 1', 'Google Workspace', 'SDR Team'],
+    assignedCampaignIds: ['camp_1', 'camp_3'],
     spf: true, 
     dkim: true, 
     dmarc: true, 
@@ -377,6 +585,7 @@ const INITIAL_MAILBOXES: ConnectedMailbox[] = [
     sendingAccess: true,
     inboxAccess: true,
     sslTls: true,
+    latencyMs: 142,
     blacklistStatus: 'Clean',
     customTrackingDomain: 'track.cloudscale.ai',
     lastChecked: '2m ago'
@@ -385,11 +594,17 @@ const INITIAL_MAILBOXES: ConnectedMailbox[] = [
     id: 'mbx_2', 
     email: 'sdr.lead1@outbound.cloudscale.ai', 
     senderName: 'Alex Rivera',
+    signature: 'Cheers,\nAlex Rivera | SDR Specialist',
     provider: 'Google Workspace', 
-    status: 'Optimal', 
+    status: 'Ready', 
     healthScore: 100, 
     dailySent: 28, 
     dailyCap: 30, 
+    minSendIntervalSeconds: 120,
+    slowRampEnabled: true,
+    warmupStatus: 'Graduated',
+    tags: ['Google Workspace', 'SDR Team'],
+    assignedCampaignIds: ['camp_1'],
     spf: true, 
     dkim: true, 
     dmarc: true, 
@@ -399,6 +614,7 @@ const INITIAL_MAILBOXES: ConnectedMailbox[] = [
     sendingAccess: true,
     inboxAccess: true,
     sslTls: true,
+    latencyMs: 118,
     blacklistStatus: 'Clean',
     customTrackingDomain: 'track.cloudscale.ai',
     lastChecked: '5m ago'
@@ -407,11 +623,17 @@ const INITIAL_MAILBOXES: ConnectedMailbox[] = [
     id: 'mbx_3', 
     email: 'growth@send.cloudscale.ai', 
     senderName: 'Marcus Vance',
+    signature: 'Warmly,\nMarcus Vance | Revenue Operations',
     provider: 'Microsoft 365', 
-    status: 'Optimal', 
+    status: 'Ready', 
     healthScore: 99, 
     dailySent: 22, 
     dailyCap: 30, 
+    minSendIntervalSeconds: 100,
+    slowRampEnabled: false,
+    warmupStatus: 'Active',
+    tags: ['Microsoft 365', 'Exec Outreach'],
+    assignedCampaignIds: ['camp_1', 'camp_2'],
     spf: true, 
     dkim: true, 
     dmarc: true, 
@@ -421,6 +643,7 @@ const INITIAL_MAILBOXES: ConnectedMailbox[] = [
     sendingAccess: true,
     inboxAccess: true,
     sslTls: true,
+    latencyMs: 165,
     blacklistStatus: 'Clean',
     customTrackingDomain: 'track.cloudscale.ai',
     lastChecked: '12m ago'
@@ -429,11 +652,17 @@ const INITIAL_MAILBOXES: ConnectedMailbox[] = [
     id: 'mbx_4', 
     email: 'outreach.mkt@cloudscalerev.io', 
     senderName: 'David Kim',
+    signature: 'Best,\nDavid Kim | Growth Marketing',
     provider: 'Microsoft 365', 
     status: 'Warming', 
     healthScore: 98, 
     dailySent: 15, 
     dailyCap: 20, 
+    minSendIntervalSeconds: 180,
+    slowRampEnabled: true,
+    warmupStatus: 'Active',
+    tags: ['Microsoft 365', 'Ramp Pool'],
+    assignedCampaignIds: ['camp_2'],
     spf: true, 
     dkim: true, 
     dmarc: true, 
@@ -443,6 +672,7 @@ const INITIAL_MAILBOXES: ConnectedMailbox[] = [
     sendingAccess: true,
     inboxAccess: true,
     sslTls: true,
+    latencyMs: 154,
     blacklistStatus: 'Clean',
     customTrackingDomain: 'track.cloudscalerev.io',
     lastChecked: '18m ago'
@@ -451,11 +681,17 @@ const INITIAL_MAILBOXES: ConnectedMailbox[] = [
     id: 'mbx_5', 
     email: 'deals@relay.scalemachine.co', 
     senderName: 'Elena Rostova',
+    signature: 'Regards,\nElena Rostova | VP Partnerships',
     provider: 'Custom SMTP', 
-    status: 'Optimal', 
+    status: 'Ready', 
     healthScore: 96, 
     dailySent: 18, 
     dailyCap: 35, 
+    minSendIntervalSeconds: 60,
+    slowRampEnabled: false,
+    warmupStatus: 'Active',
+    tags: ['Custom SMTP', 'High Volume'],
+    assignedCampaignIds: ['camp_1', 'camp_3'],
     spf: true, 
     dkim: true, 
     dmarc: true, 
@@ -465,6 +701,7 @@ const INITIAL_MAILBOXES: ConnectedMailbox[] = [
     sendingAccess: true,
     inboxAccess: true,
     sslTls: true,
+    latencyMs: 88,
     blacklistStatus: 'Clean',
     customTrackingDomain: 'track.scalemachine.co',
     advancedConfig: {
@@ -694,9 +931,9 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newCamp: EmailCampaign = {
       id: `camp_${Date.now()}`,
       name: data.name || 'Untitled Outreach Campaign',
-      status: 'Scheduled',
+      status: data.status || 'Scheduled',
       audienceCount: data.audienceCount || 500,
-      mailboxesCount: data.mailboxesCount || 4,
+      mailboxesCount: data.selectedMailboxIds ? data.selectedMailboxIds.length : (data.mailboxesCount || 4),
       sent: 0,
       delivered: 0,
       opened: 0,
@@ -708,9 +945,17 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       createdAt: new Date().toISOString().split('T')[0],
       lastActivity: 'Just now',
       tags: data.tags || ['Outbound', 'New'],
+      ...data,
     };
     setCampaigns((prev) => [newCamp, ...prev]);
     success(`Campaign "${newCamp.name}" launched and scheduled.`, 'Campaign Created');
+  }, [success]);
+
+  const updateCampaign = useCallback((id: string, updates: Partial<EmailCampaign>) => {
+    setCampaigns((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, ...updates } : c))
+    );
+    success('Campaign configuration updated.', 'Saved');
   }, [success]);
 
   const toggleCampaignStatus = useCallback((id: string) => {
@@ -861,6 +1106,62 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setMailboxes((prev) => prev.filter((m) => m.id !== id));
   }, []);
 
+  const bulkUpdateMailboxes = useCallback((ids: string[], updates: Partial<ConnectedMailbox>) => {
+    setMailboxes((prev) =>
+      prev.map((m) => (ids.includes(m.id) ? { ...m, ...updates } : m))
+    );
+    success(`Updated ${ids.length} mailboxes.`, 'Bulk Update Complete');
+  }, [success]);
+
+  const bulkSetDailyLimit = useCallback((ids: string[], limit: number) => {
+    setMailboxes((prev) =>
+      prev.map((m) => (ids.includes(m.id) ? { ...m, dailyCap: limit } : m))
+    );
+    success(`Set daily sending limit to ${limit} across ${ids.length} mailboxes.`, 'Limit Updated');
+  }, [success]);
+
+  const bulkToggleWarmup = useCallback((ids: string[], enable: boolean) => {
+    setMailboxes((prev) =>
+      prev.map((m) => (ids.includes(m.id) ? { 
+        ...m, 
+        warmupStatus: enable ? 'Active' : 'Paused', 
+        status: enable && m.status === 'Ready' ? 'Warming' : m.status 
+      } : m))
+    );
+    success(`${enable ? 'Enabled' : 'Paused'} warmup across ${ids.length} mailboxes.`, 'Warmup Toggled');
+  }, [success]);
+
+  const bulkAssignTag = useCallback((ids: string[], tag: string) => {
+    setMailboxes((prev) =>
+      prev.map((m) => {
+        if (!ids.includes(m.id)) return m;
+        const currentTags = m.tags || [];
+        if (currentTags.includes(tag)) return m;
+        return { ...m, tags: [...currentTags, tag] };
+      })
+    );
+    success(`Assigned tag "${tag}" to ${ids.length} mailboxes.`, 'Tags Assigned');
+  }, [success]);
+
+  const bulkAssignCampaign = useCallback((ids: string[], campaignId: string) => {
+    setMailboxes((prev) =>
+      prev.map((m) => {
+        if (!ids.includes(m.id)) return m;
+        const current = m.assignedCampaignIds || [];
+        if (current.includes(campaignId)) return m;
+        return { ...m, assignedCampaignIds: [...current, campaignId] };
+      })
+    );
+    success(`Assigned ${ids.length} mailboxes to campaign.`, 'Mailboxes Assigned');
+  }, [success]);
+
+  const bulkToggleStatus = useCallback((ids: string[], newStatus: MailboxStatus) => {
+    setMailboxes((prev) =>
+      prev.map((m) => (ids.includes(m.id) ? { ...m, status: newStatus } : m))
+    );
+    success(`Updated status of ${ids.length} mailboxes to ${newStatus}.`, 'Status Updated');
+  }, [success]);
+
   const addSuppression = useCallback((email: string, reason: SuppressedContact['reason']) => {
     const domain = email.split('@')[1] || '';
     const newSup: SuppressedContact = {
@@ -934,6 +1235,7 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         statusFilter,
         setStatusFilter,
         createCampaign,
+        updateCampaign,
         toggleCampaignStatus,
         deleteCampaign,
         duplicateCampaign,
@@ -948,6 +1250,12 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         recheckMailboxHealth,
         toggleMailboxStatus,
         deleteMailbox,
+        bulkUpdateMailboxes,
+        bulkSetDailyLimit,
+        bulkToggleWarmup,
+        bulkAssignTag,
+        bulkAssignCampaign,
+        bulkToggleStatus,
         addSuppression,
         removeSuppression,
         replyToThread,

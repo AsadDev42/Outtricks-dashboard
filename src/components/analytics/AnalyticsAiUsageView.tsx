@@ -63,10 +63,10 @@ export const AnalyticsAiUsageView: React.FC = () => {
 
   // Agent Leaderboard Data
   const agentLeaderboard = [
-    { agent: 'Tricksy Lead Researcher', model: 'Gemini 1.5 Flash', runs: 2840, successRate: 99.1, avgDuration: '1.2s', credits: 11360, cost: '$19.20', sparkline: [20, 45, 60, 80, 95] },
-    { agent: 'Tricksy Email Copywriter', model: 'Gemini 1.5 Pro', runs: 1680, successRate: 98.4, avgDuration: '2.4s', credits: 13440, cost: '$24.50', sparkline: [30, 50, 40, 70, 85] },
-    { agent: 'Tricksy Voice Conversation Engine', model: 'Cartesia Sub-400ms', runs: 1120, successRate: 97.5, avgDuration: '0.4s', credits: 8960, cost: '$14.20', sparkline: [40, 60, 75, 65, 90] },
-    { agent: 'Tricksy CRM Auto-Enricher', model: 'Gemini 1.5 Flash', runs: 600, successRate: 99.5, avgDuration: '0.8s', credits: 3080, cost: '$4.50', sparkline: [25, 35, 55, 70, 80] },
+    { agent: 'TRIXIE AI Lead Researcher', model: 'Gemini 1.5 Flash', runs: 2840, successRate: 99.1, avgDuration: '1.2s', credits: 11360, cost: '$19.20', sparkline: [20, 45, 60, 80, 95] },
+    { agent: 'TRIXIE AI Email Copywriter', model: 'Gemini 1.5 Pro', runs: 1680, successRate: 98.4, avgDuration: '2.4s', credits: 13440, cost: '$24.50', sparkline: [30, 50, 40, 70, 85] },
+    { agent: 'TRIXIE AI Voice Conversation Engine', model: 'Cartesia Sub-400ms', runs: 1120, successRate: 97.5, avgDuration: '0.4s', credits: 8960, cost: '$14.20', sparkline: [40, 60, 75, 65, 90] },
+    { agent: 'TRIXIE AI CRM Auto-Enricher', model: 'Gemini 1.5 Flash', runs: 600, successRate: 99.5, avgDuration: '0.8s', credits: 3080, cost: '$4.50', sparkline: [25, 35, 55, 70, 80] },
   ];
 
   // Foundation Model Distribution (Donut Chart)
@@ -310,7 +310,7 @@ export const AnalyticsAiUsageView: React.FC = () => {
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 <h3 className="font-extrabold text-base text-slate-950 dark:text-white tracking-tight">
-                  Daily Tricksy AI Utilization & Compute Curve
+                  Daily TRIXIE AI Utilization & Compute Curve
                 </h3>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">

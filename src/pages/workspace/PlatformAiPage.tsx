@@ -8,7 +8,7 @@ export const PlatformAiPage: React.FC = () => {
     <GsapPageTransition className="space-y-6 font-sans pb-12">
       <SEOHead
         title="Platform & AI | Workspace - Outtricks Platform"
-        description="Configure third-party service integrations, navigation rail visibility, and Tricksy AI autonomous engine parameters."
+        description="Configure third-party service integrations, navigation rail visibility, and TRIXIE AI autonomous engine parameters."
         noindex={true}
       />
       <AdminPlatformView initialTab="integrations" />

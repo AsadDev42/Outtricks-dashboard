@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   X, 
   Search, 
@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useLeadSearch, LeadFilterState, CustomFilterRule, INITIAL_LEAD_FILTERS } from '../../context/LeadSearchContext';
 import { Button } from '../ui/Button';
+import { LeadFinderCompanyDomainFilter } from './LeadFinderCompanyDomainFilter';
 
 export interface LeadFinderAdvancedFiltersDrawerProps {
   isOpen: boolean;
@@ -46,6 +47,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
   const [filterSearch, setFilterSearch] = useState<string>('');
   
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
+    companyDomains: false,
     company: false,
     person: false,
     contact: false,
@@ -86,6 +88,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
   // Calculate Active Filter Count
   const activeCount = useMemo(() => {
     let count = 0;
+    if (draft.companyDomains && draft.companyDomains.length > 0) count += draft.companyDomains.length;
     if (draft.contactTypes.length > 0) count += draft.contactTypes.length;
     if (draft.headcount.length > 0) count += draft.headcount.length;
     if (draft.revenue.length > 0) count += draft.revenue.length;
@@ -223,6 +226,42 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
           {/* 3. Scrollable Filter Sections Accordion */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-xs divide-y divide-slate-100 dark:divide-white/[0.04]">
             
+            {/* SECTION: COMPANY / DOMAIN */}
+            {(matchesSearch('company') || matchesSearch('domain') || matchesSearch('website') || matchesSearch('target') || matchesSearch('single') || matchesSearch('batch') || matchesSearch('csv') || matchesSearch('sheet')) && (
+              <div className="space-y-3 pt-2 first:pt-0">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('companyDomains')}
+                  className="w-full flex items-center justify-between font-bold text-sm text-slate-900 dark:text-white cursor-pointer py-1"
+                >
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-primary" />
+                    <span>Company / Domain</span>
+                    {draft.companyDomains && draft.companyDomains.length > 0 && (
+                      <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-primary text-white">
+                        {draft.companyDomains.length}
+                      </span>
+                    )}
+                  </div>
+                  {collapsed['companyDomains'] ? (
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
+                  ) : (
+                    <ChevronUp className="w-4 h-4 text-slate-400" />
+                  )}
+                </button>
+
+                {!collapsed['companyDomains'] && (
+                  <div className="pt-1">
+                    <LeadFinderCompanyDomainFilter
+                      selectedDomains={draft.companyDomains || []}
+                      onChange={(newDomains) => setDraft((prev) => ({ ...prev, companyDomains: newDomains }))}
+                      onClearAll={() => setDraft((prev) => ({ ...prev, companyDomains: [] }))}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* SECTION 1: CONTACT */}
             {(matchesSearch('contact') || matchesSearch('email') || matchesSearch('phone') || matchesSearch('mobile')) && (
               <div className="space-y-3 pt-2 first:pt-0">

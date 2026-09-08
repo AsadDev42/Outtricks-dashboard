@@ -536,7 +536,7 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       },
       {
         id: 'kpi-ai-usage',
-        name: 'AI / Tricksy Usage',
+        name: 'AI / TRIXIE AI Usage',
         value: formatNumber(aiUsage),
         rawValue: aiUsage,
         change: '+12.4%',
@@ -580,7 +580,7 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       { id: 'okpi-6', name: 'Emails Sent', value: formatNumber(emails), rawValue: emails, change: '+16.8%', isPositive: true, period: comparisonPeriodLabel, supportingLabel: '99.4% inbox delivery rate', sparkline: [8000, 12000, 16000, 20000, 24800] },
       { id: 'okpi-7', name: 'Calls Made', value: formatNumber(calls), rawValue: calls, change: '+38.2%', isPositive: true, period: comparisonPeriodLabel, supportingLabel: 'Voice AI SDR connections', sparkline: [400, 650, 900, 1150, 1420] },
       { id: 'okpi-8', name: 'LinkedIn Actions', value: formatNumber(linkedIn), rawValue: linkedIn, change: '+14.2%', isPositive: true, period: comparisonPeriodLabel, supportingLabel: 'Safe proxy automations', sparkline: [1000, 1500, 2000, 2500, 3100] },
-      { id: 'okpi-9', name: 'AI / Tricksy Usage', value: formatNumber(aiUsage), rawValue: aiUsage, change: '+12.4%', isPositive: true, period: comparisonPeriodLabel, supportingLabel: 'Inference requests', sparkline: [5000, 8000, 11000, 14500, 18420] },
+      { id: 'okpi-9', name: 'AI / TRIXIE AI Usage', value: formatNumber(aiUsage), rawValue: aiUsage, change: '+12.4%', isPositive: true, period: comparisonPeriodLabel, supportingLabel: 'Inference requests', sparkline: [5000, 8000, 11000, 14500, 18420] },
       { id: 'okpi-10', name: 'Credits Used', value: formatNumber(creditsUsed), rawValue: creditsUsed, change: '49.8% Cap', isPositive: true, period: 'of 42,850 allocated', supportingLabel: 'Runway: 18 days', sparkline: [4000, 8000, 12000, 16000, 21350] },
     ];
   }, [multiplier, refreshKey, comparisonPeriodLabel]);
@@ -708,7 +708,7 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       { id: 'mod-linkedin', name: 'LinkedIn Automation', category: 'Social', usageLabel: '3.1K actions', leads: Math.round(142 * multiplier), actions: Math.round(3100 * multiplier), meetings: Math.round(14 * multiplier), pipeline: Math.round(98000 * multiplier), pipelineLabel: formatCurrency(98000 * multiplier, '$0', true), revenue: Math.round(36000 * multiplier), revenueLabel: formatCurrency(36000 * multiplier, '$0', true), successRate: 96.8, status: 'optimal' },
       { id: 'mod-leadfinder', name: '8D Lead Finder', category: 'Data', usageLabel: '8.4K queries', leads: Math.round(512 * multiplier), actions: Math.round(8400 * multiplier), meetings: Math.round(18 * multiplier), pipeline: Math.round(64000 * multiplier), pipelineLabel: formatCurrency(64000 * multiplier, '$0', true), revenue: Math.round(22000 * multiplier), revenueLabel: formatCurrency(22000 * multiplier, '$0', true), successRate: 99.1, status: 'optimal' },
       { id: 'mod-upwork', name: 'Upwork Studio', category: 'Bidding', usageLabel: '185 bids', leads: Math.round(42 * multiplier), actions: Math.round(185 * multiplier), meetings: Math.round(6 * multiplier), pipeline: Math.round(47000 * multiplier), pipelineLabel: formatCurrency(47000 * multiplier, '$0', true), revenue: Math.round(16000 * multiplier), revenueLabel: formatCurrency(16000 * multiplier, '$0', true), successRate: 91.5, status: 'optimal' },
-      { id: 'mod-agents', name: 'Tricksy AI Agents', category: 'Autonomous', usageLabel: '6.2K missions', leads: Math.round(88 * multiplier), actions: Math.round(6200 * multiplier), meetings: Math.round(12 * multiplier), pipeline: Math.round(54000 * multiplier), pipelineLabel: formatCurrency(54000 * multiplier, '$0', true), revenue: Math.round(19000 * multiplier), revenueLabel: formatCurrency(19000 * multiplier, '$0', true), successRate: 97.4, status: 'optimal' },
+      { id: 'mod-agents', name: 'TRIXIE AI Agents', category: 'Autonomous', usageLabel: '6.2K missions', leads: Math.round(88 * multiplier), actions: Math.round(6200 * multiplier), meetings: Math.round(12 * multiplier), pipeline: Math.round(54000 * multiplier), pipelineLabel: formatCurrency(54000 * multiplier, '$0', true), revenue: Math.round(19000 * multiplier), revenueLabel: formatCurrency(19000 * multiplier, '$0', true), successRate: 97.4, status: 'optimal' },
       { id: 'mod-workflows', name: 'DAG Workflows', category: 'Automation', usageLabel: '14.2K runs', leads: Math.round(64 * multiplier), actions: Math.round(14200 * multiplier), meetings: Math.round(8 * multiplier), pipeline: Math.round(38000 * multiplier), pipelineLabel: formatCurrency(38000 * multiplier, '$0', true), revenue: Math.round(12000 * multiplier), revenueLabel: formatCurrency(12000 * multiplier, '$0', true), successRate: 99.8, status: 'optimal' },
       { id: 'mod-crm', name: 'Deals CRM', category: 'Pipeline', usageLabel: '482 deals managed', leads: Math.round(482 * multiplier), actions: Math.round(1840 * multiplier), meetings: Math.round(84 * multiplier), pipeline: Math.round(485000 * multiplier), pipelineLabel: formatCurrency(485000 * multiplier, '$0', true), revenue: Math.round(184000 * multiplier), revenueLabel: formatCurrency(184000 * multiplier, '$0', true), successRate: 99.9, status: 'optimal' },
     ];
@@ -866,7 +866,7 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       { id: 'srv-4', name: 'Voice AI SDR Sub-400ms Gateway', category: 'Telephony Media', status: 'Healthy', latencyMs: 180, uptimePct: 99.91, failedJobsCount: 0, failedAutomationsCount: 0, apiErrors: 0, webhookErrors: 0 },
       { id: 'srv-5', name: 'DAG Workflow Execution Engine', category: 'Orchestration', status: 'Healthy', latencyMs: 45, uptimePct: 99.99, failedJobsCount: 0, failedAutomationsCount: 0, apiErrors: 0, webhookErrors: 0 },
       { id: 'srv-6', name: 'Deals CRM Database Cluster', category: 'Core Storage', status: 'Healthy', latencyMs: 12, uptimePct: 99.99, failedJobsCount: 0, failedAutomationsCount: 0, apiErrors: 0, webhookErrors: 0 },
-      { id: 'srv-7', name: 'Tricksy AI Inference Cluster', category: 'AI Intelligence', status: 'Healthy', latencyMs: 320, uptimePct: 99.95, failedJobsCount: 0, failedAutomationsCount: 0, apiErrors: 0, webhookErrors: 0 },
+      { id: 'srv-7', name: 'TRIXIE AI Inference Cluster', category: 'AI Intelligence', status: 'Healthy', latencyMs: 320, uptimePct: 99.95, failedJobsCount: 0, failedAutomationsCount: 0, apiErrors: 0, webhookErrors: 0 },
     ];
   }, []);
 
@@ -881,7 +881,7 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [reports, setReports] = useState<ReportItem[]>([
     { id: 'rep-1', title: 'Q3 Enterprise Revenue Attribution & ROI', type: 'Attribution', generatedDate: '2026-08-28', dateRange: 'Last 30 Days', fileSize: '3.4 MB', status: 'Ready' },
     { id: 'rep-2', title: 'Voice AI vs Cold Email Conversion Benchmark', type: 'Channel Breakdown', generatedDate: '2026-08-25', dateRange: 'Last 90 Days', fileSize: '2.1 MB', status: 'Ready' },
-    { id: 'rep-3', title: 'Tricksy AI Autonomous Execution Audit', type: 'AI Usage', generatedDate: '2026-08-20', dateRange: 'Last 30 Days', fileSize: '1.8 MB', status: 'Ready' },
+    { id: 'rep-3', title: 'TRIXIE AI Autonomous Execution Audit', type: 'AI Usage', generatedDate: '2026-08-20', dateRange: 'Last 30 Days', fileSize: '1.8 MB', status: 'Ready' },
   ]);
 
   // Supporting VIP Accounts

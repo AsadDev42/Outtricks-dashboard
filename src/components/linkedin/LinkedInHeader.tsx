@@ -3,15 +3,13 @@ import {
   Linkedin, 
   Plus, 
   Users, 
-  Zap,
   CheckCircle2,
-  ShieldCheck,
-  Globe,
-  Sparkles,
-  Workflow
+  ShieldCheck, 
+  Globe
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useLinkedIn } from '../../context/LinkedInContext';
+import { LinkedInCreateRuleDropdown } from './LinkedInCreateRuleDropdown';
 
 export interface LinkedInHeaderProps {
   onOpenCreateCampaign: () => void;
@@ -95,7 +93,7 @@ export const LinkedInHeader: React.FC<LinkedInHeaderProps> = ({
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
           <Button
             variant="secondary"
             size="sm"
@@ -105,38 +103,13 @@ export const LinkedInHeader: React.FC<LinkedInHeaderProps> = ({
             Connect Profile
           </Button>
 
-          {onOpenAiRuleBuilder && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={onOpenAiRuleBuilder}
-              leftIcon={<Sparkles className="w-3.5 h-3.5 text-primary" />}
-              className="border-primary/30 hover:border-primary text-slate-800 dark:text-white font-bold bg-primary/5 hover:bg-primary/10 shadow-xs"
-            >
-              ✦ Make Rule with AI
-            </Button>
-          )}
 
-          {onOpenVisualCanvas && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onOpenVisualCanvas}
-              leftIcon={<Workflow className="w-3.5 h-3.5 text-blue-500" />}
-              className="border-blue-500/30 hover:border-blue-500 text-blue-600 dark:text-blue-400 bg-blue-500/5 hover:bg-blue-500/10 font-bold"
-            >
-              Visual Canvas
-            </Button>
-          )}
-
-          <Button
-            variant="secondary"
+          <LinkedInCreateRuleDropdown
+            onOpenCreateRule={onOpenCreateRule}
+            onOpenAiRuleBuilder={onOpenAiRuleBuilder}
+            buttonVariant="secondary"
             size="sm"
-            onClick={onOpenCreateRule}
-            leftIcon={<Zap className="w-3.5 h-3.5" />}
-          >
-            New Rule
-          </Button>
+          />
 
           <Button
             variant="primary"

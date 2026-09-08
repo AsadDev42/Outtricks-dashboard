@@ -589,7 +589,7 @@ export const AgentsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       constraints: newAgentData.constraints || 'Never contact records outside the target ICP.',
       tools: newAgentData.tools || INITIAL_TOOLS,
       triggers: newAgentData.triggers || [
-        { id: `trig-${Date.now()}`, type: 'manual', label: 'Manual Trigger', config: 'Executed on demand via UI or Tricksy AI', enabled: true }
+        { id: `trig-${Date.now()}`, type: 'manual', label: 'Manual Trigger', config: 'Executed on demand via UI or TRIXIE AI', enabled: true }
       ],
       metrics: {
         completedTasks: 0,

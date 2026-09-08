@@ -29,9 +29,21 @@ export const LeadFilterChipsBar: React.FC<LeadFilterChipsBarProps> = ({
     chips.push({ id: 'q', category: 'searchQuery', label: `Keyword: "${filters.searchQuery}"` });
   }
 
-  (filters.companyDomains || []).forEach((cd) => {
-    chips.push({ id: `cd_${cd}`, category: 'companyDomains', label: `Domain/Company: ${cd}`, value: cd });
-  });
+  const targetDomains = filters.companyDomains || [];
+  if (targetDomains.length > 0) {
+    if (targetDomains.length <= 2) {
+      targetDomains.forEach((cd) => {
+        chips.push({ id: `cd_${cd}`, category: 'companyDomains', label: `Domain: ${cd}`, value: cd });
+      });
+    } else {
+      chips.push({
+        id: 'cd_summary',
+        category: 'companyDomains',
+        label: `Company / Domain: ${targetDomains.length} domains selected`,
+        value: undefined,
+      });
+    }
+  }
 
   filters.contactTypes.forEach((c) => {
     chips.push({ id: `c_${c}`, category: 'contactTypes', label: `Contact: ${c.replace('_', ' ')}`, value: c });
@@ -107,22 +119,34 @@ export const LeadFilterChipsBar: React.FC<LeadFilterChipsBarProps> = ({
           <span>Active Filters ({chips.length}):</span>
         </div>
 
-        {chips.map((chip) => (
-          <span
-            key={chip.id}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-blue-50 dark:bg-white/[0.04] text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80 text-xs font-semibold"
-          >
-            <span>{chip.label}</span>
-            <button
-              type="button"
-              onClick={() => removeFilterChip(chip.category, chip.value)}
-              className="p-0.5 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-500 hover:text-blue-900 dark:hover:text-white transition-colors cursor-pointer"
-              title="Remove filter"
+        {chips.map((chip) => {
+          const isDomainSummary = chip.id === 'cd_summary';
+          return (
+            <span
+              key={chip.id}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-blue-50 dark:bg-white/[0.04] text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80 text-xs font-semibold"
             >
-              <X className="w-3 h-3" />
-            </button>
-          </span>
-        ))}
+              <span>{chip.label}</span>
+              {isDomainSummary && (
+                <button
+                  type="button"
+                  onClick={() => setIsAdvancedFiltersDrawerOpen(true)}
+                  className="text-[10px] uppercase font-bold text-primary hover:underline ml-0.5 cursor-pointer"
+                >
+                  Manage
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => removeFilterChip(chip.category, chip.value)}
+                className="p-0.5 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-500 hover:text-blue-900 dark:hover:text-white transition-colors cursor-pointer"
+                title="Remove filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          );
+        })}
 
         <button
           type="button"

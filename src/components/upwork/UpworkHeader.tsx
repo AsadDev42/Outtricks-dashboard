@@ -46,9 +46,9 @@ export const UpworkHeader: React.FC<UpworkHeaderProps> = ({
           </div>
 
           {/* Action CTAs & RSS Interval Selector */}
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
             {/* RSS Poller Interval */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#262626] text-xs font-mono text-slate-700 dark:text-slate-300">
+            <div className="h-[34px] flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#262626] text-xs font-mono text-slate-700 dark:text-slate-300">
               <span className={`w-2 h-2 rounded-full shrink-0 ${rssPollInterval === 'manual' ? 'bg-amber-400' : 'bg-emerald-500 animate-pulse'}`} />
               <span className="text-[11px] font-bold text-slate-500 hidden md:inline">RSS:</span>
               <select

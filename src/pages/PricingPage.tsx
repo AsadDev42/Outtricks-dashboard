@@ -526,8 +526,8 @@ const BUNDLE_PLANS: BundlePlan[] = [
 
 const INCLUDED_CORE_CAPABILITIES = [
   {
-    title: 'Dedicated Tricksy AI Assistant',
-    description: 'Autonomous Tricksy AI that builds sequences, crafts personalized copy, and optimizes workflow graphs dynamically.',
+    title: 'Dedicated TRIXIE AI Assistant',
+    description: 'Autonomous TRIXIE AI that builds sequences, crafts personalized copy, and optimizes workflow graphs dynamically.',
     icon: Bot
   },
   {

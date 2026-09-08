@@ -1139,7 +1139,7 @@ const INITIAL_SYSTEM_HEALTH: AdminSystemHealthService[] = [
   { id: 'srv-email', name: 'Cold Email SMTP Delivery Queue', category: 'telecom', status: 'healthy', latencyMs: 65, uptimePercentage: 99.94, errorRatePercentage: 0.05, lastCheckTime: 'Just now' },
   { id: 'srv-voice', name: 'Sub-400ms Voice SDR Media Engine', category: 'telecom', status: 'healthy', latencyMs: 180, uptimePercentage: 99.91, errorRatePercentage: 0.08, lastCheckTime: 'Just now' },
   { id: 'srv-linkedin', name: 'LinkedIn Safe Cloud Proxies', category: 'automation', status: 'healthy', latencyMs: 110, uptimePercentage: 99.85, errorRatePercentage: 0.12, lastCheckTime: 'Just now' },
-  { id: 'srv-ai', name: 'Tricksy AI Inference Workers', category: 'ai', status: 'healthy', latencyMs: 340, uptimePercentage: 99.95, errorRatePercentage: 0.02, lastCheckTime: 'Just now' },
+  { id: 'srv-ai', name: 'TRIXIE AI Inference Workers', category: 'ai', status: 'healthy', latencyMs: 340, uptimePercentage: 99.95, errorRatePercentage: 0.02, lastCheckTime: 'Just now' },
   { id: 'srv-workflows', name: 'DAG Workflow Execution Engine', category: 'automation', status: 'healthy', latencyMs: 45, uptimePercentage: 99.99, errorRatePercentage: 0.00, lastCheckTime: 'Just now' },
 ];
 
@@ -1289,7 +1289,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       { id: 'llama-3-3-70b', name: 'Llama 3.3 70B Fast', provider: 'Groq', costPer1k: 0.0008, enabled: true },
     ],
     creditMultiplier: 1.0,
-    systemPromptPreset: 'You are Tricksy, the autonomous AI revenue operating engine for Outtricks.',
+    systemPromptPreset: 'You are TRIXIE AI, the autonomous AI revenue operating engine for Outtricks.',
     maxTokensPerRequest: 4096,
     enableAutonomousExecution: true,
     rateLimitPerMinute: 120,
@@ -2032,8 +2032,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const updateTricksyAiConfig = useCallback((data: Partial<TricksyAiConfig>) => {
     setTricksyAi(prev => ({ ...prev, ...data }));
-    logAdminAction('UPDATE_TRICKSY_AI_CONFIG', 'Tricksy AI Governance', undefined, JSON.stringify(data));
-    success('Tricksy AI parameters updated.', 'AI Config Saved');
+    logAdminAction('UPDATE_TRICKSY_AI_CONFIG', 'TRIXIE AI Governance', undefined, JSON.stringify(data));
+    success('TRIXIE AI parameters updated.', 'AI Config Saved');
   }, [logAdminAction, success]);
 
   const setCreditCosts = useCallback((costs: Partial<AdminContextType['creditCosts']>) => {

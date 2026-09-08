@@ -54,7 +54,7 @@ const INITIAL_THREADS: MessageThread[] = [
       {
         id: 'm1-1',
         sender: 'you',
-        senderName: 'You (via Tricksy AI)',
+        senderName: 'You (via TRIXIE AI)',
         text: 'Hi Elena, I reviewed your financial core architecture requirements. Having built similar WebRTC and low-latency trading interfaces handling 10k+ events/sec, I can help your team ship this milestone ahead of schedule.',
         time: 'Yesterday, 4:20 PM'
       },
@@ -112,7 +112,7 @@ const INITIAL_THREADS: MessageThread[] = [
       {
         id: 'm3-1',
         sender: 'you',
-        senderName: 'You (via Tricksy AI)',
+        senderName: 'You (via TRIXIE AI)',
         text: 'Hello Sarah! I noticed your multi-agent architecture setup. Here is our live reference implementation running automated function calling pipelines with robust validation.',
         time: 'Yesterday, 2:15 PM'
       },
@@ -432,7 +432,7 @@ export const UpworkMessagesView: React.FC<UpworkMessagesViewProps> = ({
                 <div className="flex items-center justify-between text-[11px] text-slate-400">
                   <div className="flex items-center gap-1.5 text-primary font-bold">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Tricksy AI Quick Assistant</span>
+                    <span>TRIXIE AI Quick Assistant</span>
                   </div>
                   <span className="font-mono text-[10px]">Enter to send, Shift+Enter for new line</span>
                 </div>

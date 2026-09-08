@@ -30,7 +30,7 @@ export interface PrimaryNavItem {
 }
 
 export const PRIMARY_NAV_ITEMS: PrimaryNavItem[] = [
-  { id: 'trixie', title: 'Trixie AI', label: 'Trixie AI', href: '/', path: '/', icon: Sparkles, matchPrefixes: ['/trixie', '/copilot', '/chat', '/ai-chat', '/dashboard', '/command-center'], badge: null },
+  { id: 'trixie', title: 'TRIXIE AI', label: 'TRIXIE AI', href: '/', path: '/', icon: Sparkles, matchPrefixes: ['/trixie', '/copilot', '/chat', '/ai-chat', '/dashboard', '/command-center'], badge: null },
   { id: 'lead-finder', title: 'Leads', label: 'Leads', href: '/lead-finder', path: '/lead-finder', icon: Search, matchPrefixes: ['/lead-finder', '/leads', '/prospects'], badge: null },
   { id: 'master-inbox', title: 'Master Inbox', label: 'Master Inbox', href: '/inbox', path: '/inbox', icon: Inbox, matchPrefixes: ['/inbox', '/master-box', '/mail', '/messages', '/app/inbox', '/app/mail'], badge: null },
   { id: 'linkedin', title: 'LinkedIn', label: 'LinkedIn', href: '/linkedin', path: '/linkedin', icon: Linkedin, matchPrefixes: ['/linkedin'], badge: null },

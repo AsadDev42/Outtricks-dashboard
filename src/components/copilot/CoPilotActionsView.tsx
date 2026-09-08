@@ -43,7 +43,7 @@ export const CoPilotActionsView: React.FC = () => {
           Autonomous AI Actions Registry
         </h2>
         <p className="text-xs text-slate-500 dark:text-slate-400 max-w-3xl leading-relaxed">
-          Pre-authorized tool endpoints allowing Tricksy AI to read, synthesize, and write data directly to your Outtricks single PostgreSQL database partition.
+          Pre-authorized tool endpoints allowing TRIXIE AI to read, synthesize, and write data directly to your Outtricks single PostgreSQL database partition.
         </p>
       </div>
 
@@ -100,7 +100,7 @@ export const CoPilotActionsView: React.FC = () => {
                 onClick={() => runAction(action.id)}
                 className="text-xs"
               >
-                <Play className="w-3.5 h-3.5 mr-1" />
+                <Play className="w-3.5 h-3.5" />
                 <span>Test in Chat</span>
               </Button>
             </div>

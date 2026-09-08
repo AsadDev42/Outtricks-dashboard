@@ -117,7 +117,7 @@ export function getRouteMetadata(pathname: string): { title: string; module: str
     return { title: 'My Leads', module: 'lead-finder' };
   }
   if (p.startsWith('/lead-finder/prospect-lists')) return { title: 'Prospect Lists', module: 'lead-finder' };
-  if (p.startsWith('/lead-finder/imports')) return { title: 'Imports', module: 'lead-finder' };
+  if (p.startsWith('/lead-finder/imports')) return { title: 'Imports & History', module: 'lead-finder' };
   if (p.startsWith('/lead-finder') || p.startsWith('/app/lead-finder')) return { title: 'Lead Finder', module: 'lead-finder' };
 
   // 5. Master Inbox / Mail (All Messages)
@@ -303,7 +303,7 @@ export function getRouteMetadata(pathname: string): { title: string; module: str
   // Fallback
   const segment = pathname.replace(/^\//, '').split('/')[0] || 'copilot';
   const title = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
-  return { title: title || 'Tricksy AI', module: segment || 'copilot' };
+  return { title: title || 'TRIXIE AI', module: segment || 'copilot' };
 }
 
 const GlobalTabsContext = createContext<GlobalTabsContextType | undefined>(undefined);

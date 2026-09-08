@@ -1036,9 +1036,12 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       if (category === 'qualityScoreMin' || category === 'qualityScoreMax') {
         return { ...prev, qualityScoreMin: 0, qualityScoreMax: 100 };
       }
-      if (Array.isArray(prev[category]) && value) {
-        const arr = (prev[category] as string[]).filter((v) => v !== value);
-        return { ...prev, [category]: arr };
+      if (Array.isArray(prev[category])) {
+        if (value) {
+          const arr = (prev[category] as string[]).filter((v) => v !== value);
+          return { ...prev, [category]: arr };
+        }
+        return { ...prev, [category]: [] };
       }
       if (typeof prev[category] === 'boolean') {
         return { ...prev, [category]: false };

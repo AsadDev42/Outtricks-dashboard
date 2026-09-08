@@ -98,17 +98,17 @@ export const LeadFinderHeader: React.FC<LeadFinderHeaderProps> = ({
       </div>
 
       {/* Actions Toolbar */}
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex items-center justify-end gap-2.5 sm:gap-3">
         <button
           onClick={onOpenImportModal}
-          className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#181818] hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer border border-slate-200/60 dark:border-[#202020]"
+          className="h-[34px] px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#181818] hover:bg-slate-200 dark:hover:bg-white/[0.06] text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer border border-slate-200/60 dark:border-[#202020]"
         >
           <Upload className="w-3.5 h-3.5" />
           <span>Import CSV</span>
         </button>
         <button
           onClick={exportToCsv}
-          className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#181818] hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer border border-slate-200/60 dark:border-[#202020]"
+          className="h-[34px] px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#181818] hover:bg-slate-200 dark:hover:bg-white/[0.06] text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer border border-slate-200/60 dark:border-[#202020]"
         >
           <Download className="w-3.5 h-3.5" />
           <span>Export CSV</span>
@@ -132,11 +132,11 @@ export const LeadFinderHeader: React.FC<LeadFinderHeaderProps> = ({
           </div>
 
           {/* Action Tools */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             {/* Mobile Filter Toggle */}
             <button
               onClick={onToggleMobileFilters}
-              className="lg:hidden px-3 py-2 rounded-xl bg-slate-100 dark:bg-[#181818] text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5"
+              className="lg:hidden h-[34px] px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#181818] text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-2"
             >
               <Sliders className="w-3.5 h-3.5" />
               <span>Filters</span>
@@ -145,7 +145,7 @@ export const LeadFinderHeader: React.FC<LeadFinderHeaderProps> = ({
             {/* Saved Presets Drawer Trigger */}
             <button
               onClick={onOpenSavedSearchesDrawer}
-              className="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#1C1C1C] hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-[#2A2A2A] text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="h-[34px] px-3.5 py-1.5 rounded-xl bg-slate-50 dark:bg-[#1C1C1C] hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-[#2A2A2A] text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
               <Bookmark className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span>Presets ({savedSearches.length})</span>
@@ -154,7 +154,7 @@ export const LeadFinderHeader: React.FC<LeadFinderHeaderProps> = ({
             {/* Refresh Live DB Query */}
             <button
               onClick={refreshSearch}
-              className="p-2 rounded-xl bg-slate-50 dark:bg-[#1C1C1C] hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-[#2A2A2A] text-slate-600 dark:text-slate-300 transition-colors"
+              className="w-[34px] h-[34px] rounded-xl bg-slate-50 dark:bg-[#1C1C1C] hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-[#2A2A2A] text-slate-600 dark:text-slate-300 transition-colors flex items-center justify-center cursor-pointer"
               title="Refresh Search Results"
             >
               <RefreshCw className="w-3.5 h-3.5" />

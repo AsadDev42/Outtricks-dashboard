@@ -787,7 +787,7 @@ export const CreateLinkedInCampaignModal: React.FC<CreateLinkedInCampaignModalPr
                   <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
                     Active Outreach Days
                   </label>
-                  <div className="flex items-center gap-1.5 pt-0.5">
+                  <div className="grid grid-cols-7 gap-2 pt-0.5">
                     {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => {
                       const isActive = sendingDays.includes(day);
                       return (
@@ -801,10 +801,10 @@ export const CreateLinkedInCampaignModal: React.FC<CreateLinkedInCampaignModalPr
                               setSendingDays((prev) => [...prev, day]);
                             }
                           }}
-                          className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          className={`h-9 rounded-xl inline-flex items-center justify-center text-center text-xs font-bold leading-none transition-all cursor-pointer select-none ${
                             isActive
                               ? 'bg-emerald-500 text-white shadow-2xs'
-                              : 'bg-slate-100 dark:bg-[#202020] text-slate-400 hover:text-slate-600'
+                              : 'bg-slate-100 dark:bg-[#202020] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                           }`}
                         >
                           {day}

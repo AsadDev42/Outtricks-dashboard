@@ -128,7 +128,7 @@ export const CoPilotProvider: React.FC<{ children: React.ReactNode }> = ({ child
     {
       id: 'msg-1',
       sender: 'ai',
-      text: "Hello Sarah! I'm Tricksy AI, your Outtricks Revenue Assistant. I run lead searches across 480M+ profiles, draft email spintax, inspect CRM deals, and coordinate outbound workflows. What pipeline goal are we working on today?",
+      text: "Hello Sarah! I'm TRIXIE AI, your Outtricks Revenue Assistant. I run lead searches across 480M+ profiles, draft email spintax, inspect CRM deals, and coordinate outbound workflows. What pipeline goal are we working on today?",
       timestamp: '10:40 AM'
     },
     {
@@ -316,7 +316,7 @@ export const CoPilotProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
     ]);
     setActiveTab('chat');
-    success('Started fresh Tricksy AI conversation.', 'New Session');
+    success('Started fresh TRIXIE AI conversation.', 'New Session');
   };
 
   const deleteConversation = (id: string) => {

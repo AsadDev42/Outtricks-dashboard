@@ -192,8 +192,14 @@ export const WarmupDashboard: React.FC = () => {
                     <span className="font-extrabold text-sm text-slate-950 dark:text-white font-mono truncate">
                       {w.email}
                     </span>
-                    <Badge variant="emerald" size="sm">
+                    <Badge variant={w.day >= 14 ? 'emerald' : w.day >= 7 ? 'blue' : 'amber'} size="sm">
                       Day {w.day} of 21 ({w.status})
+                    </Badge>
+                    <Badge 
+                      variant={w.day >= 14 ? 'emerald' : w.day >= 7 ? 'blue' : 'slate'} 
+                      size="sm"
+                    >
+                      {w.day >= 14 ? '✓ Campaign Eligible' : w.day >= 7 ? 'Limited Sends (15/day)' : 'Warmup Only'}
                     </Badge>
                   </div>
                   

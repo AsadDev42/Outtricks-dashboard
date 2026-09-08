@@ -80,7 +80,7 @@ export const AnalyticsReportsView: React.FC = () => {
           { title: 'Revenue Attribution Digest', type: 'Attribution' as const, desc: 'Multi-touch CAC and closed ARR by channel.' },
           { title: 'Campaign ROI Benchmark', type: 'Campaign ROI' as const, desc: 'Lead volume, reply rates, and meeting conversions.' },
           { title: 'Executive Board Summary', type: 'Executive Summary' as const, desc: 'High-level KPI scorecard, MRR, and platform health.' },
-          { title: 'Tricksy AI Inference Audit', type: 'AI Usage' as const, desc: 'Autonomous tasks, token usage, and latency SLA.' },
+          { title: 'TRIXIE AI Inference Audit', type: 'AI Usage' as const, desc: 'Autonomous tasks, token usage, and latency SLA.' },
         ].map((t) => (
           <div
             key={t.title}

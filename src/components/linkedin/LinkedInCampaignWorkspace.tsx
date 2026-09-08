@@ -11,7 +11,6 @@ import {
   Play, 
   Pause, 
   Star, 
-  Settings as SettingsIcon, 
   MoreHorizontal,
   Copy,
   Trash2,
@@ -79,8 +78,8 @@ export const LinkedInCampaignWorkspace: React.FC<LinkedInCampaignWorkspaceProps>
           </div>
 
           <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight truncate">
+            <div className="flex items-center gap-2 min-w-0">
+              <h1 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight truncate max-w-xs sm:max-w-sm md:max-w-md">
                 {campaign.name}
               </h1>
 
@@ -88,7 +87,7 @@ export const LinkedInCampaignWorkspace: React.FC<LinkedInCampaignWorkspaceProps>
               <button
                 type="button"
                 onClick={() => toggleCampaignStatus(campaign.id)}
-                className={`px-2.5 py-0.5 rounded-full text-xs font-bold border transition-all flex items-center gap-1.5 cursor-pointer font-mono ${
+                className={`px-2.5 py-0.5 rounded-full text-xs font-bold border transition-all inline-flex items-center gap-1.5 cursor-pointer font-mono shrink-0 ${
                   campaign.status === 'Running'
                     ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
                     : 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border-amber-500/30'
@@ -103,24 +102,16 @@ export const LinkedInCampaignWorkspace: React.FC<LinkedInCampaignWorkspaceProps>
               <button
                 type="button"
                 onClick={() => setIsStarred(!isStarred)}
-                className={`p-1 text-slate-400 hover:text-amber-400 cursor-pointer ${isStarred ? 'text-amber-400' : ''}`}
+                className={`p-1 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-[#252525] transition-colors cursor-pointer shrink-0 ${isStarred ? 'text-amber-400' : ''}`}
+                title={isStarred ? 'Unstar campaign' : 'Star campaign'}
               >
                 <Star className={`w-3.5 h-3.5 ${isStarred ? 'fill-current' : ''}`} />
-              </button>
-
-              {/* Quick Settings Icon */}
-              <button
-                type="button"
-                onClick={() => setActiveWorkspaceTab('settings')}
-                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
-              >
-                <SettingsIcon className="w-3.5 h-3.5" />
               </button>
 
               {/* Actions Dropdown */}
               <Dropdown
                 trigger={
-                  <button type="button" className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+                  <button type="button" className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#252525] transition-colors cursor-pointer shrink-0" title="More options">
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
                 }

@@ -40,7 +40,8 @@ import {
   Check,
   Calendar,
   AlertCircle,
-  Flame
+  Flame,
+  TrendingUp
 } from 'lucide-react';
 
 export interface CampaignCreationJourneyModalProps {
@@ -65,31 +66,34 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
 
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5 | 6 | 7>(1);
   const [isConnectMailboxModalOpen, setIsConnectMailboxModalOpen] = useState(false);
+  const [showDraftProtectionModal, setShowDraftProtectionModal] = useState(false);
+  const [showTestSendModal, setShowTestSendModal] = useState(false);
 
-  // STEP 1: Campaign Identity
+  // STEP 1: Campaign Identity (Clean placeholders, no pre-filled fake user data)
   const [name, setName] = useState('');
-  const [targetAudience, setTargetAudience] = useState('Enterprise SaaS Founders & CROs');
-  const [tags, setTags] = useState('Outbound, Enterprise, High Intent');
+  const [targetAudience, setTargetAudience] = useState('');
+  const [tags, setTags] = useState('');
+  const [description, setDescription] = useState('');
 
-  // STEP 2: Audience & Leads Selection
-  const [leadSourceTab, setLeadSourceTab] = useState<'manual' | 'csv' | 'list' | 'crm'>('csv');
-  const [manualLeadsText, setManualLeadsText] = useState(
-    'sarah.j@cloudscale.ai, Sarah, Jenkins, CloudScale AI, VP Growth\n' +
-    'alex@neuralgrid.ai, Alexandre, Dubois, NeuralGrid, CTO\n' +
-    'marcus@apexdata.io, Marcus, Vance, Apex Data Labs, Head of RevOps'
-  );
+  // STEP 2: Leads & Sourcing
+  const [leadSourceTab, setLeadSourceTab] = useState<'csv' | 'sheets' | 'manual' | 'list' | 'crm'>('csv');
+  const [csvFileName, setCsvFileName] = useState('verified_prospects_q3.csv');
+  const [sheetsUrl, setSheetsUrl] = useState('');
+  const [manualLeadsText, setManualLeadsText] = useState('');
   const [audienceCount, setAudienceCount] = useState(1406);
-  const [csvFileName, setCsvFileName] = useState('decision_makers_export_q3.csv');
+  const [dedupeInFile, setDedupeInFile] = useState(true);
+  const [dedupeInCampaign, setDedupeInCampaign] = useState(true);
+  const [dedupeRecentContacted, setDedupeRecentContacted] = useState(true);
+  const [enforceSuppression, setEnforceSuppression] = useState(true);
 
-  // STEP 3: Sending Mailbox Selection & Rotation
-  const [selectedMailboxIds, setSelectedMailboxIds] = useState<string[]>(mailboxes.map(m => m.id));
-  const [rotationMode, setRotationMode] = useState<'round-robin' | 'jitter' | 'reputation'>('round-robin');
-
-  // STEP 4: Sequence Content & Steps
+  // STEP 3: Sequence Builder & A/Z Testing
   const [steps, setSteps] = useState<SequenceStepItem[]>([
     {
       stepNumber: 1,
       delayDays: 0,
+      delayValue: 0,
+      delayUnit: 'days',
+      threadMode: 'new',
       subject: 'Quick question regarding {{company}}\'s outbound infrastructure',
       body: 'Hi {{firstName}},\n\nNoticed {{company}}\'s rapid expansion in enterprise B2B. Most revenue leaders we speak with struggle with mailbox deliverability dropping below 85% once scaling across multiple SDRs.\n\nWe built Outtricks to automate multi-inbox rotation and AI warmup across Google Workspace and Office 365.\n\nWorth a brief 7-minute look this week?\n\nBest,\nSarah Jenkins',
       attachments: [],
@@ -98,11 +102,33 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
       signatureType: 'default',
       trackOpens: true,
       trackClicks: true,
-      hasVariantB: false,
+      variants: [
+        {
+          id: 'v_a_1',
+          label: 'A',
+          subject: 'Quick question regarding {{company}}\'s outbound infrastructure',
+          body: 'Hi {{firstName}},\n\nNoticed {{company}}\'s rapid expansion in enterprise B2B. Most revenue leaders we speak with struggle with mailbox deliverability dropping below 85% once scaling across multiple SDRs.\n\nWe built Outtricks to automate multi-inbox rotation and AI warmup across Google Workspace and Office 365.\n\nWorth a brief 7-minute look this week?\n\nBest,\nSarah Jenkins',
+          weight: 50,
+          status: 'active'
+        },
+        {
+          id: 'v_b_1',
+          label: 'B',
+          subject: 'Infrastructure scaling for {{company}}',
+          body: 'Hi {{firstName}},\n\nSeeing great momentum at {{company}}! Reaching out because scaling SDR outbound often triggers spam filters if mailbox pools aren\'t actively rotated.\n\nWe keep your deliverability above 98% automatically across Google & Microsoft mailboxes.\n\nOpen to reviewing our 1-page benchmark?',
+          weight: 50,
+          status: 'active'
+        }
+      ],
+      hasVariantB: true,
+      autoOptimizeMetric: 'positive_replies'
     },
     {
       stepNumber: 2,
       delayDays: 3,
+      delayValue: 3,
+      delayUnit: 'days',
+      threadMode: 'continue',
       subject: 'Re: Quick question regarding {{company}}\'s outbound infrastructure',
       body: 'Hi {{firstName}},\n\nFollowing up on my previous note. Thought you might find this relevant: CloudScale AI increased their booked qualified demos by 43% within 3 weeks of deploying our humanized sending pacing.\n\nDo you have 5 minutes this Thursday at 2 PM?\n\nBest,\nSarah',
       attachments: [],
@@ -111,11 +137,13 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
       signatureType: 'default',
       trackOpens: true,
       trackClicks: true,
-      hasVariantB: false,
     },
     {
       stepNumber: 3,
       delayDays: 4,
+      delayValue: 4,
+      delayUnit: 'days',
+      threadMode: 'continue',
       subject: 'Re: Quick question regarding {{company}}\'s outbound infrastructure',
       body: 'Hi {{firstName}},\n\nI understand you\'re busy leading growth at {{company}}. If deliverability isn\'t a priority this quarter, no problem at all.\n\nFeel free to reach out whenever you\'re ready to ramp outbound revenue.\n\nCheers,\nSarah',
       attachments: [],
@@ -124,91 +152,64 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
       signatureType: 'default',
       trackOpens: true,
       trackClicks: true,
-      hasVariantB: false,
     }
   ]);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
-  const [isHtmlMode, setIsHtmlMode] = useState(false);
 
-  // STEP 5: Schedule & Pacing
+  // STEP 4: Sending Accounts & Routing
+  const [selectedMailboxIds, setSelectedMailboxIds] = useState<string[]>(
+    mailboxes.filter(m => m.healthScore >= 70).map(m => m.id)
+  );
+  const [rotationMode, setRotationMode] = useState<'balanced' | 'health-aware' | 'randomized'>('balanced');
+  const [providerMatching, setProviderMatching] = useState<'prefer' | 'enforce' | 'disabled'>('prefer');
+  const [espRoutingGoogle, setEspRoutingGoogle] = useState<'prefer' | 'allow' | 'avoid'>('prefer');
+  const [espRoutingMicrosoft, setEspRoutingMicrosoft] = useState<'prefer' | 'allow' | 'avoid'>('prefer');
+  const [stickySender, setStickySender] = useState(true);
+
+  // STEP 5: Schedule & Sending Capacity Forecast
   const [sendingDays, setSendingDays] = useState({
     Mon: true, Tue: true, Wed: true, Thu: true, Fri: true, Sat: false, Sun: false,
   });
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('17:00');
-  const [timezone, setTimezone] = useState('lead_local');
-  const [maxLeadsPerDay, setMaxLeadsPerDay] = useState(30);
+  const [timezone, setTimezone] = useState<'lead_local' | 'workspace' | 'est' | 'pst' | 'utc'>('lead_local');
+  const [campaignDailyLimit, setCampaignDailyLimit] = useState(140);
+  const [mailboxDailyCap, setMailboxDailyCap] = useState(35);
+  const [maxNewLeadsPerDay, setMaxNewLeadsPerDay] = useState(45);
+  const [companySendLimit, setCompanySendLimit] = useState(1);
   const [minDelaySec, setMinDelaySec] = useState(60);
-  const [maxDelaySec, setMaxDelaySec] = useState(120);
+  const [maxDelaySec, setMaxDelaySec] = useState(180);
+  const [slowRamp, setSlowRamp] = useState(false);
 
-  // STEP 6: Campaign Settings & Safeguards
+  // STEP 6: Options & Safeguards
   const [stopOnReply, setStopOnReply] = useState(true);
+  const [stopOnPositiveReply, setStopOnPositiveReply] = useState(true);
   const [stopOnMeeting, setStopOnMeeting] = useState(true);
   const [stopOnAutoReply, setStopOnAutoReply] = useState(true);
-  const [stopOnUnsubscribe, setStopOnUnsubscribe] = useState(true);
+  const [stopCompanyOnReply, setStopCompanyOnReply] = useState(false);
   const [trackOpens, setTrackOpens] = useState(true);
   const [trackClicks, setTrackClicks] = useState(true);
-  const [replyDetection, setReplyDetection] = useState(true);
+  const [textOnlyMode, setTextOnlyMode] = useState(false);
   const [customTrackingDomain, setCustomTrackingDomain] = useState('track.cloudscale.ai');
+  const [bounceProtection, setBounceProtection] = useState(true);
   const [ccBccAddress, setCcBccAddress] = useState('');
   const [testEmailAddress, setTestEmailAddress] = useState('');
+  const [testSendingState, setTestSendingState] = useState<'ready' | 'sending' | 'sent'>('ready');
 
-  // AI SPAM WORD CHECKER ENGINE
-  const currentStepData = steps[activeStepIndex] || steps[0];
-  const fullTextToScan = `${currentStepData.subject} ${currentStepData.body}`.toLowerCase();
-  const detectedSpamWords = SPAM_TRIGGER_WORDS.filter(word => 
-    fullTextToScan.includes(word.toLowerCase())
-  );
-  const spamScore = Math.max(10, 100 - (detectedSpamWords.length * 15));
+  // Capacity Forecast Calculation
+  const combinedMailboxCapacity = selectedMailboxIds.length * mailboxDailyCap;
+  const effectiveDailyThroughput = Math.max(1, Math.min(campaignDailyLimit, combinedMailboxCapacity));
+  const estimatedSendingDays = Math.ceil(audienceCount / effectiveDailyThroughput);
 
-  const handleApplyTemplate = (template: EmailTemplate) => {
-    setSteps(prev => {
-      const next = [...prev];
-      next[activeStepIndex] = {
-        ...next[activeStepIndex],
-        subject: template.subject,
-        body: template.body,
-      };
-      return next;
-    });
-    success(`Applied template: "${template.name}"`);
-  };
+  // Check if draft has changes
+  const hasChanges = Boolean(name.trim() || targetAudience.trim() || description.trim() || selectedMailboxIds.length > 0);
 
-  const handleInsertVariable = (varName: string) => {
-    setSteps(prev => {
-      const next = [...prev];
-      next[activeStepIndex] = {
-        ...next[activeStepIndex],
-        body: next[activeStepIndex].body + ` {{${varName}}}`,
-      };
-      return next;
-    });
-  };
-
-  const handleAiRewrite = () => {
-    let cleanSubject = currentStepData.subject;
-    let cleanBody = currentStepData.body;
-
-    cleanSubject = cleanSubject.replace(/free/gi, 'complimentary')
-      .replace(/100%/gi, 'fully')
-      .replace(/guarantee/gi, 'ensure');
-
-    cleanBody = cleanBody.replace(/free/gi, 'complimentary')
-      .replace(/urgent/gi, 'time-sensitive')
-      .replace(/buy now/gi, 'review opportunities')
-      .replace(/click here/gi, 'check the resources');
-
-    setSteps(prev => {
-      const next = [...prev];
-      next[activeStepIndex] = {
-        ...next[activeStepIndex],
-        subject: cleanSubject,
-        body: cleanBody,
-      };
-      return next;
-    });
-
-    success('AI sanitized copy to remove spam triggers and boost deliverability to 98%!', 'AI Sanitized');
+  const handleCloseAttempt = () => {
+    if (hasChanges) {
+      setShowDraftProtectionModal(true);
+    } else {
+      onClose();
+    }
   };
 
   const handleAddStep = () => {
@@ -218,6 +219,9 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
       {
         stepNumber: newStepNum,
         delayDays: 3,
+        delayValue: 3,
+        delayUnit: 'days',
+        threadMode: 'continue',
         subject: `Re: ${prev[0]?.subject || 'Quick question regarding outbound'}`,
         body: `Hi {{firstName}},\n\nWanted to quickly follow up regarding our previous note.\n\nBest,\nSarah`,
         attachments: [],
@@ -243,10 +247,15 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
 
   const handleSendTestEmail = () => {
     if (!testEmailAddress.trim()) {
-      info('Please provide an email address for testing.');
+      info('Please provide an email address for test preview.');
       return;
     }
-    success(`Dispatched live test preview of Step ${activeStepIndex + 1} to ${testEmailAddress.trim()}`);
+    setTestSendingState('sending');
+    setTimeout(() => {
+      setTestSendingState('sent');
+      success(`Dispatched live preview of Step ${activeStepIndex + 1} to ${testEmailAddress.trim()}`);
+      setTimeout(() => setTestSendingState('ready'), 3000);
+    }, 900);
   };
 
   const toggleMailboxSelect = (id: string) => {
@@ -256,27 +265,132 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
   };
 
   const handleFinalLaunch = () => {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      info('Please provide a campaign name before launching.');
+      setCurrentStep(1);
+      return;
+    }
+    if (selectedMailboxIds.length === 0) {
+      info('Please select at least one sending mailbox in Step 4.');
+      setCurrentStep(4);
+      return;
+    }
 
     createCampaign({
       name: name.trim(),
+      targetPersona: targetAudience.trim() || undefined,
+      description: description.trim() || undefined,
       audienceCount: Number(audienceCount) || 1406,
-      mailboxesCount: selectedMailboxIds.length || 4,
-      tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+      mailboxesCount: selectedMailboxIds.length,
+      selectedMailboxIds: selectedMailboxIds,
+      rotationMode: rotationMode,
+      providerMatching: providerMatching,
+      espRoutingMatrix: {
+        google: espRoutingGoogle,
+        microsoft: espRoutingMicrosoft,
+        custom: 'allow',
+      },
+      stickySender: stickySender,
+      tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : ['Outbound', 'Q3'],
+      maxLeadsPerDay: campaignDailyLimit,
+      companySendLimit: companySendLimit,
+      stopOnReply: stopOnReply,
+      stopOnMeeting: stopOnMeeting,
+      stopOnAutoReply: stopOnAutoReply,
+      trackOpens: trackOpens,
+      trackClicks: trackClicks,
+      customTrackingDomain: customTrackingDomain,
     });
 
-    success(`Campaign "${name.trim()}" successfully created and scheduled!`, 'Campaign Launched');
+    success(`Campaign "${name.trim()}" successfully created and launched into Campaign Control Center!`, 'Campaign Active');
     onClose();
   };
 
+  const handleSaveDraft = () => {
+    if (!name.trim()) {
+      info('Please provide a campaign name before saving a draft.');
+      setCurrentStep(1);
+      setShowDraftProtectionModal(false);
+      return;
+    }
+
+    createCampaign({
+      name: name.trim(),
+      targetPersona: targetAudience.trim() || undefined,
+      description: description.trim() || undefined,
+      audienceCount: Number(audienceCount) || 0,
+      mailboxesCount: selectedMailboxIds.length,
+      selectedMailboxIds: selectedMailboxIds,
+      tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : ['Draft'],
+    });
+
+    success(`Saved "${name.trim()}" as draft.`);
+    setShowDraftProtectionModal(false);
+    onClose();
+  };
+
+  // Preflight validation engine
+  const preflightChecks = [
+    {
+      id: 'name',
+      stepTarget: 1 as const,
+      label: 'Campaign Identity',
+      detail: name.trim() ? `"${name.trim()}" configured` : 'Missing campaign name',
+      status: name.trim() ? ('ready' as const) : ('blocking' as const),
+      fixAction: 'Set Name',
+    },
+    {
+      id: 'leads',
+      stepTarget: 2 as const,
+      label: 'Audience & Leads',
+      detail: audienceCount > 0 ? `${audienceCount.toLocaleString()} leads mapped & deduplicated` : 'No leads imported',
+      status: audienceCount > 0 ? ('ready' as const) : ('blocking' as const),
+      fixAction: 'Add Leads',
+    },
+    {
+      id: 'sequence',
+      stepTarget: 3 as const,
+      label: 'Sequence Steps',
+      detail: `${steps.length} email touches configured with A/Z split testing`,
+      status: steps.length > 0 ? ('ready' as const) : ('blocking' as const),
+      fixAction: 'Configure Sequence',
+    },
+    {
+      id: 'sending',
+      stepTarget: 4 as const,
+      label: 'Sending Accounts Pool',
+      detail: selectedMailboxIds.length > 0
+        ? `${selectedMailboxIds.length} rotating mailboxes (${combinedMailboxCapacity}/day cap)`
+        : 'No sending mailboxes selected',
+      status: selectedMailboxIds.length > 0 ? ('ready' as const) : ('blocking' as const),
+      fixAction: 'Select Accounts',
+    },
+    {
+      id: 'schedule',
+      stepTarget: 5 as const,
+      label: 'Operating Schedule',
+      detail: `${Object.entries(sendingDays).filter(([_, a]) => a).map(([d]) => d).join(', ')} • ${startTime}-${endTime} (${timezone})`,
+      status: Object.values(sendingDays).some(Boolean) ? ('ready' as const) : ('warning' as const),
+      fixAction: 'Adjust Hours',
+    },
+    {
+      id: 'options',
+      stepTarget: 6 as const,
+      label: 'Safeguards & Compliance',
+      detail: 'Stop-on-reply, meeting detection, and 1-click unsubscribe enabled',
+      status: stopOnReply ? ('ready' as const) : ('warning' as const),
+      fixAction: 'Verify Safeguards',
+    },
+  ];
+
   const JOURNEY_STEPS = [
-    { step: 1, title: 'Name & Persona' },
-    { step: 2, title: 'Audience' },
-    { step: 3, title: 'Sending Mailboxes' },
-    { step: 4, title: 'Sequence' },
+    { step: 1, title: 'Campaign' },
+    { step: 2, title: 'Leads' },
+    { step: 3, title: 'Sequence' },
+    { step: 4, title: 'Sending Accounts' },
     { step: 5, title: 'Schedule' },
-    { step: 6, title: 'Settings' },
-    { step: 7, title: 'Review & Launch' },
+    { step: 6, title: 'Options' },
+    { step: 7, title: 'Preflight & Launch' },
   ];
 
   return (
@@ -297,18 +411,20 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
                 key={s.step}
                 type="button"
                 onClick={() => setCurrentStep(s.step as any)}
-                className={`px-2.5 py-1 rounded-xl font-bold transition-all flex items-center gap-1 whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   currentStep === s.step
-                    ? 'bg-emerald-500 text-white shadow-xs'
+                    ? 'bg-primary text-primary-foreground shadow-xs'
                     : currentStep > s.step
-                    ? 'text-emerald-600 dark:text-emerald-400 font-semibold'
+                    ? 'text-primary font-semibold hover:bg-primary/10'
                     : 'text-slate-400 dark:text-slate-500 hover:text-slate-700'
                 }`}
               >
                 {currentStep > s.step ? (
-                  <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
                 ) : (
-                  <span className="w-3.5 h-3.5 rounded-full bg-slate-200 dark:bg-[#333] flex items-center justify-center text-[9px]">
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                    currentStep === s.step ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-[#333]'
+                  }`}>
                     {s.step}
                   </span>
                 )}
@@ -318,16 +434,17 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
           </div>
 
           {/* ========================================================================= */}
-          {/* STEP 1: CAMPAIGN NAME & PERSONA                                           */}
+          {/* STEP 1: CAMPAIGN IDENTITY & TARGET PERSONA                                */}
           {/* ========================================================================= */}
           {currentStep === 1 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="space-y-1">
-                <h3 className="text-sm font-extrabold text-slate-950 dark:text-white">
-                  Step 1: Campaign Identity & Target Persona
+                <h3 className="text-sm font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
+                  <span>Step 1: Campaign Identity & Target Persona</span>
+                  <Badge variant="primary" size="sm">Basics</Badge>
                 </h3>
                 <p className="text-slate-500 text-[11px]">
-                  Name your outbound campaign and define the target ICP persona for tracking.
+                  Define the name, ICP audience target, and categorization tags for this cold email campaign.
                 </p>
               </div>
 
@@ -342,47 +459,63 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Input
-                  label="Target Audience / ICP Persona"
-                  placeholder="e.g. Series A Founders, RevOps VP"
+                  label="Target ICP Persona / Audience"
+                  placeholder="e.g. Series A Founders, VP of Revenue Operations"
                   value={targetAudience}
                   onChange={(e) => setTargetAudience(e.target.value)}
                 />
 
                 <Input
-                  label="Categorization Tags (comma separated)"
-                  placeholder="e.g. Outbound, Tier-1, EMEA"
+                  label="Categorization Tags (comma-separated)"
+                  placeholder="e.g. Outbound, Tier-1, EMEA, High-Intent"
                   value={tags}
                   onChange={(e) => setTags(e.target.value)}
                 />
               </div>
 
-              <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-[11px] text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Next, you'll attach your recipient lead list in Step 2.</span>
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
+                  Campaign Strategic Notes / Objective (Optional)
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Outbound initiative targeting scaleup CTOs to introduce humanized sending pacing."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-[#2C2C2C] bg-white dark:bg-[#141414] text-xs text-slate-900 dark:text-white focus:border-primary outline-none"
+                />
+              </div>
+
+              <div className="p-3 bg-primary/10 border border-primary/20 rounded-2xl text-[11px] text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary shrink-0" />
+                <span>Next, you'll attach your recipient prospects and configure deduplication in Step 2.</span>
               </div>
             </div>
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 2: AUDIENCE (MANUAL, CSV, LIST, CRM)                                 */}
+          {/* STEP 2: LEADS & SOURCING                                                  */}
           {/* ========================================================================= */}
           {currentStep === 2 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="space-y-1">
-                <h3 className="text-sm font-extrabold text-slate-950 dark:text-white">
-                  Step 2: Audience & Lead Sourcing
+                <h3 className="text-sm font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
+                  <span>Step 2: Audience & Lead Sourcing</span>
+                  <Badge variant="primary" size="sm">Leads Hub</Badge>
                 </h3>
                 <p className="text-slate-500 text-[11px]">
-                  Import verified prospect records from CSV, saved prospect lists, CRM leads, or enter manually.
+                  Import verified prospect contacts from CSV, Google Sheets, Lead Finder lists, or active CRM leads.
                 </p>
               </div>
 
-              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A]">
+              {/* Source Selector Tabs */}
+              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] overflow-x-auto">
                 {[
-                  { id: 'csv', label: 'Import CSV File', icon: UploadCloud },
-                  { id: 'manual', label: 'Add Leads Manually', icon: Type },
-                  { id: 'list', label: 'Select Existing List', icon: Users },
-                  { id: 'crm', label: 'Select CRM Leads', icon: Flame },
+                  { id: 'csv', label: 'CSV Upload', icon: UploadCloud },
+                  { id: 'sheets', label: 'Google Sheets', icon: Globe },
+                  { id: 'manual', label: 'Manual Paste', icon: Type },
+                  { id: 'list', label: 'Lead Finder Lists', icon: Users },
+                  { id: 'crm', label: 'CRM Contacts', icon: Flame },
                 ].map((tab) => {
                   const Icon = tab.icon;
                   return (
@@ -390,9 +523,9 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
                       key={tab.id}
                       type="button"
                       onClick={() => setLeadSourceTab(tab.id as any)}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0 ${
                         leadSourceTab === tab.id
-                          ? 'bg-white dark:bg-[#242424] text-emerald-600 dark:text-emerald-400 shadow-xs'
+                          ? 'bg-white dark:bg-[#242424] text-primary shadow-xs'
                           : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                       }`}
                     >
@@ -404,27 +537,42 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
               </div>
 
               {leadSourceTab === 'csv' && (
-                <div className="p-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-[#333] bg-slate-50 dark:bg-[#181818] text-center space-y-2 cursor-pointer hover:border-emerald-500 transition-colors">
-                  <UploadCloud className="w-8 h-8 text-emerald-500 mx-auto" />
-                  <div className="font-bold text-slate-900 dark:text-white">
+                <div className="p-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-[#333] bg-slate-50 dark:bg-[#181818] text-center space-y-2 cursor-pointer hover:border-primary transition-colors">
+                  <UploadCloud className="w-8 h-8 text-primary mx-auto" />
+                  <div className="font-bold text-slate-900 dark:text-white text-xs">
                     {csvFileName}
                   </div>
                   <p className="text-[11px] text-slate-400">
-                    Auto-mapped: Email, First Name, Company, Job Title • 1,406 verified contacts
+                    Auto-mapped: Email, First Name, Last Name, Company, Title, LinkedIn • 1,406 records detected
                   </p>
+                </div>
+              )}
+
+              {leadSourceTab === 'sheets' && (
+                <div className="space-y-2 p-4 rounded-2xl bg-slate-50 dark:bg-[#181818] border border-slate-200 dark:border-[#2A2A2A]">
+                  <Input
+                    label="Google Sheets Shareable URL"
+                    placeholder="https://docs.google.com/spreadsheets/d/.../edit"
+                    value={sheetsUrl}
+                    onChange={(e) => setSheetsUrl(e.target.value)}
+                  />
+                  <span className="text-[10px] text-slate-400">
+                    Sheet must have viewer permission. Header row will be automatically parsed into dynamic variables.
+                  </span>
                 </div>
               )}
 
               {leadSourceTab === 'manual' && (
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                    Paste CSV or comma-separated leads (Email, First Name, Last Name, Company, Title):
+                    Paste comma-separated leads (Email, First Name, Last Name, Company, Title):
                   </label>
                   <textarea
-                    rows={5}
+                    rows={4}
                     value={manualLeadsText}
                     onChange={(e) => setManualLeadsText(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] font-mono text-[11px] text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    placeholder="sarah.j@cloudscale.ai, Sarah, Jenkins, CloudScale AI, VP Growth"
+                    className="w-full p-3 rounded-xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] font-mono text-[11px] text-slate-900 dark:text-white focus:outline-none focus:border-primary"
                   />
                 </div>
               )}
@@ -436,135 +584,106 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
                     { name: 'FinTech Seed/Series A Decision Makers', count: 850, date: 'Imported 5 days ago' },
                     { name: 'US RevOps Directors - High Intent', count: 620, date: 'Imported last week' },
                   ].map((list, i) => (
-                    <div key={i} className="p-3 rounded-xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] flex items-center justify-between cursor-pointer hover:border-emerald-500">
+                    <div key={i} className="p-3 rounded-xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] flex items-center justify-between cursor-pointer hover:border-primary">
                       <div>
                         <strong className="text-slate-900 dark:text-white font-bold">{list.name}</strong>
                         <div className="text-[11px] text-slate-400 font-mono">{list.date}</div>
                       </div>
-                      <Badge variant="emerald" size="sm">{list.count} Leads</Badge>
+                      <Badge variant="primary" size="sm">{list.count} Leads</Badge>
                     </div>
                   ))}
                 </div>
               )}
 
               {leadSourceTab === 'crm' && (
-                <div className="space-y-2">
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#181818] border border-slate-200 dark:border-[#2A2A2A] flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-slate-900 dark:text-white">Active CRM Qualified Leads</span>
-                      <p className="text-[11px] text-slate-400">Pulls all contacts currently tagged as "Lead" or "Working Pipeline".</p>
-                    </div>
-                    <Badge variant="emerald" size="sm">{contacts.length} CRM Contacts</Badge>
+                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#181818] border border-slate-200 dark:border-[#2A2A2A] flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-slate-900 dark:text-white block">Active CRM Qualified Leads</span>
+                    <p className="text-[11px] text-slate-400">Pulls contacts currently tagged as "Lead" or "Working Pipeline".</p>
                   </div>
+                  <Badge variant="primary" size="sm">{contacts.length} CRM Contacts</Badge>
                 </div>
               )}
+
+              {/* Lead Validation Summary Card */}
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-[#151515] border border-slate-200 dark:border-[#2A2A2A] space-y-2.5 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-extrabold text-slate-900 dark:text-white text-xs">
+                    Lead Verification & Hygiene Summary
+                  </span>
+                  <Badge variant="emerald" size="sm">✓ Ready for Outbound</Badge>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
+                  <div className="p-2 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200/60 dark:border-[#242424]">
+                    <div className="text-[10px] text-slate-400 uppercase font-bold">Total</div>
+                    <div className="font-black text-slate-900 dark:text-white font-mono mt-0.5">1,406</div>
+                  </div>
+                  <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                    <div className="text-[10px] uppercase font-bold">Valid</div>
+                    <div className="font-black font-mono mt-0.5">1,382</div>
+                  </div>
+                  <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
+                    <div className="text-[10px] uppercase font-bold">Duplicates</div>
+                    <div className="font-black font-mono mt-0.5">18 skipped</div>
+                  </div>
+                  <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400">
+                    <div className="text-[10px] uppercase font-bold">Missing Email</div>
+                    <div className="font-black font-mono mt-0.5">6 skipped</div>
+                  </div>
+                  <div className="p-2 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200/60 dark:border-[#242424]">
+                    <div className="text-[10px] text-slate-400 uppercase font-bold">Suppressed</div>
+                    <div className="font-black text-slate-900 dark:text-white font-mono mt-0.5">0</div>
+                  </div>
+                </div>
+
+                {/* Deduplication & Suppression Options */}
+                <div className="pt-2 border-t border-slate-100 dark:border-[#222222] grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                  <label className="flex items-center gap-2 text-slate-700 dark:text-slate-300 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={dedupeInCampaign}
+                      onChange={(e) => setDedupeInCampaign(e.target.checked)}
+                      className="w-3.5 h-3.5 accent-primary rounded cursor-pointer"
+                    />
+                    <span>Skip leads already active in this campaign</span>
+                  </label>
+                  <label className="flex items-center gap-2 text-slate-700 dark:text-slate-300 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={dedupeRecentContacted}
+                      onChange={(e) => setDedupeRecentContacted(e.target.checked)}
+                      className="w-3.5 h-3.5 accent-primary rounded cursor-pointer"
+                    />
+                    <span>Skip leads contacted in last 30 days</span>
+                  </label>
+                  <label className="flex items-center gap-2 text-slate-700 dark:text-slate-300 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={enforceSuppression}
+                      onChange={(e) => setEnforceSuppression(e.target.checked)}
+                      className="w-3.5 h-3.5 accent-primary rounded cursor-pointer"
+                    />
+                    <span>Enforce suppression list (bounces, opt-outs)</span>
+                  </label>
+                </div>
+              </div>
             </div>
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 3: SENDING MAILBOX POOL & ROTATION                                   */}
+          {/* STEP 3: SEQUENCE BUILDER & A/Z VARIANTS                                   */}
           {/* ========================================================================= */}
           {currentStep === 3 && (
             <div className="space-y-4 animate-in fade-in">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="space-y-0.5">
-                  <h3 className="text-sm font-extrabold text-slate-950 dark:text-white">
-                    Step 3: Sending Mailboxes & Rotation Pool
-                  </h3>
-                  <p className="text-slate-500 text-[11px]">
-                    Select which connected mailboxes will rotate and distribute daily outreach volume.
-                  </p>
-                </div>
-
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setIsConnectMailboxModalOpen(true)}
-                  leftIcon={<Plus className="w-3.5 h-3.5" />}
-                >
-                  Connect New Mailbox
-                </Button>
-              </div>
-
-              {/* Mailbox Selection List */}
-              <div className="space-y-2">
-                {mailboxes.map((mbx) => {
-                  const isSelected = selectedMailboxIds.includes(mbx.id);
-                  return (
-                    <div
-                      key={mbx.id}
-                      onClick={() => toggleMailboxSelect(mbx.id)}
-                      className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
-                        isSelected
-                          ? 'bg-emerald-500/10 border-emerald-500/40 text-slate-900 dark:text-white'
-                          : 'bg-white dark:bg-[#161616] border-slate-200/80 dark:border-[#262626] opacity-60'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => {}}
-                          className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500 cursor-pointer"
-                        />
-                        <div>
-                          <div className="font-bold text-xs font-mono">{mbx.email}</div>
-                          <div className="text-[10px] text-slate-400">
-                            Provider: {mbx.provider} • Cap: {mbx.dailyCap} sends/day • Health: {mbx.healthScore}%
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Badge variant="emerald" size="sm">✓ Verified</Badge>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Rotation Mode Selector */}
-              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#181818] border border-slate-200 dark:border-[#262626] space-y-1.5">
-                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
-                  Mailbox Rotation Strategy:
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: 'round-robin', label: 'Round-Robin', desc: 'Even rotation across all selected mailboxes' },
-                    { id: 'jitter', label: 'Random Jitter', desc: 'Mimics human cadence with staggered dispatch' },
-                    { id: 'reputation', label: 'Reputation Paced', desc: 'Weights sends based on health scores' },
-                  ].map((mode) => (
-                    <button
-                      key={mode.id}
-                      type="button"
-                      onClick={() => setRotationMode(mode.id as any)}
-                      className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
-                        rotationMode === mode.id
-                          ? 'bg-white dark:bg-[#202020] border-emerald-500 text-emerald-600 dark:text-emerald-400 font-bold'
-                          : 'border-slate-200 dark:border-[#2A2A2A] text-slate-600 dark:text-slate-400'
-                      }`}
-                    >
-                      <div className="text-xs">{mode.label}</div>
-                      <div className="text-[9px] text-slate-400 font-normal leading-tight mt-0.5">{mode.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* STEP 4: SEQUENCE, CONTENT, TEMPLATES & SPAM CHECKER                       */}
-          {/* ========================================================================= */}
-          {currentStep === 4 && (
-            <div className="space-y-4 animate-in fade-in">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="space-y-0.5">
-                  <h3 className="text-sm font-extrabold text-slate-950 dark:text-white">
-                    Step 4: Sequence Steps & Dynamic Copy
+                  <h3 className="text-sm font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
+                    <span>Step 3: Multi-Touch Sequence & A/Z Testing</span>
+                    <Badge variant="primary" size="sm">A/Z Testing Active</Badge>
                   </h3>
                   <p className="text-slate-500 text-[11px]">
-                    Build multi-step follow-ups with variable tags, formatting, file attachments, and real-time AI deliverability scoring.
+                    Create follow-up touches with delay in minutes/hours/days, thread continuation, dynamic spintax, and TRIXIE AI assistance.
                   </p>
                 </div>
 
@@ -574,11 +693,11 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
                   onClick={handleAddStep}
                   leftIcon={<Plus className="w-3.5 h-3.5" />}
                 >
-                  Add Follow-Up Step
+                  Add Follow-Up Touch
                 </Button>
               </div>
 
-              {/* Step Selector Tabs & Delete action */}
+              {/* Step Navigation Pill Strip */}
               <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-[#222222] pb-2">
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                   {steps.map((s, idx) => (
@@ -588,14 +707,16 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
                       onClick={() => setActiveStepIndex(idx)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
                         activeStepIndex === idx
-                          ? 'bg-emerald-500 text-white shadow-xs'
+                          ? 'bg-primary text-primary-foreground shadow-xs'
                           : 'bg-slate-100 dark:bg-[#1E1E1E] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
-                      <span>Step {s.stepNumber}</span>
+                      <span>Touch #{s.stepNumber}</span>
                       {s.delayDays > 0 && <span className="text-[10px] opacity-80">(+{s.delayDays}d)</span>}
-                      {s.attachments && s.attachments.length > 0 && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-purple-300" />
+                      {s.variants && s.variants.length > 1 && (
+                        <span className="px-1 py-0.2 rounded text-[9px] bg-purple-500/20 text-purple-400 font-mono">
+                          {s.variants.length} vars
+                        </span>
                       )}
                     </button>
                   ))}
@@ -605,16 +726,16 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
                   <button
                     type="button"
                     onClick={() => handleRemoveStep(activeStepIndex)}
-                    className="text-[11px] font-bold text-red-500 hover:text-red-600 flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer shrink-0"
+                    className="text-[11px] font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors cursor-pointer shrink-0"
                     title="Delete current step"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>Delete Step</span>
+                    <span>Delete Touch</span>
                   </button>
                 )}
               </div>
 
-              {/* Full Featured Sequence Step Editor */}
+              {/* Embedded Sequence Step Editor */}
               {steps[activeStepIndex] && (
                 <SequenceStepEditor
                   step={steps[activeStepIndex]}
@@ -627,32 +748,172 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
                       return n;
                     });
                   }}
-                  onApplyAiPolish={handleAiRewrite}
                 />
               )}
             </div>
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 5: SCHEDULE & PACING                                                 */}
+          {/* STEP 4: SENDING ACCOUNTS & ROUTING                                        */}
+          {/* ========================================================================= */}
+          {currentStep === 4 && (
+            <div className="space-y-4 animate-in fade-in">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <h3 className="text-sm font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
+                    <span>Step 4: Sending Accounts & Routing Strategy</span>
+                    <Badge variant="primary" size="sm">{selectedMailboxIds.length} Selected</Badge>
+                  </h3>
+                  <p className="text-slate-500 text-[11px]">
+                    Select rotating mailboxes from your fleet. Distribute dispatch load and match sender ESP to recipient domain.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedMailboxIds(mailboxes.filter(m => m.healthScore >= 70).map(m => m.id))}
+                  >
+                    Select All Healthy ({mailboxes.filter(m => m.healthScore >= 70).length})
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setIsConnectMailboxModalOpen(true)}
+                    leftIcon={<Plus className="w-3.5 h-3.5" />}
+                  >
+                    Connect Mailbox
+                  </Button>
+                </div>
+              </div>
+
+              {/* Mailbox Selection Pool */}
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                {mailboxes.map((mbx) => {
+                  const isSelected = selectedMailboxIds.includes(mbx.id);
+                  const isEligible = mbx.healthScore >= 70;
+                  return (
+                    <div
+                      key={mbx.id}
+                      onClick={() => toggleMailboxSelect(mbx.id)}
+                      className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                        isSelected
+                          ? 'bg-primary/10 border-primary/40 text-slate-900 dark:text-white'
+                          : 'bg-white dark:bg-[#161616] border-slate-200/80 dark:border-[#262626] opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {}}
+                          className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer"
+                        />
+                        <div>
+                          <div className="font-bold text-xs font-mono">{mbx.email}</div>
+                          <div className="text-[10px] text-slate-400">
+                            {mbx.provider} • Daily Cap: {mbx.dailyCap} sends • Warmup: {mbx.warmupStatus || 'Active'}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Badge variant={isEligible ? 'emerald' : 'amber'} size="sm">
+                          Health {mbx.healthScore}%
+                        </Badge>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Provider Matching & ESP Routing Matrix */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#181818] border border-slate-200 dark:border-[#262626] space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <strong className="text-slate-950 dark:text-white font-bold block text-xs">
+                      Smart Provider Matching (Google $\to$ Google, Microsoft $\to$ Microsoft)
+                    </strong>
+                    <span className="text-[11px] text-slate-400">
+                      Routes emails through matching ESPs for higher primary inbox landing rates.
+                    </span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={providerMatching !== 'disabled'}
+                    onChange={(e) => setProviderMatching(e.target.checked ? 'prefer' : 'disabled')}
+                    className="w-4 h-4 accent-primary rounded cursor-pointer"
+                  />
+                </div>
+
+                {providerMatching !== 'disabled' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-200/70 dark:border-[#242424] text-[11px]">
+                    <div className="p-2 rounded-xl bg-white dark:bg-[#121212] border border-slate-200/60 dark:border-[#282828] flex items-center justify-between">
+                      <span>Google Recipient:</span>
+                      <select
+                        value={espRoutingGoogle}
+                        onChange={(e) => setEspRoutingGoogle(e.target.value as any)}
+                        className="bg-transparent font-bold text-primary outline-none"
+                      >
+                        <option value="prefer">Prefer Google Sender</option>
+                        <option value="allow">Allow Any Sender</option>
+                        <option value="avoid">Avoid Google</option>
+                      </select>
+                    </div>
+
+                    <div className="p-2 rounded-xl bg-white dark:bg-[#121212] border border-slate-200/60 dark:border-[#282828] flex items-center justify-between">
+                      <span>Microsoft Recipient:</span>
+                      <select
+                        value={espRoutingMicrosoft}
+                        onChange={(e) => setEspRoutingMicrosoft(e.target.value as any)}
+                        className="bg-transparent font-bold text-primary outline-none"
+                      >
+                        <option value="prefer">Prefer Microsoft Sender</option>
+                        <option value="allow">Allow Any Sender</option>
+                        <option value="avoid">Avoid Microsoft</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 dark:border-[#242424]">
+                  <div>
+                    <strong className="text-slate-950 dark:text-white font-bold block text-xs">Sticky Sender</strong>
+                    <span className="text-[11px] text-slate-400">Maintains conversation continuity with the same sender address.</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={stickySender}
+                    onChange={(e) => setStickySender(e.target.checked)}
+                    className="w-4 h-4 accent-primary rounded cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* STEP 5: SCHEDULE & SENDING CAPACITY FORECAST                              */}
           {/* ========================================================================= */}
           {currentStep === 5 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="space-y-1">
-                <h3 className="text-sm font-extrabold text-slate-950 dark:text-white">
-                  Step 5: Sending Schedule & Operating Window
+                <h3 className="text-sm font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
+                  <span>Step 5: Sending Schedule & Capacity Forecast</span>
+                  <Badge variant="primary" size="sm">Pacing Engine</Badge>
                 </h3>
                 <p className="text-slate-500 text-[11px]">
-                  Configure sending days, hours, recipient timezones, and daily sending caps.
+                  Configure sending windows, daily caps, company limits, and inspect live throughput forecasts.
                 </p>
               </div>
 
-              {/* Days of Week */}
+              {/* Active Dispatch Days (Centered layout) */}
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
-                  Active Dispatch Days
+                  Active Dispatch Weekdays
                 </label>
-                <div className="flex items-center gap-1.5 flex-wrap">
+                <div className="grid grid-cols-7 gap-1.5">
                   {Object.keys(sendingDays).map((day) => {
                     const active = (sendingDays as any)[day];
                     return (
@@ -660,10 +921,10 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
                         key={day}
                         type="button"
                         onClick={() => setSendingDays(prev => ({ ...prev, [day]: !active }))}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
+                        className={`py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer flex items-center justify-center ${
                           active 
-                            ? 'bg-emerald-500 text-white' 
-                            : 'bg-slate-100 dark:bg-[#1E1E1E] text-slate-400'
+                            ? 'bg-primary text-primary-foreground shadow-xs' 
+                            : 'bg-slate-100 dark:bg-[#1E1E1E] text-slate-400 hover:text-slate-700'
                         }`}
                       >
                         {day}
@@ -673,64 +934,99 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
                 </div>
               </div>
 
-              {/* Sending Hours & Timezone */}
+              {/* Time Window & Timezone */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Input
-                  label="Start Time"
+                  label="Daily Start Time"
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
                 />
 
                 <Input
-                  label="End Time"
+                  label="Daily End Time"
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
                 />
 
                 <Select
-                  label="Timezone Mode"
+                  label="Timezone Strategy"
                   value={timezone}
-                  onChange={(e) => setTimezone(e.target.value)}
+                  onChange={(e) => setTimezone(e.target.value as any)}
                   options={[
                     { value: 'lead_local', label: 'Lead Local Timezone (Auto)' },
-                    { value: 'utc', label: 'UTC' },
+                    { value: 'workspace', label: 'Workspace Timezone (PST)' },
                     { value: 'est', label: 'US Eastern (EST)' },
-                    { value: 'pst', label: 'US Pacific (PST)' },
+                    { value: 'utc', label: 'UTC' },
                   ]}
                 />
               </div>
 
-              {/* Daily Limit & Delay */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Campaign Limits & Company Send Cap */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Input
-                  label="Daily Sending Limit per Mailbox"
+                  label="Campaign Daily Limit"
                   type="number"
-                  value={maxLeadsPerDay}
-                  onChange={(e) => setMaxLeadsPerDay(Number(e.target.value))}
-                  min={5}
-                  max={50}
+                  value={campaignDailyLimit}
+                  onChange={(e) => setCampaignDailyLimit(Number(e.target.value))}
+                  min={10}
+                  max={1000}
                 />
 
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
-                    Randomized Jitter Delay (Seconds)
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      value={minDelaySec}
-                      onChange={(e) => setMinDelaySec(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] text-xs font-mono"
-                    />
-                    <span className="text-slate-400 text-xs">to</span>
-                    <input
-                      type="number"
-                      value={maxDelaySec}
-                      onChange={(e) => setMaxDelaySec(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] text-xs font-mono"
-                    />
+                <Input
+                  label="Mailbox Daily Cap"
+                  type="number"
+                  value={mailboxDailyCap}
+                  onChange={(e) => setMailboxDailyCap(Number(e.target.value))}
+                  min={5}
+                  max={100}
+                />
+
+                <Input
+                  label="Max Leads / Company / Day"
+                  type="number"
+                  value={companySendLimit}
+                  onChange={(e) => setCompanySendLimit(Number(e.target.value))}
+                  min={1}
+                  max={10}
+                />
+              </div>
+
+              {/* Sending Capacity Forecast Panel */}
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#181818] border border-slate-200/80 dark:border-[#262626] space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-extrabold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-primary" />
+                    <span>Outtricks Sending Capacity Forecast</span>
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">Live calculation</span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+                  <div className="p-2.5 rounded-xl bg-white dark:bg-[#121212] border border-slate-200/70 dark:border-[#242424]">
+                    <div className="text-[10px] text-slate-400 uppercase font-bold">Mailboxes</div>
+                    <div className="font-black text-slate-900 dark:text-white font-mono mt-0.5">
+                      {selectedMailboxIds.length} accounts
+                    </div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white dark:bg-[#121212] border border-slate-200/70 dark:border-[#242424]">
+                    <div className="text-[10px] text-slate-400 uppercase font-bold">Max Combined Cap</div>
+                    <div className="font-black text-primary font-mono mt-0.5">
+                      {combinedMailboxCapacity} / day
+                    </div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white dark:bg-[#121212] border border-slate-200/70 dark:border-[#242424]">
+                    <div className="text-[10px] text-slate-400 uppercase font-bold">Audience</div>
+                    <div className="font-black text-slate-900 dark:text-white font-mono mt-0.5">
+                      {audienceCount.toLocaleString()} leads
+                    </div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                    <div className="text-[10px] uppercase font-bold">Est. Duration</div>
+                    <div className="font-black font-mono mt-0.5">
+                      ≈ {estimatedSendingDays} sending days
+                    </div>
                   </div>
                 </div>
               </div>
@@ -738,165 +1034,189 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 6: CAMPAIGN SETTINGS & SAFEGUARDS                                    */}
+          {/* STEP 6: OPTIONS & SAFEGUARDS (GROUPED)                                    */}
           {/* ========================================================================= */}
           {currentStep === 6 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="space-y-1">
-                <h3 className="text-sm font-extrabold text-slate-950 dark:text-white">
-                  Step 6: Campaign Safeguards & Tracking Options
+                <h3 className="text-sm font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
+                  <span>Step 6: Campaign Options & Safeguards</span>
+                  <Badge variant="primary" size="sm">Safeguards</Badge>
                 </h3>
                 <p className="text-slate-500 text-[11px]">
-                  Configure stop-on-reply, meeting detection, custom tracking domain, and reply rules.
+                  Grouped controls for reply handling, open/click tracking, bounce safeguards, and compliance.
                 </p>
               </div>
 
-              {/* Safeguard Checkboxes */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#181818] border border-slate-200/80 dark:border-[#262626] space-y-3">
-                <label className="flex items-center justify-between cursor-pointer">
-                  <div>
-                    <strong className="text-slate-950 dark:text-white font-bold block">Stop sequence when lead replies</strong>
-                    <span className="text-[11px] text-slate-500">Halts all follow-up steps as soon as any reply is received.</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={stopOnReply}
-                    onChange={(e) => setStopOnReply(e.target.checked)}
-                    className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500 cursor-pointer"
-                  />
-                </label>
-
-                <div className="h-px bg-slate-200 dark:bg-[#262626]" />
-
-                <label className="flex items-center justify-between cursor-pointer">
-                  <div>
-                    <strong className="text-slate-950 dark:text-white font-bold block">Stop sequence when meeting is booked</strong>
-                    <span className="text-[11px] text-slate-500">Auto-detects calendar booking links and stops outreach.</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={stopOnMeeting}
-                    onChange={(e) => setStopOnMeeting(e.target.checked)}
-                    className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500 cursor-pointer"
-                  />
-                </label>
-
-                <div className="h-px bg-slate-200 dark:bg-[#262626]" />
-
-                <label className="flex items-center justify-between cursor-pointer">
-                  <div>
-                    <strong className="text-slate-950 dark:text-white font-bold block">Stop on Out-of-Office / Automated Reply</strong>
-                    <span className="text-[11px] text-slate-500">AI recognizes vacation replies and holds cadence until return date.</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={stopOnAutoReply}
-                    onChange={(e) => setStopOnAutoReply(e.target.checked)}
-                    className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500 cursor-pointer"
-                  />
-                </label>
-
-                <div className="h-px bg-slate-200 dark:bg-[#262626]" />
-
-                <label className="flex items-center justify-between cursor-pointer">
-                  <div>
-                    <strong className="text-slate-950 dark:text-white font-bold block">Stop when lead unsubscribes</strong>
-                    <span className="text-[11px] text-slate-500">Honors 1-click unsubscribe headers and suppression lists globally.</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={stopOnUnsubscribe}
-                    onChange={(e) => setStopOnUnsubscribe(e.target.checked)}
-                    className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500 cursor-pointer"
-                  />
-                </label>
-              </div>
-
-              {/* Tracking Toggles */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3 rounded-2xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] flex items-center justify-between">
-                  <span className="font-bold text-slate-900 dark:text-white">Track Email Opens</span>
-                  <input
-                    type="checkbox"
-                    checked={trackOpens}
-                    onChange={(e) => setTrackOpens(e.target.checked)}
-                    className="w-4 h-4 rounded text-emerald-500 cursor-pointer"
-                  />
-                </div>
-
-                <div className="p-3 rounded-2xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] flex items-center justify-between">
-                  <span className="font-bold text-slate-900 dark:text-white">Track Link Clicks</span>
-                  <input
-                    type="checkbox"
-                    checked={trackClicks}
-                    onChange={(e) => setTrackClicks(e.target.checked)}
-                    className="w-4 h-4 rounded text-emerald-500 cursor-pointer"
-                  />
+              {/* Group 1: Reply Handling */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#282828] space-y-2.5">
+                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
+                  Group 1: Reply & Intent Handling
+                </span>
+                <div className="space-y-2 text-xs">
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <div>
+                      <strong className="text-slate-900 dark:text-white block font-bold">Stop cadence when lead replies</strong>
+                      <span className="text-[11px] text-slate-500">Halts all further touches upon receipt of any reply.</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={stopOnReply}
+                      onChange={(e) => setStopOnReply(e.target.checked)}
+                      className="w-4 h-4 accent-primary rounded cursor-pointer"
+                    />
+                  </label>
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <div>
+                      <strong className="text-slate-900 dark:text-white block font-bold">Stop cadence when meeting is booked</strong>
+                      <span className="text-[11px] text-slate-500">Auto-detects booking link confirmations (Cal.com / Calendly).</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={stopOnMeeting}
+                      onChange={(e) => setStopOnMeeting(e.target.checked)}
+                      className="w-4 h-4 accent-primary rounded cursor-pointer"
+                    />
+                  </label>
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <div>
+                      <strong className="text-slate-900 dark:text-white block font-bold">Hold cadence on Out-of-Office / Vacation reply</strong>
+                      <span className="text-[11px] text-slate-500">Holds sequence automatically until prospect return date.</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={stopOnAutoReply}
+                      onChange={(e) => setStopOnAutoReply(e.target.checked)}
+                      className="w-4 h-4 accent-primary rounded cursor-pointer"
+                    />
+                  </label>
                 </div>
               </div>
 
-              {/* Tracking Domain & CC/BCC */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Group 2: Tracking & Deliverability */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#282828] space-y-2.5">
+                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
+                  Group 2: Tracking & Delivery Format
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200/70 dark:border-[#242424] flex items-center justify-between">
+                    <div>
+                      <strong className="text-slate-900 dark:text-white block font-bold">Track Email Opens</strong>
+                      <span className="text-[10px] text-slate-400">1x1 tracking pixel</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={trackOpens}
+                      onChange={(e) => setTrackOpens(e.target.checked)}
+                      className="w-4 h-4 accent-primary rounded cursor-pointer"
+                    />
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200/70 dark:border-[#242424] flex items-center justify-between">
+                    <div>
+                      <strong className="text-slate-900 dark:text-white block font-bold">Track Link Clicks</strong>
+                      <span className="text-[10px] text-slate-400">Custom tracking domain</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={trackClicks}
+                      onChange={(e) => setTrackClicks(e.target.checked)}
+                      className="w-4 h-4 accent-primary rounded cursor-pointer"
+                    />
+                  </div>
+                </div>
+
                 <Input
                   label="Custom Tracking Domain"
                   value={customTrackingDomain}
                   onChange={(e) => setCustomTrackingDomain(e.target.value)}
                 />
+              </div>
 
-                <Input
-                  label="Compliance CC / BCC (Optional)"
-                  placeholder="compliance-archive@company.com"
-                  value={ccBccAddress}
-                  onChange={(e) => setCcBccAddress(e.target.value)}
-                />
+              {/* Group 3: Compliance & Protection */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#282828] space-y-2.5">
+                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
+                  Group 3: Safety & Compliance
+                </span>
+                <div className="space-y-2 text-xs">
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <div>
+                      <strong className="text-slate-900 dark:text-white block font-bold">Bounce Protection Guard</strong>
+                      <span className="text-[11px] text-slate-500">Auto-pauses campaign if bounce rate surpasses 4%.</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={bounceProtection}
+                      onChange={(e) => setBounceProtection(e.target.checked)}
+                      className="w-4 h-4 accent-primary rounded cursor-pointer"
+                    />
+                  </label>
+                  <Input
+                    label="Compliance CC / BCC Archive (Optional)"
+                    placeholder="compliance-archive@company.com"
+                    value={ccBccAddress}
+                    onChange={(e) => setCcBccAddress(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 7: REVIEW & LAUNCH (PRE-FLIGHT CHECKLIST)                            */}
+          {/* STEP 7: PREFLIGHT & LAUNCH READINESS                                      */}
           {/* ========================================================================= */}
           {currentStep === 7 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="space-y-1">
-                <h3 className="text-sm font-extrabold text-slate-950 dark:text-white">
-                  Step 7: Pre-Flight Review & Launch Readiness
+                <h3 className="text-sm font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
+                  <span>Step 7: Pre-Flight Review & Launch Readiness</span>
+                  <Badge variant="emerald" size="sm">Preflight Inspection</Badge>
                 </h3>
                 <p className="text-slate-500 text-[11px]">
-                  Verify all 6 parameters are green before activating live automated dispatch.
+                  Review campaign verification checks. One-click "Fix" buttons jump directly to any item requiring adjustment.
                 </p>
               </div>
 
-              {/* Pre-Flight Checklist */}
+              {/* Preflight Checks with One-Click Fix Navigation */}
               <div className="space-y-2">
-                {[
-                  { label: 'Step 1: Campaign Identity', detail: name || 'Untitled Campaign', ok: Boolean(name.trim()) },
-                  { label: 'Step 2: Audience Configured', detail: `${audienceCount} verified prospect leads ready`, ok: true },
-                  { label: 'Step 3: Mailboxes Assigned', detail: `${selectedMailboxIds.length} rotating inboxes with active SPF/DKIM`, ok: selectedMailboxIds.length > 0 },
-                  { label: 'Step 4: Sequence Steps', detail: `${steps.length} email steps with 0 spam words (Score: ${spamScore}/100)`, ok: true },
-                  { label: 'Step 5: Schedule Active', detail: 'Mon-Fri 09:00 - 17:00 (Lead Local Timezone)', ok: true },
-                  { label: 'Step 6: Safeguards Enforced', detail: 'Stop on reply, stop on meeting booked, CNAME tracking active', ok: stopOnReply },
-                ].map((item, idx) => (
-                  <div key={idx} className="p-3 rounded-2xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] flex items-center justify-between text-xs">
+                {preflightChecks.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-3 rounded-2xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] flex items-center justify-between text-xs"
+                  >
                     <div className="flex items-center gap-2.5">
-                      <CheckCircle2 className={`w-4 h-4 ${item.ok ? 'text-emerald-500' : 'text-amber-500'}`} />
+                      <CheckCircle2 className={`w-4 h-4 ${
+                        item.status === 'ready' ? 'text-emerald-500' : item.status === 'warning' ? 'text-amber-500' : 'text-rose-500'
+                      }`} />
                       <div>
                         <strong className="text-slate-900 dark:text-white font-bold">{item.label}</strong>
                         <div className="text-[10px] text-slate-400 font-mono">{item.detail}</div>
                       </div>
                     </div>
-                    <Badge variant={item.ok ? 'emerald' : 'amber'} size="sm">
-                      {item.ok ? 'READY' : 'CHECK'}
-                    </Badge>
+
+                    <div className="flex items-center gap-2">
+                      <Badge variant={item.status === 'ready' ? 'emerald' : item.status === 'warning' ? 'amber' : 'rose'} size="sm">
+                        {item.status.toUpperCase()}
+                      </Badge>
+                      {item.status !== 'ready' && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => setCurrentStep(item.stepTarget)}
+                          className="text-[10px] font-bold h-7"
+                        >
+                          Fix Issue
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
 
-              {/* Test Email Dispatcher */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#181818] border border-slate-200 dark:border-[#262626] flex items-center justify-between gap-3">
+              {/* Live Test Send Preview Box */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#181818] border border-slate-200 dark:border-[#262626] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <div className="font-bold text-slate-950 dark:text-white text-xs">Send Test Sequence Email</div>
-                  <div className="text-[10px] text-slate-400">Verify email rendering in your own inbox.</div>
+                  <div className="font-bold text-slate-950 dark:text-white text-xs">Send Real Test Email</div>
+                  <div className="text-[10px] text-slate-400">Preview Touch #1 with dynamic variables populated in your inbox.</div>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -905,17 +1225,21 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
                     placeholder="your.email@company.com"
                     value={testEmailAddress}
                     onChange={(e) => setTestEmailAddress(e.target.value)}
-                    className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] text-xs font-mono"
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] text-xs font-mono outline-none"
                   />
-                  <Button variant="secondary" size="sm" onClick={handleSendTestEmail}>
-                    Send Test
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleSendTestEmail}
+                    disabled={testSendingState === 'sending'}
+                  >
+                    {testSendingState === 'sending' ? 'Sending...' : testSendingState === 'sent' ? '✓ Sent' : 'Send Test'}
                   </Button>
                 </div>
               </div>
 
-              {/* Launch Summary Notice */}
-              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs">
-                <strong>Where you are:</strong> Pre-flight validation passed. <strong>What happens next:</strong> Your campaign will start warm rotation at 9:00 AM in the recipient's local timezone.
+              <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs">
+                <strong>Where you are:</strong> Preflight verification is complete. <strong>What happens next:</strong> Launching will schedule dispatch across {selectedMailboxIds.length} rotating mailboxes and open the Campaign Control Center.
               </div>
             </div>
           )}
@@ -933,43 +1257,79 @@ export const CampaignCreationJourneyModal: React.FC<CampaignCreationJourneyModal
                 Back
               </Button>
             ) : (
-              <Button type="button" variant="secondary" size="sm" onClick={onClose}>
+              <Button type="button" variant="secondary" size="sm" onClick={handleCloseAttempt}>
                 Cancel
               </Button>
             )}
 
-            {currentStep < 7 ? (
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                onClick={() => {
-                  if (currentStep === 1 && !name.trim()) {
-                    info('Please give your campaign a name before continuing.');
-                    return;
-                  }
-                  setCurrentStep((currentStep + 1) as any);
-                }}
-                rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
-              >
-                Next Step
+            <div className="flex items-center gap-2">
+              <Button type="button" variant="ghost" size="sm" onClick={handleSaveDraft}>
+                Save as Draft
               </Button>
-            ) : (
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                onClick={handleFinalLaunch}
-                disabled={!name.trim()}
-                leftIcon={<Send className="w-3.5 h-3.5" />}
-              >
-                Launch Campaign Now
-              </Button>
-            )}
+
+              {currentStep < 7 ? (
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={() => {
+                    if (currentStep === 1 && !name.trim()) {
+                      info('Please give your campaign a name before continuing.');
+                      return;
+                    }
+                    setCurrentStep((currentStep + 1) as any);
+                  }}
+                  rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                >
+                  Next Step
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={handleFinalLaunch}
+                  disabled={!name.trim() || selectedMailboxIds.length === 0}
+                  leftIcon={<Send className="w-3.5 h-3.5" />}
+                >
+                  Launch Campaign
+                </Button>
+              )}
+            </div>
           </div>
 
         </div>
       </Modal>
+
+      {/* Draft Protection Confirmation Dialog */}
+      {showDraftProtectionModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white dark:bg-[#181818] border border-slate-200 dark:border-[#2A2A2A] rounded-2xl p-5 max-w-sm w-full shadow-2xl space-y-3">
+            <h4 className="font-extrabold text-slate-900 dark:text-white text-sm">Save Unfinished Campaign?</h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              You have unsaved campaign parameters. Would you like to save this campaign as a draft before leaving?
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <Button variant="ghost" size="sm" onClick={() => setShowDraftProtectionModal(false)}>
+                Continue Editing
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setShowDraftProtectionModal(false);
+                  onClose();
+                }}
+              >
+                Discard
+              </Button>
+              <Button variant="primary" size="sm" onClick={handleSaveDraft}>
+                Save Draft
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Nested Connect Mailbox Modal */}
       <ConnectMailboxModal

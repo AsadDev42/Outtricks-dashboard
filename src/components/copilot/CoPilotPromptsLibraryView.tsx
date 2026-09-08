@@ -56,7 +56,7 @@ export const CoPilotPromptsLibraryView: React.FC = () => {
           onClick={() => setIsCreateOpen(true)}
           className="shadow-md shadow-primary/30"
         >
-          <Plus className="w-4 h-4 mr-1.5" />
+          <Plus className="w-4 h-4" />
           <span>Save New Template</span>
         </Button>
       </div>
@@ -125,7 +125,7 @@ export const CoPilotPromptsLibraryView: React.FC = () => {
                 onClick={() => usePromptInChat(p.promptText)}
                 className="text-xs"
               >
-                <Play className="w-3.5 h-3.5 mr-1" />
+                <Play className="w-3.5 h-3.5" />
                 <span>Use in Chat</span>
               </Button>
             </div>

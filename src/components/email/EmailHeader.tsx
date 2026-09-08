@@ -72,7 +72,7 @@ export const EmailHeader: React.FC<EmailHeaderProps> = ({
           </div>
 
           {/* Action CTAs */}
-          <div className="flex items-center gap-2 shrink-0 pt-1 sm:pt-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 pt-1 sm:pt-0">
             <Button
               variant="secondary"
               size="sm"

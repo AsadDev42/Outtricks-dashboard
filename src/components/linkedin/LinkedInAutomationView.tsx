@@ -28,6 +28,7 @@ import { useLinkedIn, LinkedInAutomationRule } from '../../context/LinkedInConte
 import { useToast } from '../../context/ToastContext';
 import { CreateAutomationRuleModal } from './CreateAutomationRuleModal';
 import { MultiChannelCanvasModal } from '../workflows/MultiChannelCanvasModal';
+import { LinkedInCreateRuleDropdown } from './LinkedInCreateRuleDropdown';
 
 export interface LinkedInAutomationViewProps {
   onOpenCreateRule: () => void;
@@ -104,38 +105,13 @@ export const LinkedInAutomationView: React.FC<LinkedInAutomationViewProps> = ({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Button
-            variant="outline"
+        <div className="flex items-center gap-2.5">
+          <LinkedInCreateRuleDropdown
+            onOpenCreateRule={onOpenCreateRule}
+            onOpenAiRuleBuilder={onOpenAiRuleBuilder}
+            buttonVariant="primary"
             size="sm"
-            onClick={() => setIsCanvasOpen(true)}
-            leftIcon={<Workflow className="w-3.5 h-3.5 text-blue-500" />}
-            className="border-blue-500/30 hover:border-blue-500 text-blue-600 dark:text-blue-400 bg-blue-500/5 hover:bg-blue-500/10 font-bold"
-          >
-            Visual Canvas (Lemlist Style)
-          </Button>
-
-          {onOpenAiRuleBuilder && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={onOpenAiRuleBuilder}
-              leftIcon={<Sparkles className="w-3.5 h-3.5 text-primary" />}
-              className="border-primary/30 hover:border-primary text-slate-800 dark:text-white font-bold bg-primary/5 hover:bg-primary/10 shadow-xs"
-            >
-              ✦ Make Rule with AI
-            </Button>
-          )}
-
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={onOpenCreateRule}
-            leftIcon={<Plus className="w-4 h-4" />}
-            className="shadow-md shadow-primary/20"
-          >
-            New Rule
-          </Button>
+          />
         </div>
       </div>
 
@@ -371,15 +347,13 @@ export const LinkedInAutomationView: React.FC<LinkedInAutomationViewProps> = ({
                 Create a new rule or generate one using AI natural language prompt.
               </p>
             </div>
-            <div className="flex items-center justify-center gap-2 pt-2">
-              {onOpenAiRuleBuilder && (
-                <Button variant="secondary" size="sm" onClick={onOpenAiRuleBuilder} leftIcon={<Sparkles className="w-3.5 h-3.5 text-primary" />}>
-                  ✦ Make Rule with AI
-                </Button>
-              )}
-              <Button variant="primary" size="sm" onClick={onOpenCreateRule} leftIcon={<Plus className="w-4 h-4" />}>
-                New Rule
-              </Button>
+            <div className="flex items-center justify-center pt-2">
+              <LinkedInCreateRuleDropdown
+                onOpenCreateRule={onOpenCreateRule}
+                onOpenAiRuleBuilder={onOpenAiRuleBuilder}
+                buttonVariant="primary"
+                size="sm"
+              />
             </div>
           </div>
         )}

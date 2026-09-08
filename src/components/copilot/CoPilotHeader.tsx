@@ -17,7 +17,7 @@ export const CoPilotHeader: React.FC = () => {
   const { activeTab, setActiveTab, createNewConversation } = useCoPilot();
 
   const tabs: { id: CoPilotSubTab; label: string; icon: React.ReactNode; badge?: string }[] = [
-    { id: 'chat', label: 'Chat & Tricksy AI', icon: <MessageSquare className="w-4 h-4" /> },
+    { id: 'chat', label: 'Chat & TRIXIE AI', icon: <MessageSquare className="w-4 h-4" /> },
     { id: 'actions', label: 'Actions Registry', icon: <Zap className="w-4 h-4" />, badge: '4 Core' },
     { id: 'prompts', label: 'Prompts Library', icon: <BookOpen className="w-4 h-4" />, badge: '12' },
     { id: 'kb', label: 'Knowledge Base', icon: <Database className="w-4 h-4" /> },
@@ -34,7 +34,7 @@ export const CoPilotHeader: React.FC = () => {
           <div className="min-w-0">
             <div className="flex items-center gap-2 min-w-0">
               <h1 className="text-xl font-black text-slate-950 dark:text-white font-sans truncate">
-                Tricksy AI Revenue Assistant
+                TRIXIE AI
               </h1>
               <Badge variant="emerald" size="sm" dot>
                 Online

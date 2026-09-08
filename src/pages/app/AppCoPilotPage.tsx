@@ -37,8 +37,8 @@ const CoPilotContent: React.FC = () => {
   return (
     <div className="w-full h-full font-sans animate-in fade-in duration-150">
       <SEOHead
-        title="Master Box - AI Chat & Revenue Assistant | Outtricks"
-        description="Autonomous Master Box AI revenue assistant connected to your lead database, cold email inboxes, Voice SDR, and Deals CRM."
+        title="TRIXIE AI - Autonomous Revenue Operating Engine | Outtricks"
+        description="Autonomous TRIXIE AI connected directly to your lead database, cold email inboxes, Voice SDR, and Deals CRM."
       />
 
       {activeTab === 'chat' && <CoPilotChatView />}

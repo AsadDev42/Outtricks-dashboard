@@ -33,7 +33,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: 'msg-1',
     sender: 'ai',
-    text: "👋 Hi! I'm the Outtricks Revenue Copilot. How can I help you scale your outbound pipeline today?",
+    text: "👋 Hi! I'm TRIXIE AI, your Outtricks Revenue Assistant. How can I help you scale your outbound pipeline today?",
     time: 'Just now'
   }
 ];
@@ -198,7 +198,7 @@ export const FloatingAiChat: React.FC = () => {
         {/* Tooltip on Hover when Closed */}
         {!isOpen && isHovered && (
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-lg bg-slate-950 text-white text-[11px] font-sans font-bold tracking-wide shadow-xl whitespace-nowrap pointer-events-none animate-in fade-in duration-150 border border-slate-800">
-            Chat with Outtricks Copilot
+            Chat with TRIXIE AI
           </div>
         )}
 
@@ -206,7 +206,7 @@ export const FloatingAiChat: React.FC = () => {
           onClick={() => setIsOpen(!isOpen)}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          aria-label={isOpen ? "Close Outtricks Copilot" : "Open Outtricks Copilot"}
+          aria-label={isOpen ? "Close TRIXIE AI" : "Open TRIXIE AI"}
           className={`w-[58px] h-[58px] rounded-2xl transition-all duration-200 flex items-center justify-center cursor-pointer shadow-xl hover:scale-105 active:scale-95 group relative ${
             isOpen 
               ? 'bg-[#0B1120] text-slate-300 hover:text-white border border-slate-800 shadow-2xl' 
@@ -234,7 +234,7 @@ export const FloatingAiChat: React.FC = () => {
       {isOpen && (
         <div className="fixed bottom-[84px] right-3 sm:right-6 w-[calc(100vw-1.5rem)] sm:w-[390px] h-[560px] max-h-[calc(100vh-6.5rem)] bg-[#0A0F1D] text-white rounded-3xl border border-slate-800/90 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] z-50 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           
-          {/* 1. HEADER (Outtricks Copilot • AI Revenue Assistant) */}
+          {/* 1. HEADER (TRIXIE AI • Autonomous Intelligence) */}
           <div className="bg-[#0D1527] border-b border-slate-800/80 px-5 py-4 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-blue-500 text-white flex items-center justify-center shadow-md shadow-blue-600/25 border border-blue-400/30 shrink-0">
@@ -242,11 +242,11 @@ export const FloatingAiChat: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-extrabold text-sm text-white tracking-tight">
-                  Outtricks Copilot
+                  TRIXIE AI
                 </h3>
                 <div className="flex items-center gap-1.5 text-[10px] font-sans text-slate-400">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>AI Revenue Assistant</span>
+                  <span>Online</span>
                 </div>
               </div>
             </div>

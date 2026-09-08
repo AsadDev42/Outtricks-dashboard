@@ -30,12 +30,12 @@ export const CoPilotKnowledgeBaseView: React.FC = () => {
             </Badge>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
-            Tricksy AI injects these verified knowledge documents into the context window for all prompt generations, objection handling, and cold outreach.
+            TRIXIE AI injects these verified knowledge documents into the context window for all prompt generations, objection handling, and cold outreach.
           </p>
         </div>
 
         <Button variant="outline" size="sm" className="shrink-0 text-xs">
-          <Plus className="w-3.5 h-3.5 mr-1" />
+          <Plus className="w-3.5 h-3.5" />
           <span>Upload Document</span>
         </Button>
       </div>

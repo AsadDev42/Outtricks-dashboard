@@ -26,7 +26,7 @@ export const AdminUsageOverviewView: React.FC = () => {
     { title: '8D Verified Lead Searches', value: totalLeads.toLocaleString(), cap: '130,000 / mo', pct: 40, icon: Search, color: 'bg-primary' },
     { title: 'Voice AI SDR Minutes', value: `${totalVoice.toLocaleString()} min`, cap: '10,000 min / mo', pct: 14, icon: PhoneCall, color: 'bg-primary' },
     { title: 'LinkedIn Safe Actions', value: totalLinkedIn.toLocaleString(), cap: '62,000 / mo', pct: 31, icon: Linkedin, color: 'bg-primary' },
-    { title: 'Tricksy AI Inference Prompts', value: totalAi.toLocaleString(), cap: '200,000 / mo', pct: 26, icon: Sparkles, color: 'bg-primary' },
+    { title: 'TRIXIE AI Inference Prompts', value: totalAi.toLocaleString(), cap: '200,000 / mo', pct: 26, icon: Sparkles, color: 'bg-primary' },
   ];
 
   return (

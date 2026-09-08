@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Building2, 
   Users, 
@@ -11,14 +11,16 @@ import {
   Sliders, 
   ChevronDown, 
   ChevronUp, 
-  ChevronLeft,
+  ChevronLeft, 
   X, 
   Search, 
   Check, 
   RotateCcw,
   Sparkles,
   ShieldCheck,
-  DollarSign
+  DollarSign,
+  Globe,
+  Plus
 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
@@ -38,6 +40,9 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
   const { filters, toggleFilterValue, updateFilters, resetFilters, setIsAdvancedFiltersDrawerOpen } = useLeadSearch();
 
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
+    roles: false,
+    industries: false,
+    headcount: false,
     technologies: false,
     intent: false,
   });
@@ -47,6 +52,7 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
   };
 
   const activeFiltersCount = 
+    (filters.companyDomains?.length || 0) +
     filters.roles.length +
     filters.seniority.length +
     filters.industries.length +
@@ -105,17 +111,24 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
       <button
         type="button"
         onClick={() => setIsAdvancedFiltersDrawerOpen(true)}
-        className="w-full py-2 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-between text-left hover:bg-emerald-500/15 transition-colors cursor-pointer"
+        className="w-full py-2.5 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-between text-left hover:bg-emerald-500/15 transition-colors cursor-pointer group"
       >
-        <div className="flex items-center gap-2 text-left">
+        <div className="flex items-center gap-2 text-left min-w-0">
           <Sparkles className="w-4 h-4 shrink-0 text-emerald-500" />
-          <span className="text-left">Advanced Filters (15 Dimensions)</span>
+          <div className="flex flex-col text-left min-w-0">
+            <span className="text-left truncate font-bold">Advanced Filters (15 Dimensions)</span>
+            {filters.companyDomains && filters.companyDomains.length > 0 && (
+              <span className="text-[10px] text-emerald-600/90 dark:text-emerald-400/90 font-medium truncate">
+                {filters.companyDomains.length} target {filters.companyDomains.length === 1 ? 'domain/company' : 'domains/companies'} active
+              </span>
+            )}
+          </div>
         </div>
-        <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded font-mono shrink-0">Open</span>
+        <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded font-mono shrink-0 ml-1">Open</span>
       </button>
 
       {/* 1. Job Titles & Decision Makers */}
-      <div className="space-y-2">
+      <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-[#202020]">
         <button
           type="button"
           onClick={() => toggleSection('roles')}

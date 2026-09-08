@@ -29,7 +29,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     // Strictly enforce horizontal flex layout with centered items and inline gap
     const baseStyles =
-      'inline-flex flex-row items-center justify-center font-bold tracking-tight rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary/30 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100 cursor-pointer select-none whitespace-nowrap shrink-0 box-border leading-tight text-center';
+      'inline-flex flex-row items-center justify-center gap-2 font-bold tracking-tight rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary/30 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100 cursor-pointer select-none whitespace-nowrap shrink-0 box-border leading-tight text-center';
 
     const variants = {
       primary:
@@ -49,10 +49,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const sizes = {
-      sm: 'text-xs px-3.5 py-1.5 gap-1.5 min-h-[34px] h-[34px]',
+      sm: 'text-xs px-3.5 py-1.5 gap-2 min-h-[34px] h-[34px]',
       md: 'text-xs sm:text-sm px-4 py-2 gap-2 min-h-[40px] h-[40px]',
       lg: 'text-sm sm:text-base px-6 py-2.5 gap-2.5 min-h-[48px] h-[48px]',
-      icon: 'p-2 min-h-[38px] min-w-[38px] h-[38px] w-[38px] aspect-square',
+      icon: 'p-2 min-h-[34px] min-w-[34px] h-[34px] w-[34px] aspect-square',
     };
 
     const widthStyle = fullWidth ? 'w-full' : '';
@@ -68,15 +68,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading ? (
           <Loader2 className="w-4 h-4 animate-spin shrink-0" />
         ) : (
-          leftIcon && <span className="shrink-0 inline-flex items-center justify-center">{leftIcon}</span>
+          leftIcon && <span className="shrink-0 inline-flex items-center justify-center [&>svg]:shrink-0">{leftIcon}</span>
         )}
         {children !== undefined && children !== null && (
-          <span className="inline-flex items-center justify-center leading-tight text-center truncate">
+          <span className="inline-flex items-center justify-center leading-tight text-center truncate gap-2 [&>svg]:shrink-0">
             {children}
           </span>
         )}
         {!isLoading && rightIcon && (
-          <span className="shrink-0 inline-flex items-center justify-center">{rightIcon}</span>
+          <span className="shrink-0 inline-flex items-center justify-center [&>svg]:shrink-0">{rightIcon}</span>
         )}
       </button>
     );

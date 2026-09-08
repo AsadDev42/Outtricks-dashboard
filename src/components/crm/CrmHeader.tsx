@@ -33,7 +33,7 @@ export const CrmHeader: React.FC<CrmHeaderProps> = ({
       </div>
 
       {/* Action Controls */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
         {onOpenImportModal && (
           <Button
             variant="secondary"

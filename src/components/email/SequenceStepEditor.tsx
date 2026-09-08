@@ -33,13 +33,21 @@ import {
   File,
   Check,
   Zap,
-  Globe
+  Globe,
+  Bot,
+  SlidersHorizontal,
+  Clock,
+  ArrowRight,
+  TrendingUp,
+  Lock,
+  Unlock
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Input } from '../ui/Input';
 import { useToast } from '../../context/ToastContext';
 import { cleanAiSlop, evaluateAiSlop } from '../../utils/noAiSlop';
+import { SequenceVariantItem } from '../../context/EmailContext';
 
 export interface SequenceAttachment {
   id: string;
@@ -53,16 +61,24 @@ export interface SequenceAttachment {
 export interface SequenceStepItem {
   stepNumber: number;
   delayDays: number;
+  delayValue?: number;
+  delayUnit?: 'minutes' | 'hours' | 'days';
+  threadMode?: 'continue' | 'new';
   subject: string;
   body: string;
   attachments?: SequenceAttachment[];
   threadReply?: boolean;
   unsubscribeOption?: 'standard' | 'casual' | 'none';
   signatureType?: 'default' | 'sdr' | 'custom' | 'none';
+  // A/Z testing variants
+  variants?: SequenceVariantItem[];
+  activeVariantId?: string;
+  autoOptimizeMetric?: 'positive_replies' | 'replies' | 'opens' | 'clicks';
+  // Backwards compatibility with A/B fields
   hasVariantB?: boolean;
   variantBSubject?: string;
   variantBBody?: string;
-  activeVariant?: 'A' | 'B';
+  activeVariant?: string;
   trackOpens?: boolean;
   trackClicks?: boolean;
 }
@@ -187,16 +203,75 @@ export const SequenceStepEditor: React.FC<SequenceStepEditorProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
+  // Normalization for A/Z variants
+  const ALPHABET = useMemo(() => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''), []);
+
+  const currentVariants: SequenceVariantItem[] = useMemo(() => {
+    if (step.variants && step.variants.length > 0) {
+      return step.variants;
+    }
+    const varA: SequenceVariantItem = {
+      id: 'var_a',
+      label: 'A',
+      subject: step.subject || '',
+      body: step.body || '',
+      weight: step.hasVariantB ? 50 : 100,
+      status: 'active',
+    };
+    if (step.hasVariantB) {
+      const varB: SequenceVariantItem = {
+        id: 'var_b',
+        label: 'B',
+        subject: step.variantBSubject || (step.subject ? `Alternative: ${step.subject}` : 'Alternative Subject Line'),
+        body: step.variantBBody || step.body || 'Hi {{firstName}},\n\nSharing an alternative value perspective for {{company}}...',
+        weight: 50,
+        status: 'active',
+      };
+      return [varA, varB];
+    }
+    return [varA];
+  }, [step.variants, step.subject, step.body, step.hasVariantB, step.variantBSubject, step.variantBBody]);
+
+  // Selected Variant ID
+  const [selectedVariantId, setSelectedVariantId] = useState<string>(() => {
+    if (step.activeVariantId) return step.activeVariantId;
+    if (step.activeVariant === 'B' && currentVariants[1]) return currentVariants[1].id;
+    return currentVariants[0]?.id || 'var_a';
+  });
+
+  // Active Variant Data
+  const activeVariant = currentVariants.find(v => v.id === selectedVariantId) || currentVariants[0] || {
+    id: 'var_a',
+    label: 'A',
+    subject: step.subject || '',
+    body: step.body || '',
+    weight: 100,
+    status: 'active',
+  };
+
+  const currentSubject = activeVariant.subject;
+  const currentBody = activeVariant.body;
+  const attachments = step.attachments || [];
+
+  // Threading mode (continue thread vs new thread)
+  const threadMode = step.threadMode || (step.threadReply ? 'continue' : (step.stepNumber > 1 ? 'continue' : 'new'));
+  const isThreadContinuation = threadMode === 'continue' && step.stepNumber > 1;
+
   // Local UI State
-  const [activeVariant, setActiveVariant] = useState<'A' | 'B'>(step.activeVariant || 'A');
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [showVariableMenu, setShowVariableMenu] = useState(false);
   const [showEmojiMenu, setShowEmojiMenu] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showTrixieModal, setShowTrixieModal] = useState(false);
   const [variableSearch, setVariableSearch] = useState('');
   const [customVarName, setCustomVarName] = useState('');
+
+  // TRIXIE AI State
+  const [trixiePrompt, setTrixiePrompt] = useState('');
+  const [trixieTone, setTrixieTone] = useState<'conversational' | 'direct' | 'thought-provoking' | 'helpful'>('conversational');
+  const [trixieSuggestion, setTrixieSuggestion] = useState<{ subject: string; body: string; explanation: string } | null>(null);
 
   // Link dialog state
   const [linkText, setLinkText] = useState('');
@@ -206,27 +281,149 @@ export const SequenceStepEditor: React.FC<SequenceStepEditorProps> = ({
   const [imageUrl, setImageUrl] = useState('');
   const [imageAlt, setImageAlt] = useState('');
 
-  // Determine current active content based on Variant A or Variant B
-  const isEditingVariantB = activeVariant === 'B' && step.hasVariantB;
-  const currentSubject = isEditingVariantB ? (step.variantBSubject || '') : step.subject;
-  const currentBody = isEditingVariantB ? (step.variantBBody || '') : step.body;
-  const attachments = step.attachments || [];
+  // Update current active variant
+  const updateActiveVariant = (updates: Partial<SequenceVariantItem>) => {
+    const updatedList = currentVariants.map(v => {
+      if (v.id === activeVariant.id) {
+        return { ...v, ...updates };
+      }
+      return v;
+    });
 
-  // Update subject
-  const handleSubjectChange = (val: string) => {
-    if (isEditingVariantB) {
-      onChange({ ...step, variantBSubject: val });
-    } else {
-      onChange({ ...step, subject: val });
-    }
+    const varA = updatedList[0];
+    const varB = updatedList[1];
+
+    onChange({
+      ...step,
+      variants: updatedList,
+      activeVariantId: activeVariant.id,
+      activeVariant: activeVariant.label,
+      subject: varA ? varA.subject : step.subject,
+      body: varA ? varA.body : step.body,
+      hasVariantB: updatedList.length > 1,
+      variantBSubject: varB ? varB.subject : undefined,
+      variantBBody: varB ? varB.body : undefined,
+    });
   };
 
-  // Update body
+  const handleSubjectChange = (val: string) => {
+    updateActiveVariant({ subject: val });
+  };
+
   const handleBodyChange = (val: string) => {
-    if (isEditingVariantB) {
-      onChange({ ...step, variantBBody: val });
+    updateActiveVariant({ body: val });
+  };
+
+  // Add new variant (A to Z)
+  const handleAddVariant = () => {
+    if (currentVariants.length >= 26) {
+      info('Maximum of 26 variants (A-Z) reached for this sequence step.');
+      return;
+    }
+    const nextIdx = currentVariants.length;
+    const nextLetter = ALPHABET[nextIdx] || `V${nextIdx + 1}`;
+    const baseSubject = currentVariants[0]?.subject || `Value angle for {{company}}`;
+    const baseBody = currentVariants[0]?.body || `Hi {{firstName}},\n\nNoticed {{company}} is scaling rapidly...`;
+
+    const newVar: SequenceVariantItem = {
+      id: `var_${nextLetter.toLowerCase()}_${Date.now()}`,
+      label: nextLetter,
+      subject: `[${nextLetter}] ${baseSubject.replace(/^\[[A-Z]\]\s*/, '')}`,
+      body: baseBody,
+      weight: Math.floor(100 / (nextIdx + 1)),
+      status: 'active',
+    };
+
+    const combined = [...currentVariants, newVar];
+    const evenWeight = Math.floor(100 / combined.length);
+    const reweighted = combined.map((v, i) => ({
+      ...v,
+      weight: i === combined.length - 1 ? 100 - (evenWeight * (combined.length - 1)) : evenWeight,
+    }));
+
+    setSelectedVariantId(newVar.id);
+    onChange({
+      ...step,
+      variants: reweighted,
+      activeVariantId: newVar.id,
+      activeVariant: newVar.label,
+      hasVariantB: true,
+      variantBSubject: reweighted[1]?.subject,
+      variantBBody: reweighted[1]?.body,
+    });
+    success(`Created Variant ${nextLetter}! Traffic will be split evenly across active variants.`);
+  };
+
+  // Remove variant
+  const handleRemoveVariant = (varId: string) => {
+    if (currentVariants.length <= 1) return;
+    const remaining = currentVariants.filter(v => v.id !== varId);
+    const evenWeight = Math.floor(100 / remaining.length);
+    const reindexed = remaining.map((v, i) => ({
+      ...v,
+      label: ALPHABET[i] || `V${i + 1}`,
+      weight: i === remaining.length - 1 ? 100 - (evenWeight * (remaining.length - 1)) : evenWeight,
+    }));
+
+    const nextActive = reindexed[0]?.id || 'var_a';
+    setSelectedVariantId(nextActive);
+    onChange({
+      ...step,
+      variants: reindexed,
+      activeVariantId: nextActive,
+      activeVariant: reindexed[0]?.label || 'A',
+      hasVariantB: reindexed.length > 1,
+      subject: reindexed[0]?.subject || '',
+      body: reindexed[0]?.body || '',
+      variantBSubject: reindexed[1]?.subject,
+      variantBBody: reindexed[1]?.body,
+    });
+    info('Removed variant from testing distribution.');
+  };
+
+  // Toggle variant paused/active
+  const handleToggleVariantPause = (varId: string) => {
+    const updated = currentVariants.map(v => {
+      if (v.id === varId) {
+        const nextStatus = v.status === 'paused' ? 'active' : 'paused';
+        return { ...v, status: nextStatus as 'active' | 'paused' };
+      }
+      return v;
+    });
+    onChange({ ...step, variants: updated });
+    info('Variant status updated.');
+  };
+
+  // Delay handlers
+  const currentDelayValue = step.delayValue ?? step.delayDays ?? (step.stepNumber > 1 ? 3 : 0);
+  const currentDelayUnit = step.delayUnit || 'days';
+
+  const handleDelayValueChange = (val: number) => {
+    const safeVal = Math.max(0, val);
+    let days = safeVal;
+    if (currentDelayUnit === 'hours') days = Number((safeVal / 24).toFixed(2));
+    if (currentDelayUnit === 'minutes') days = Number((safeVal / 1440).toFixed(3));
+    onChange({ ...step, delayValue: safeVal, delayDays: days });
+  };
+
+  const handleDelayUnitChange = (unit: 'minutes' | 'hours' | 'days') => {
+    let days = currentDelayValue;
+    if (unit === 'hours') days = Number((currentDelayValue / 24).toFixed(2));
+    if (unit === 'minutes') days = Number((currentDelayValue / 1440).toFixed(3));
+    onChange({ ...step, delayUnit: unit, delayValue: currentDelayValue, delayDays: days });
+  };
+
+  // Threading Mode toggle
+  const handleToggleThreadingMode = (mode: 'continue' | 'new') => {
+    onChange({
+      ...step,
+      threadMode: mode,
+      threadReply: mode === 'continue',
+    });
+    if (mode === 'continue') {
+      info('Thread continuation enabled: Sends as a reply in the same email thread.');
     } else {
-      onChange({ ...step, body: val });
+      info('New conversation thread started: Uses a distinct subject line.');
     }
   };
 
@@ -365,23 +562,93 @@ export const SequenceStepEditor: React.FC<SequenceStepEditorProps> = ({
     info('Removed attachment from step');
   };
 
-  // Toggle A/B testing variant
-  const handleToggleVariantB = () => {
-    if (step.hasVariantB) {
-      onChange({ ...step, hasVariantB: false, activeVariant: 'A' });
-      setActiveVariant('A');
-      info('Disabled A/B testing variant for this step');
-    } else {
-      onChange({
-        ...step,
-        hasVariantB: true,
-        variantBSubject: currentSubject ? `Alternative: ${currentSubject}` : 'Alternative Subject Line',
-        variantBBody: currentBody || 'Hi {{firstName}},\n\nSharing an alternative value perspective for {{company}}...',
-        activeVariant: 'B',
+  // TRIXIE AI sequence generation
+  const handleRunTrixieAssistant = (mode: 'scratch' | 'rewrite' | 'cta' | 'spintax' | 'personalize') => {
+    if (mode === 'scratch') {
+      setTrixieSuggestion({
+        subject: `Quick observation on {{company}}'s outbound`,
+        body: `Hi {{firstName}},\n\nNoticed {{company}}'s recent expansion. Usually when B2B teams scale past 10 SDRs, inbox deliverability drops by 25-40% due to domain burn.\n\nWe built an automated mailbox pool rotation system that guarantees 98%+ primary inbox placement across Google Workspace & Microsoft 365.\n\nOpen to exploring a 6-minute demo this week?\n\nBest,\n{{sender_signature}}`,
+        explanation: 'Crafted a high-converting 3-sentence cold email with clear problem framing and low-friction CTA.'
       });
-      setActiveVariant('B');
-      success('Created Variant B! You can now test 50/50 subject line & copy combinations.');
+    } else if (mode === 'rewrite') {
+      const words = currentBody.split(/\s+/).slice(0, 65).join(' ');
+      setTrixieSuggestion({
+        subject: currentSubject ? currentSubject.replace(/regarding/gi, 'on').replace(/infrastructure/gi, 'setup') : 'Quick question for {{company}}',
+        body: cleanAiSlop(words || `Hi {{firstName}},\n\nReaching out because {{company}} is expanding sales ops.\n\nWe help teams maintain 99% primary inbox delivery across rotating mailboxes.\n\nWorth a brief look?`),
+        explanation: 'Trimmed filler words, shortened under 75 words, and removed AI buzzwords for maximum punchiness.'
+      });
+    } else if (mode === 'cta') {
+      const bodyWithoutLastLine = currentBody.split('\n').slice(0, -2).join('\n');
+      setTrixieSuggestion({
+        subject: currentSubject,
+        body: `${bodyWithoutLastLine || currentBody}\n\n{Open to a brief 5-min look?|Worth connecting on this?|Should I send over our 1-page breakdown?}`,
+        explanation: 'Replaced passive or heavy scheduling asks with 3 conversational, low-friction reply triggers.'
+      });
+    } else if (mode === 'spintax') {
+      let spintaxBody = currentBody
+        .replace(/\bHi\b/g, '{Hi|Hello|Hey}')
+        .replace(/\bQuick question\b/g, '{Quick question|Brief inquiry|Quick thought}')
+        .replace(/\bBest\b/g, '{Best|Cheers|Regards}');
+      setTrixieSuggestion({
+        subject: currentSubject ? `{Quick note|Question|Observation}: ${currentSubject.replace(/^\{.*?\}:\s*/, '')}` : '{Quick question|Brief note} regarding {{company}}',
+        body: spintaxBody,
+        explanation: 'Injected dynamic spintax variations for greetings, openers, and sign-offs to evade ESP pattern filters.'
+      });
+    } else if (mode === 'personalize') {
+      setTrixieSuggestion({
+        subject: currentSubject.includes('{{company}}') ? currentSubject : `${currentSubject} for {{company}}`,
+        body: `Hi {{firstName|there}},\n\n{{ai_icebreaker}}\n\n` + currentBody.replace(/^Hi\s+\{\{firstName\}\},?\n\n/i, ''),
+        explanation: 'Added {{ai_icebreaker}} dynamic token and fallback syntax {{firstName|there}} for bulletproof personalization.'
+      });
     }
+  };
+
+  const handleApplyTrixieSuggestion = () => {
+    if (!trixieSuggestion) return;
+    handleSubjectChange(trixieSuggestion.subject);
+    handleBodyChange(trixieSuggestion.body);
+    setShowTrixieModal(false);
+    setTrixieSuggestion(null);
+    success('Applied TRIXIE AI sequence copy to current variant!');
+  };
+
+  const handleApplyTrixieAsNewVariant = () => {
+    if (!trixieSuggestion) return;
+    if (currentVariants.length >= 26) {
+      info('Maximum variants reached. Applied to current variant instead.');
+      handleApplyTrixieSuggestion();
+      return;
+    }
+    const nextIdx = currentVariants.length;
+    const nextLetter = ALPHABET[nextIdx] || `V${nextIdx + 1}`;
+    const newVar: SequenceVariantItem = {
+      id: `var_${nextLetter.toLowerCase()}_${Date.now()}`,
+      label: nextLetter,
+      subject: trixieSuggestion.subject,
+      body: trixieSuggestion.body,
+      weight: Math.floor(100 / (nextIdx + 1)),
+      status: 'active',
+    };
+    const combined = [...currentVariants, newVar];
+    const evenWeight = Math.floor(100 / combined.length);
+    const reweighted = combined.map((v, i) => ({
+      ...v,
+      weight: i === combined.length - 1 ? 100 - (evenWeight * (combined.length - 1)) : evenWeight,
+    }));
+
+    setSelectedVariantId(newVar.id);
+    onChange({
+      ...step,
+      variants: reweighted,
+      activeVariantId: newVar.id,
+      activeVariant: newVar.label,
+      hasVariantB: true,
+      variantBSubject: reweighted[1]?.subject,
+      variantBBody: reweighted[1]?.body,
+    });
+    setShowTrixieModal(false);
+    setTrixieSuggestion(null);
+    success(`Created Variant ${nextLetter} with TRIXIE AI copy! Ready for A/Z split testing.`);
   };
 
   // =========================================================================
@@ -434,7 +701,7 @@ export const SequenceStepEditor: React.FC<SequenceStepEditorProps> = ({
 
     if (allCapsWords.length > 0) score -= 10;
     if (subjectWordCount > 8) score -= 8;
-    if (subjectWordCount === 0) score -= 20;
+    if (subjectWordCount === 0 && !isThreadContinuation) score -= 20;
 
     if (personalizationTokens >= 2) score += 4;
     if (hasSpintax) score += 4;
@@ -452,7 +719,7 @@ export const SequenceStepEditor: React.FC<SequenceStepEditorProps> = ({
       hasSpintax,
       allCapsWords,
     };
-  }, [currentSubject, currentBody, step.stepNumber]);
+  }, [currentSubject, currentBody, step.stepNumber, isThreadContinuation]);
 
   // AI 1-Click Spam & Slop Sanitizer
   const handleAiSanitizeCopy = () => {
@@ -468,11 +735,8 @@ export const SequenceStepEditor: React.FC<SequenceStepEditorProps> = ({
     cleanSubject = cleanAiSlop(cleanSubject).replace(/\?{2,}/g, '?').replace(/!{2,}/g, '!');
     cleanBody = cleanAiSlop(cleanBody).replace(/\?{2,}/g, '?').replace(/!{2,}/g, '!');
 
-    if (isEditingVariantB) {
-      onChange({ ...step, variantBSubject: cleanSubject, variantBBody: cleanBody });
-    } else {
-      onChange({ ...step, subject: cleanSubject, body: cleanBody });
-    }
+    handleSubjectChange(cleanSubject);
+    handleBodyChange(cleanBody);
 
     success('Sanitized spam words and AI slop into direct, human cold email copy! Deliverability score boosted.', 'Copy Polished');
   };
@@ -505,71 +769,126 @@ export const SequenceStepEditor: React.FC<SequenceStepEditorProps> = ({
         onChange={(e) => handleFileUpload(e, true)} 
       />
 
-      {/* Header Bar with Variant Tabs & Advanced Toggle */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-2xl bg-slate-100/80 dark:bg-[#181818] border border-slate-200/80 dark:border-[#262626]">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-extrabold text-slate-950 dark:text-white text-xs flex items-center gap-1.5">
-            <span className="w-5 h-5 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-[10px] font-mono">
-              #{step.stepNumber}
+      {/* Header Bar with Full A/Z Variant Switcher & TRIXIE AI Assistant */}
+      <div className="flex flex-col gap-2.5 p-3 rounded-2xl bg-slate-100/80 dark:bg-[#181818] border border-slate-200/80 dark:border-[#262626]">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
+          {/* Left: Step Badge & Variant Tabs Strip */}
+          <div className="flex items-center gap-2 flex-wrap min-w-0">
+            <span className="font-extrabold text-slate-950 dark:text-white text-xs flex items-center gap-1.5 shrink-0">
+              <span className="w-5 h-5 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-[10px] font-mono font-bold">
+                #{step.stepNumber}
+              </span>
+              <span>Step {step.stepNumber}</span>
             </span>
-            <span>Step {step.stepNumber} Copy</span>
-          </span>
 
-          {/* Variant A / B Switcher */}
-          {step.hasVariantB && (
-            <div className="flex items-center p-0.5 rounded-xl bg-white dark:bg-[#101010] border border-slate-200 dark:border-[#2C2C2C]">
-              <button
-                type="button"
-                onClick={() => setActiveVariant('A')}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                  activeVariant === 'A'
-                    ? 'bg-emerald-500 text-white shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                Variant A (50%)
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveVariant('B')}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                  activeVariant === 'B'
-                    ? 'bg-purple-600 text-white shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                Variant B (50%)
-              </button>
+            {/* A/Z Testing Variant Tab Strip */}
+            <div className="flex items-center gap-1 p-0.5 rounded-xl bg-white dark:bg-[#101010] border border-slate-200 dark:border-[#2C2C2C] overflow-x-auto max-w-full">
+              {currentVariants.map((v) => {
+                const isSelected = v.id === activeVariant.id;
+                return (
+                  <div
+                    key={v.id}
+                    className={`group flex items-center rounded-lg transition-all ${
+                      isSelected
+                        ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white'
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedVariantId(v.id)}
+                      className="px-2.5 py-1 text-[11px] flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>Variant {v.label}</span>
+                      <span className={`text-[10px] font-mono ${isSelected ? 'opacity-85' : 'text-slate-400'}`}>
+                        ({v.weight || Math.floor(100 / currentVariants.length)}%)
+                      </span>
+                    </button>
+
+                    {/* Delete Variant Option */}
+                    {currentVariants.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveVariant(v.id);
+                        }}
+                        className={`pr-1.5 opacity-60 hover:opacity-100 cursor-pointer ${
+                          isSelected ? 'hover:text-white' : 'hover:text-rose-500'
+                        }`}
+                        title={`Delete Variant ${v.label}`}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* Add Variant Button (A to Z) */}
+              {currentVariants.length < 26 && (
+                <button
+                  type="button"
+                  onClick={handleAddVariant}
+                  className="px-2 py-1 text-[11px] font-bold text-primary hover:bg-primary/10 rounded-lg transition-colors cursor-pointer flex items-center gap-0.5 shrink-0"
+                  title="Add another split test variant (up to 26 variants A-Z)"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Variant</span>
+                </button>
+              )}
             </div>
-          )}
+          </div>
+
+          {/* Right: TRIXIE Assistant & Safeguards Settings */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* TRIXIE AI Sequence Assistant Button */}
+            <button
+              type="button"
+              onClick={() => setShowTrixieModal(true)}
+              className="px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Open TRIXIE AI sequence assistant"
+            >
+              <Bot className="w-3.5 h-3.5" />
+              <span>TRIXIE AI Assistant</span>
+              <Sparkles className="w-3 h-3 text-amber-500" />
+            </button>
+
+            {/* Content Settings Drawer Button */}
+            <button
+              type="button"
+              onClick={() => setShowSettings(!showSettings)}
+              className="px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 bg-white dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#2A2A2A] hover:bg-slate-50 dark:hover:bg-[#252525] transition-colors cursor-pointer"
+            >
+              <Settings2 className="w-3.5 h-3.5" />
+              <span>Content Settings</span>
+              {showSettings ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* A/B Split Toggle Button */}
-          <button
-            type="button"
-            onClick={handleToggleVariantB}
-            className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer border ${
-              step.hasVariantB
-                ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30'
-                : 'bg-white dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-[#2A2A2A] hover:border-purple-400'
-            }`}
-          >
-            <Split className="w-3.5 h-3.5" />
-            <span>{step.hasVariantB ? 'A/B Testing Active' : '+ A/B Split Test'}</span>
-          </button>
-
-          {/* Content Settings Drawer Button */}
-          <button
-            type="button"
-            onClick={() => setShowSettings(!showSettings)}
-            className="px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 bg-white dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#2A2A2A] hover:bg-slate-50 dark:hover:bg-[#252525] transition-colors cursor-pointer"
-          >
-            <Settings2 className="w-3.5 h-3.5" />
-            <span>Content Settings</span>
-            {showSettings ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-          </button>
-        </div>
+        {/* Auto-optimization winner strip (When testing >= 2 variants) */}
+        {currentVariants.length > 1 && (
+          <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-white/70 dark:bg-[#141414] border border-slate-200/70 dark:border-[#242424] text-[11px]">
+            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+              <TrendingUp className="w-3.5 h-3.5 text-primary" />
+              <span className="font-semibold">Auto-Optimize Winner by:</span>
+              <select
+                value={step.autoOptimizeMetric || 'positive_replies'}
+                onChange={(e) => onChange({ ...step, autoOptimizeMetric: e.target.value as any })}
+                className="bg-transparent font-bold text-slate-900 dark:text-white border-none outline-none cursor-pointer"
+              >
+                <option value="positive_replies">Positive Reply Rate (Recommended)</option>
+                <option value="replies">Overall Reply Rate</option>
+                <option value="opens">Open Rate</option>
+                <option value="clicks">Link Click Rate</option>
+              </select>
+            </div>
+            <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">
+              Allocates 100% of volume to winning variant after statistical significance
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Advanced Step Content Settings Panel (Collapsible) */}
@@ -577,7 +896,7 @@ export const SequenceStepEditor: React.FC<SequenceStepEditorProps> = ({
         <div className="p-3.5 rounded-2xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#2A2A2A] space-y-3 animate-in fade-in duration-150">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#222222] pb-2">
             <span className="font-extrabold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
-              <Settings2 className="w-3.5 h-3.5 text-emerald-500" />
+              <Settings2 className="w-3.5 h-3.5 text-primary" />
               <span>Step {step.stepNumber} Sending & Content Safeguards</span>
             </span>
             <button
@@ -599,8 +918,8 @@ export const SequenceStepEditor: React.FC<SequenceStepEditorProps> = ({
               <input
                 type="checkbox"
                 checked={step.threadReply ?? (step.stepNumber > 1)}
-                onChange={(e) => onChange({ ...step, threadReply: e.target.checked })}
-                className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+                onChange={(e) => onChange({ ...step, threadReply: e.target.checked, threadMode: e.target.checked ? 'continue' : 'new' })}
+                className="w-4 h-4 accent-primary rounded cursor-pointer"
               />
             </div>
 
@@ -643,36 +962,110 @@ export const SequenceStepEditor: React.FC<SequenceStepEditorProps> = ({
                 type="checkbox"
                 checked={step.trackOpens ?? true}
                 onChange={(e) => onChange({ ...step, trackOpens: e.target.checked })}
-                className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+                className="w-4 h-4 accent-primary rounded cursor-pointer"
               />
             </div>
           </div>
         </div>
       )}
 
-      {/* Subject Line & Delay Input Controls */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-        <div className="sm:col-span-3">
+      {/* Delay & Threading Bar (Step 2+) */}
+      {step.stepNumber > 1 && (
+        <div className="p-3 rounded-2xl bg-white dark:bg-[#151515] border border-slate-200/80 dark:border-[#282828] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          {/* Delay settings with units */}
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-primary shrink-0" />
+            <span className="font-bold text-slate-900 dark:text-white">Wait before dispatch:</span>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="number"
+                min={0}
+                max={999}
+                value={currentDelayValue}
+                onChange={(e) => handleDelayValueChange(Number(e.target.value))}
+                className="w-16 px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-slate-200 dark:border-[#2E2E2E] font-mono font-bold text-center text-slate-900 dark:text-white outline-none focus:border-primary"
+              />
+              <select
+                value={currentDelayUnit}
+                onChange={(e) => handleDelayUnitChange(e.target.value as any)}
+                className="px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-slate-200 dark:border-[#2E2E2E] font-bold text-slate-900 dark:text-white outline-none cursor-pointer"
+              >
+                <option value="days">Days</option>
+                <option value="hours">Hours</option>
+                <option value="minutes">Minutes</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Threading mode toggle */}
+          <div className="flex items-center gap-1 p-0.5 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] border border-slate-200 dark:border-[#2A2A2A]">
+            <button
+              type="button"
+              onClick={() => handleToggleThreadingMode('continue')}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                threadMode === 'continue'
+                  ? 'bg-white dark:bg-[#121212] text-primary shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Lock className="w-3 h-3" />
+              <span>Continue Thread (Re:)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleToggleThreadingMode('new')}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                threadMode === 'new'
+                  ? 'bg-white dark:bg-[#121212] text-primary shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Unlock className="w-3 h-3" />
+              <span>New Thread</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Subject Line Control: In-Thread Continuation Notice vs Normal Subject Input */}
+      {isThreadContinuation ? (
+        <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#181818] border border-slate-200/80 dark:border-[#262626] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+              <Lock className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="font-extrabold text-slate-950 dark:text-white flex items-center gap-1.5">
+                <span>Thread Continuation Active</span>
+                <Badge variant="emerald" size="sm">Recommended</Badge>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Delivers in the same inbox thread with subject: <strong className="font-mono text-slate-700 dark:text-slate-300">Re: [Step 1 Subject]</strong>.
+              </p>
+            </div>
+          </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleToggleThreadingMode('new')}
+            className="text-[11px] font-bold shrink-0 text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white"
+          >
+            <Unlock className="w-3.5 h-3.5 mr-1" />
+            <span>Switch to Independent Subject</span>
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-3">
           <Input
-            label={isEditingVariantB ? "Variant B Subject Line *" : "Subject Line *"}
+            label={`Variant ${activeVariant.label} Subject Line *`}
             placeholder="e.g. Quick question regarding {{company}}'s outbound"
             value={currentSubject}
             onChange={(e) => handleSubjectChange(e.target.value)}
             required
           />
         </div>
-
-        <div>
-          <Input
-            label="Wait Days Before Send"
-            type="number"
-            value={step.delayDays}
-            onChange={(e) => onChange({ ...step, delayDays: Number(e.target.value) })}
-            min={0}
-            max={30}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Dynamic Variables Pill Bar & Dropdown Picker ("yeh variable add kerna ka") */}
       <div className="p-2.5 rounded-2xl bg-white dark:bg-[#141414] border border-slate-200/80 dark:border-[#282828] space-y-2">
@@ -1533,6 +1926,137 @@ export const SequenceStepEditor: React.FC<SequenceStepEditorProps> = ({
                   Insert
                 </Button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: TRIXIE AI SEQUENCE ASSISTANT                                       */}
+      {/* ========================================================================= */}
+      {showTrixieModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white dark:bg-[#181818] border border-slate-200 dark:border-[#2A2A2A] rounded-3xl p-5 max-w-xl w-full shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#242424] pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+                  <Bot className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-black text-slate-900 dark:text-white text-sm">TRIXIE AI Sequence Assistant</h4>
+                    <Badge variant="primary" size="sm">Cold Outreach Copilot</Badge>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Generate high-converting cold email variants with zero AI slop</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowTrixieModal(false);
+                  setTrixieSuggestion(null);
+                }}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Quick action tabs */}
+            <div className="space-y-3 overflow-y-auto pr-1">
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                  Select Action Mode
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {[
+                    { id: 'scratch', label: 'Write from Scratch', desc: 'New high-reply pitch' },
+                    { id: 'rewrite', label: 'Punchier (<75w)', desc: 'Cut fluff & trim slop' },
+                    { id: 'cta', label: 'Low-Friction CTA', desc: 'Casual reply hooks' },
+                    { id: 'spintax', label: 'Inject Spintax', desc: '{A|B} variation blocks' },
+                    { id: 'personalize', label: 'Personalize', desc: 'Add 1:1 icebreakers' },
+                  ].map((act) => (
+                    <button
+                      key={act.id}
+                      type="button"
+                      onClick={() => handleRunTrixieAssistant(act.id as any)}
+                      className="p-2.5 rounded-xl border border-slate-200 dark:border-[#2C2C2C] bg-slate-50 dark:bg-[#151515] hover:border-primary text-left transition-all cursor-pointer group shadow-2xs"
+                    >
+                      <div className="font-bold text-xs text-slate-900 dark:text-white group-hover:text-primary">
+                        {act.label}
+                      </div>
+                      <div className="text-[10px] text-slate-400">{act.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Generated Result Preview */}
+              {trixieSuggestion && (
+                <div className="p-3.5 rounded-2xl bg-primary/5 border border-primary/20 space-y-3 animate-in fade-in">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs text-primary flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>TRIXIE Suggestion</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">ESP Optimized</span>
+                  </div>
+
+                  <div className="space-y-2 bg-white dark:bg-[#121212] p-3 rounded-xl border border-slate-200/80 dark:border-[#242424]">
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">Subject:</span>
+                      <div className="font-bold text-slate-900 dark:text-white text-xs mt-0.5 font-mono">
+                        {trixieSuggestion.subject}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">Body:</span>
+                      <div className="text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed mt-0.5">
+                        {trixieSuggestion.body}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 italic">
+                    💡 {trixieSuggestion.explanation}
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-1 border-t border-primary/10">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleApplyTrixieAsNewVariant}
+                      leftIcon={<Plus className="w-3.5 h-3.5" />}
+                    >
+                      Add as New Variant (A/B)
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={handleApplyTrixieSuggestion}
+                      leftIcon={<Check className="w-3.5 h-3.5" />}
+                    >
+                      Apply to Current Variant
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-[#242424]">
+              <span className="text-[11px] text-slate-400">
+                TRIXIE adheres to strict Anti-Slop writing rules (short, human, direct).
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowTrixieModal(false);
+                  setTrixieSuggestion(null);
+                }}
+              >
+                Close
+              </Button>
             </div>
           </div>
         </div>

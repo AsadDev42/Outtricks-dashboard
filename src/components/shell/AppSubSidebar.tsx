@@ -741,14 +741,14 @@ export const AppSubSidebar: React.FC<AppSubSidebarProps> = ({
 
   return (
     <aside
-      className={`relative shrink-0 h-screen bg-slate-50 dark:bg-[#0F0F0F] flex flex-col justify-between font-sans select-none z-30 transition-all duration-200 ease-in-out ${
+      className={`relative shrink-0 h-screen bg-slate-50 dark:bg-[#0F0F0F] flex flex-col justify-between font-sans select-none z-[45] transition-all duration-200 ease-in-out ${
         isCollapsed 
           ? 'w-0 p-0 border-r-0 overflow-visible' 
           : 'w-56 p-3 border-r border-slate-200 dark:border-[#242424] overflow-visible'
       }`}
     >
       {/* Small Clean Collapse/Expand Button Centered on the Right Border */}
-      <div className="absolute -right-3 top-1/2 -translate-y-1/2 z-40">
+      <div className="absolute -right-3 top-1/2 -translate-y-1/2 z-50">
         <Tooltip
           content={isCollapsed ? 'Expand navigation' : 'Collapse navigation'}
           placement="right"
@@ -758,8 +758,7 @@ export const AppSubSidebar: React.FC<AppSubSidebarProps> = ({
             type="button"
             onClick={toggleCollapse}
             aria-label={isCollapsed ? 'Expand navigation' : 'Collapse navigation'}
-            title={isCollapsed ? 'Expand navigation' : 'Collapse navigation'}
-            className="w-6 h-6 rounded-full bg-white dark:bg-[#161616] border border-slate-300 dark:border-[#2E2E2E] hover:border-primary text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-[#222222] shadow-md flex items-center justify-center transition-all duration-150 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-6 h-6 shrink-0 rounded-full bg-white dark:bg-[#161616] border border-slate-300 dark:border-[#2E2E2E] hover:border-primary text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-[#222222] shadow-md flex items-center justify-center transition-all duration-150 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
           >
             {isCollapsed ? (
               <ChevronRight className="w-3.5 h-3.5 transition-transform" />

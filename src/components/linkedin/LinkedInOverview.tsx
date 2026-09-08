@@ -154,7 +154,7 @@ export const LinkedInOverview: React.FC<LinkedInOverviewProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <button
           onClick={onOpenCreateCampaign}
-          className="p-4 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] hover:border-emerald-500/50 transition-all text-left space-y-1.5 group cursor-pointer shadow-xs"
+          className="p-4 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] hover:border-emerald-500/50 transition-all text-left space-y-2 group cursor-pointer shadow-xs"
         >
           <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
             <Send className="w-4 h-4" />
@@ -168,7 +168,7 @@ export const LinkedInOverview: React.FC<LinkedInOverviewProps> = ({
 
         <button
           onClick={onOpenConnectAccount}
-          className="p-4 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] hover:border-emerald-500/50 transition-all text-left space-y-1.5 group cursor-pointer shadow-xs"
+          className="p-4 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] hover:border-emerald-500/50 transition-all text-left space-y-2 group cursor-pointer shadow-xs"
         >
           <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
             <Linkedin className="w-4 h-4" />
@@ -182,7 +182,7 @@ export const LinkedInOverview: React.FC<LinkedInOverviewProps> = ({
 
         <button
           onClick={() => navigate('/inbox')}
-          className="p-4 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] hover:border-emerald-500/50 transition-all text-left space-y-1.5 group cursor-pointer shadow-xs"
+          className="p-4 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] hover:border-emerald-500/50 transition-all text-left space-y-2 group cursor-pointer shadow-xs"
         >
           <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
             <Inbox className="w-4 h-4" />

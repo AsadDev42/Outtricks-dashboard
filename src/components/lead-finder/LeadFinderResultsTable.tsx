@@ -18,7 +18,8 @@ import {
   Phone, 
   Linkedin, 
   Sparkles, 
-  Building2, 
+  Building2,
+  Bookmark, 
   Eye, 
   Check, 
   Send, 
@@ -242,7 +243,7 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
             <Button
               variant="secondary"
               size="sm"
@@ -329,7 +330,7 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
             variant="outline"
             size="sm"
             onClick={exportToCsv}
-            className="text-xs font-semibold gap-1.5 hover:border-slate-300 dark:hover:border-[#383838]"
+            className="text-xs font-semibold gap-2 hover:border-slate-300 dark:hover:border-[#383838]"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export CSV</span>
@@ -374,7 +375,7 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
               Verified Contact Channels
             </TableHead>
             <TableHead className="min-w-[160px]">Buying Intent & Tech</TableHead>
-            <th className="p-3 sm:p-4 w-[165px] min-w-[165px] text-right sticky right-0 bg-slate-50 dark:bg-[#111111] z-20 border-l border-slate-200/80 dark:border-[#222222] shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.15)] dark:shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.6)]">
+            <th className="p-3 sm:p-4 w-[215px] min-w-[215px] text-right sticky right-0 bg-slate-50 dark:bg-[#111111] z-20 border-l border-slate-200/80 dark:border-[#222222] shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.15)] dark:shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.6)]">
               Actions
             </th>
           </tr>
@@ -510,12 +511,12 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
                 </TableCell>
 
                 {/* Inline Actions (Sticky Column) */}
-                <TableCell className="w-[165px] min-w-[165px] p-3 sm:p-4 text-right sticky right-0 bg-white dark:bg-[#161616] group-hover:bg-slate-50 dark:group-hover:bg-[#1E1E1E] z-20 border-l border-slate-200/80 dark:border-[#222222] shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.15)] dark:shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.6)]">
-                  <div className="flex items-center justify-end gap-1">
+                <TableCell className="w-[215px] min-w-[215px] p-3 sm:p-4 text-right sticky right-0 bg-white dark:bg-[#161616] group-hover:bg-slate-50 dark:group-hover:bg-[#1E1E1E] z-20 border-l border-slate-200/80 dark:border-[#222222] shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.15)] dark:shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.6)]">
+                  <div className="flex items-center justify-end gap-2.5 sm:gap-3">
                     <button
                       type="button"
                       onClick={() => onOpenLeadDetail(lead)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#252525] transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#252525] transition-colors cursor-pointer shrink-0"
                       title="View Lead 360 Details"
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -524,20 +525,20 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
                       variant="secondary"
                       size="sm"
                       onClick={() => handleSaveSingleLeadToCrm(lead)}
-                      className="h-7 px-2 text-[11px] font-bold gap-1"
+                      className="h-7 px-2.5 sm:px-3 text-[11px] font-bold gap-1.5 sm:gap-2 shrink-0"
                       title="Save to CRM Deals"
                     >
-                      <Building2 className="w-3 h-3 text-emerald-500" />
+                      <Bookmark className="w-3.5 h-3.5 shrink-0 text-slate-600 dark:text-slate-300" />
                       <span>Save</span>
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleFullEnrichLead(lead)}
-                      className="h-7 px-2 text-[11px] font-bold text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 gap-1"
+                      className="h-7 px-2.5 text-[11px] font-bold text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 gap-1.5 shrink-0"
                       title="Unlock Email & Phone"
                     >
-                      <Zap className="w-3 h-3 text-amber-400" />
+                      <Zap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                       <span>Enrich</span>
                     </Button>
                   </div>

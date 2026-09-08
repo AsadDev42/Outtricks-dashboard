@@ -76,7 +76,7 @@ export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({ currentSection
               <BarChart3 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
             <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-950 dark:text-white capitalize">
-              {currentSection === 'ai-usage' ? 'Tricksy AI Telemetry & LLM Intelligence' : currentSection === 'overview' ? 'Revenue Intelligence & Analytics' : `${currentSection} Analytics`}
+              {currentSection === 'ai-usage' ? 'TRIXIE AI Telemetry & LLM Intelligence' : currentSection === 'overview' ? 'Revenue Intelligence & Analytics' : `${currentSection} Analytics`}
             </h1>
             <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
@@ -89,7 +89,7 @@ export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({ currentSection
         </div>
 
         {/* Date Range Selector & Action Controls */}
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
           {/* Date Range Dropdown / Switcher Pills */}
           <div className="flex items-center p-0.5 rounded-xl bg-slate-100 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#2A2A2A] text-xs font-mono overflow-x-auto max-w-full">
             {DATE_RANGE_OPTIONS.map((opt) => (
@@ -112,7 +112,7 @@ export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({ currentSection
           <button
             type="button"
             onClick={() => setComparePriorPeriod(!comparePriorPeriod)}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer select-none ${
+            className={`px-3 py-1.5 h-[34px] rounded-xl border text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all cursor-pointer select-none ${
               comparePriorPeriod
                 ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-400'
                 : 'bg-slate-100 dark:bg-[#1C1C1C] border-slate-200/80 dark:border-[#2A2A2A] text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-white/[0.04]'
@@ -199,7 +199,7 @@ export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({ currentSection
             <option value="voice" className="bg-white dark:bg-[#1C1C1C] text-slate-800 dark:text-slate-200">Voice AI</option>
             <option value="linkedin" className="bg-white dark:bg-[#1C1C1C] text-slate-800 dark:text-slate-200">LinkedIn</option>
             <option value="leadfinder" className="bg-white dark:bg-[#1C1C1C] text-slate-800 dark:text-slate-200">Lead Finder</option>
-            <option value="agents" className="bg-white dark:bg-[#1C1C1C] text-slate-800 dark:text-slate-200">Tricksy Agents</option>
+            <option value="agents" className="bg-white dark:bg-[#1C1C1C] text-slate-800 dark:text-slate-200">TRIXIE AI Agents</option>
             <option value="workflows" className="bg-white dark:bg-[#1C1C1C] text-slate-800 dark:text-slate-200">Workflows</option>
             <option value="crm" className="bg-white dark:bg-[#1C1C1C] text-slate-800 dark:text-slate-200">Deals CRM</option>
           </select>

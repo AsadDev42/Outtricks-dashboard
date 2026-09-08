@@ -223,7 +223,7 @@ export const DashboardPage: React.FC = () => {
                   Unified Multi-Channel Inbox
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Synchronized email replies, LinkedIn DMs, and Voice AI call transcripts with Tricksy AI response assistant.
+                  Synchronized email replies, LinkedIn DMs, and Voice AI call transcripts with TRIXIE AI response assistant.
                 </p>
               </div>
               <Badge variant="blue" size="md">

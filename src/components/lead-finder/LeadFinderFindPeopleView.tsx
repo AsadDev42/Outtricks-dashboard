@@ -10,9 +10,7 @@ import {
   SaveSearchModal, 
   SavedSearchesDrawer,
   LeadFinderAdvancedFiltersDrawer,
-  CampaignEnrollModal,
-  LeadFinderSearchModesToolbar,
-  LeadSearchMode
+  CampaignEnrollModal
 } from './index';
 import { Tooltip } from '../ui/Tooltip';
 import { Sliders, ChevronRight } from 'lucide-react';
@@ -30,9 +28,6 @@ export const LeadFinderFindPeopleView: React.FC = () => {
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [isSavedSearchesDrawerOpen, setIsSavedSearchesDrawerOpen] = useState(false);
   const [isCampaignEnrollOpen, setIsCampaignEnrollOpen] = useState(false);
-
-  // Search mode: People | Company / Domain | Import
-  const [searchMode, setSearchMode] = useState<LeadSearchMode>('people');
 
   // Filter matrix collapse persistence
   const [isFilterCollapsed, setIsFilterCollapsed] = useState<boolean>(() => {
@@ -116,22 +111,15 @@ export const LeadFinderFindPeopleView: React.FC = () => {
 
   return (
     <div className="space-y-4 font-sans">
-      {/* 1. Operational Search Modes Toolbar (People | Company & Domain | Import) */}
-      <LeadFinderSearchModesToolbar
-        activeMode={searchMode}
-        onModeChange={setSearchMode}
-        onTriggerCsvModal={() => setIsImportModalOpen(true)}
-      />
-
-      {/* 2. Dynamic Filter Chips Bar */}
+      {/* Dynamic Filter Chips Bar (appears when active filters exist) */}
       <LeadFilterChipsBar
         onOpenSaveSearchModal={() => setIsSaveSearchModalOpen(true)}
         onOpenSavedSearchesDrawer={() => setIsSavedSearchesDrawerOpen(true)}
         onOpenAdvancedFilters={() => setIsAdvancedFiltersDrawerOpen(true)}
       />
 
-      {/* 3. Main 8D Search Layout: Collapsible Left Filter Matrix + Reclaimed Width Results Table */}
-      <div className="flex items-start gap-4 2xl:gap-6 pt-1 w-full min-w-0 relative">
+      {/* Main 8D Search Layout: Collapsible Left Filter Matrix + Reclaimed Width Results Table */}
+      <div className="flex items-start gap-4 2xl:gap-6 w-full min-w-0 relative">
         
         {/* Desktop Filter Matrix Panel */}
         {!isFilterCollapsed && (

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Coins, Search, Mail, PhoneCall, Sparkles, TrendingDown, Clock } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { useAdmin } from '../../context/AdminContext';
@@ -10,7 +10,7 @@ export const AdminCreditUsageView: React.FC = () => {
     { id: 'ev-1', user: 'Sarah Jenkins', action: 'Lead Search Verification (25 leads)', credits: -25, module: 'Lead Finder', timestamp: '2m ago' },
     { id: 'ev-2', user: 'David Zhao', action: 'Multi-Channel AI Sequence Dispatch', credits: -50, module: 'Cold Email', timestamp: '14m ago' },
     { id: 'ev-3', user: 'Alex Rivera', action: 'Voice AI SDR Interactive Call (4.2 mins)', credits: -25, module: 'Voice AI', timestamp: '32m ago' },
-    { id: 'ev-4', user: 'Sarah Jenkins', action: 'Tricksy Account Research Run', credits: -10, module: 'Tricksy AI', timestamp: '1h ago' },
+    { id: 'ev-4', user: 'Sarah Jenkins', action: 'TRIXIE AI Account Research Run', credits: -10, module: 'TRIXIE AI', timestamp: '1h ago' },
     { id: 'ev-5', user: 'Marcus Vance', action: 'Direct Phone Number Enrichment (10 leads)', credits: -30, module: 'Enrichment', timestamp: '2h ago' },
   ];
 
