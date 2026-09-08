@@ -20,3 +20,4 @@ export * from './LogCallModal';
 export * from './EditLeadModal';
 export * from './LeadFinderAdvancedFiltersDrawer';
 export * from './CampaignEnrollModal';
+export * from './LeadFinderSearchModesToolbar';

@@ -10,8 +10,12 @@ import {
   SaveSearchModal, 
   SavedSearchesDrawer,
   LeadFinderAdvancedFiltersDrawer,
-  CampaignEnrollModal
+  CampaignEnrollModal,
+  LeadFinderSearchModesToolbar,
+  LeadSearchMode
 } from './index';
+import { Tooltip } from '../ui/Tooltip';
+import { Sliders, ChevronRight } from 'lucide-react';
 import { useLeadSearch, LeadDetailData } from '../../context/LeadSearchContext';
 import { useToast } from '../../context/ToastContext';
 import { useCrm } from '../../context/CrmContext';
@@ -26,6 +30,30 @@ export const LeadFinderFindPeopleView: React.FC = () => {
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [isSavedSearchesDrawerOpen, setIsSavedSearchesDrawerOpen] = useState(false);
   const [isCampaignEnrollOpen, setIsCampaignEnrollOpen] = useState(false);
+
+  // Search mode: People | Company / Domain | Import
+  const [searchMode, setSearchMode] = useState<LeadSearchMode>('people');
+
+  // Filter matrix collapse persistence
+  const [isFilterCollapsed, setIsFilterCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('outtricks_lead_filter_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleToggleFilterCollapse = () => {
+    setIsFilterCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('outtricks_lead_filter_collapsed', String(next));
+      } catch (e) {
+        console.warn('Failed to persist filter collapsed state', e);
+      }
+      return next;
+    });
+  };
 
   const { 
     results,
@@ -88,29 +116,72 @@ export const LeadFinderFindPeopleView: React.FC = () => {
 
   return (
     <div className="space-y-4 font-sans">
-      {/* 1. Dynamic Filter Chips Bar */}
+      {/* 1. Operational Search Modes Toolbar (People | Company & Domain | Import) */}
+      <LeadFinderSearchModesToolbar
+        activeMode={searchMode}
+        onModeChange={setSearchMode}
+        onTriggerCsvModal={() => setIsImportModalOpen(true)}
+      />
+
+      {/* 2. Dynamic Filter Chips Bar */}
       <LeadFilterChipsBar
         onOpenSaveSearchModal={() => setIsSaveSearchModalOpen(true)}
         onOpenSavedSearchesDrawer={() => setIsSavedSearchesDrawerOpen(true)}
         onOpenAdvancedFilters={() => setIsAdvancedFiltersDrawerOpen(true)}
       />
 
-      {/* 2. Main 8D Search Layout: Left Filter Panel + Right Results Table */}
-      <div className="flex flex-col lg:flex-row items-start gap-6 pt-1">
+      {/* 3. Main 8D Search Layout: Collapsible Left Filter Matrix + Reclaimed Width Results Table */}
+      <div className="flex items-start gap-4 2xl:gap-6 pt-1 w-full min-w-0 relative">
         
-        {/* Left Filter Matrix Panel */}
-        <LeadFinderFilterPanel
-          isOpenMobile={isMobileFiltersOpen}
-          onCloseMobile={() => setIsMobileFiltersOpen(false)}
-        />
+        {/* Desktop Filter Matrix Panel */}
+        {!isFilterCollapsed && (
+          <div className="hidden lg:block w-64 xl:w-72 2xl:w-80 shrink-0 transition-all duration-200">
+            <LeadFinderFilterPanel
+              isOpenMobile={isMobileFiltersOpen}
+              onCloseMobile={() => setIsMobileFiltersOpen(false)}
+              onCollapse={handleToggleFilterCollapse}
+            />
+          </div>
+        )}
 
-        {/* Right Results Table Area */}
+        {/* Collapsed Filter Matrix Edge Handle */}
+        {isFilterCollapsed && (
+          <div className="hidden lg:flex flex-col items-center shrink-0">
+            <Tooltip content="Expand 8D Filter Matrix">
+              <button
+                type="button"
+                onClick={handleToggleFilterCollapse}
+                className="group flex flex-col items-center gap-2 py-3.5 px-2 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] hover:border-blue-500/50 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all shadow-xs cursor-pointer"
+                title="Expand filters"
+                aria-label="Expand filters"
+              >
+                <Sliders className="w-4 h-4 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                <span className="[writing-mode:vertical-rl] rotate-180 text-[10px] font-extrabold tracking-wider uppercase text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 py-1">
+                  Filters
+                </span>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+              </button>
+            </Tooltip>
+          </div>
+        )}
+
+        {/* Mobile Filter Matrix Drawer */}
+        <div className="lg:hidden">
+          <LeadFinderFilterPanel
+            isOpenMobile={isMobileFiltersOpen}
+            onCloseMobile={() => setIsMobileFiltersOpen(false)}
+          />
+        </div>
+
+        {/* Right Results Table Area (Reclaims 100% width when collapsed) */}
         <div className="flex-1 w-full min-w-0">
           <LeadFinderResultsTable
             onOpenLeadDetail={handleOpenLeadDetail}
             onTriggerAddToListModal={() => setIsAddToListModalOpen(true)}
             onPushToSequence={handlePushToSequence}
             onBatchAddToCrm={handleBatchAddToCrm}
+            isFilterCollapsed={isFilterCollapsed}
+            onToggleFilters={handleToggleFilterCollapse}
           />
         </div>
 

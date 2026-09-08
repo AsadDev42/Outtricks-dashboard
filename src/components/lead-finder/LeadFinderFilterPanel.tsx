@@ -11,6 +11,7 @@ import {
   Sliders, 
   ChevronDown, 
   ChevronUp, 
+  ChevronLeft,
   X, 
   Search, 
   Check, 
@@ -26,11 +27,13 @@ import { useLeadSearch, LeadFilterState } from '../../context/LeadSearchContext'
 export interface LeadFinderFilterPanelProps {
   isOpenMobile: boolean;
   onCloseMobile: () => void;
+  onCollapse?: () => void;
 }
 
 export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
   isOpenMobile,
   onCloseMobile,
+  onCollapse,
 }) => {
   const { filters, toggleFilterValue, updateFilters, resetFilters, setIsAdvancedFiltersDrawerOpen } = useLeadSearch();
 
@@ -67,21 +70,35 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           </span>
           {activeFiltersCount > 0 && (
             <Badge variant="blue" size="sm">
-              {activeFiltersCount} Active
+              {activeFiltersCount}
             </Badge>
           )}
         </div>
 
-        {activeFiltersCount > 0 && (
-          <button
-            type="button"
-            onClick={resetFilters}
-            className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            <RotateCcw className="w-3 h-3" />
-            <span>Reset</span>
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {activeFiltersCount > 0 && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset</span>
+            </button>
+          )}
+
+          {onCollapse && (
+            <button
+              type="button"
+              onClick={onCollapse}
+              className="hidden lg:flex items-center justify-center p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#202020] transition-colors cursor-pointer"
+              title="Collapse filters"
+              aria-label="Collapse filters"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Launch Advanced Filters Drawer Button */}
@@ -408,7 +425,7 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
   return (
     <>
       {/* Desktop Sticky Sidebar */}
-      <div className="hidden lg:block w-72 shrink-0 p-5 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs">
+      <div className="hidden lg:block w-64 xl:w-72 2xl:w-80 shrink-0 p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs">
         {filterContent}
       </div>
 

@@ -60,6 +60,7 @@ export interface LeadDetailData {
 
 export interface LeadFilterState {
   searchQuery: string;
+  companyDomains: string[];
   
   // 1. CONTACT
   contactTypes: string[]; // e.g. 'direct_email', 'verified_email', 'direct_mobile', 'verified_phone', 'both_available'
@@ -148,6 +149,7 @@ export interface LeadFilterState {
 
 export const INITIAL_LEAD_FILTERS: LeadFilterState = {
   searchQuery: '',
+  companyDomains: [],
   contactTypes: [],
   headcount: [],
   revenue: [],
@@ -264,6 +266,7 @@ interface LeadSearchContextType {
   exportToCsv: () => void;
   copyShareableSearchUrl: () => void;
   setIsAdvancedFiltersDrawerOpen: (open: boolean) => void;
+  addCustomLeads: (leads: LeadDetailData[]) => void;
 }
 
 // Master Raw Dataset (Enriched with 15 dimensions)
@@ -740,9 +743,31 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   }, [filters, searchParams, setSearchParams]);
 
+  const [customLeads, setCustomLeads] = useState<LeadDetailData[]>(() => {
+    try {
+      const saved = localStorage.getItem('outtricks_custom_leads');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('outtricks_custom_leads', JSON.stringify(customLeads));
+    } catch (e) {
+      console.warn('Failed to persist custom leads', e);
+    }
+  }, [customLeads]);
+
+  const addCustomLeads = useCallback((newLeads: LeadDetailData[]) => {
+    setCustomLeads((prev) => [...newLeads, ...prev]);
+    setPage(1);
+  }, []);
+
   // Robust Multi-Dimension Filtering Engine (AND across categories, OR within arrays)
   const allMatchingResults = useMemo(() => {
-    return MASTER_DATABASE.filter((lead) => {
+    return [...customLeads, ...MASTER_DATABASE].filter((lead) => {
       // 1. Text Search Query
       if (filters.searchQuery.trim()) {
         const q = filters.searchQuery.toLowerCase();
@@ -757,6 +782,19 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           lead.location.toLowerCase().includes(q);
 
         if (!matches) return false;
+      }
+
+      // 1b. Company / Domain Specific Targets Filter
+      if (filters.companyDomains && filters.companyDomains.length > 0) {
+        const matchesCompanyOrDomain = filters.companyDomains.some((entry) => {
+          const clean = entry.toLowerCase().trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+          if (!clean) return false;
+          return (
+            lead.company.toLowerCase().includes(clean) ||
+            (lead.domain && lead.domain.toLowerCase().includes(clean))
+          );
+        });
+        if (!matchesCompanyOrDomain) return false;
       }
 
       // 2. CONTACT FILTERS
@@ -1146,6 +1184,7 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         exportToCsv,
         copyShareableSearchUrl,
         setIsAdvancedFiltersDrawerOpen,
+        addCustomLeads,
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useLeadSearch } from '../../context/LeadSearchContext';
 import { Button } from '../ui/Button';
 import { X, Bookmark, Share2, RotateCcw, Sliders } from 'lucide-react';
@@ -28,6 +28,10 @@ export const LeadFilterChipsBar: React.FC<LeadFilterChipsBarProps> = ({
   if (filters.searchQuery) {
     chips.push({ id: 'q', category: 'searchQuery', label: `Keyword: "${filters.searchQuery}"` });
   }
+
+  (filters.companyDomains || []).forEach((cd) => {
+    chips.push({ id: `cd_${cd}`, category: 'companyDomains', label: `Domain/Company: ${cd}`, value: cd });
+  });
 
   filters.contactTypes.forEach((c) => {
     chips.push({ id: `c_${c}`, category: 'contactTypes', label: `Contact: ${c.replace('_', ' ')}`, value: c });
