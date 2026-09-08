@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   BrainCircuit, 
   Sparkles, 
@@ -29,7 +30,25 @@ export const JobIntelligenceView: React.FC<JobIntelligenceViewProps> = ({
   initialSection = 'job-intel',
 }) => {
   const [activeSection, setActiveSection] = useState<IntelligenceSection>(initialSection);
+  const navigate = useNavigate();
   const { jobs, proposals } = useUpwork();
+
+  useEffect(() => {
+    setActiveSection(initialSection);
+  }, [initialSection]);
+
+  const handleSectionSelect = (secId: IntelligenceSection) => {
+    setActiveSection(secId);
+    const pathMap: Record<IntelligenceSection, string> = {
+      'job-intel': '/upwork/intelligence',
+      'proposal-intel': '/upwork/proposal-intel',
+      'client-intel': '/upwork/client-intel',
+      'match-score': '/upwork/match-score',
+    };
+    if (pathMap[secId]) {
+      navigate(pathMap[secId]);
+    }
+  };
 
   const sections: { id: IntelligenceSection; label: string; icon: React.ReactNode }[] = [
     { id: 'job-intel', label: 'Job Intelligence', icon: <BrainCircuit className="w-3.5 h-3.5" /> },
@@ -68,7 +87,7 @@ export const JobIntelligenceView: React.FC<JobIntelligenceViewProps> = ({
               <button
                 key={sec.id}
                 type="button"
-                onClick={() => setActiveSection(sec.id)}
+                onClick={() => handleSectionSelect(sec.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 flex items-center gap-1.5 shrink-0 cursor-pointer ${
                   isActive
                     ? 'bg-primary text-white shadow-xs'

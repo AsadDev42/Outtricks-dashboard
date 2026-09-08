@@ -920,7 +920,7 @@ const INITIAL_MODULES: AdminModuleConfig[] = [
   { id: 'upwork', name: 'Upwork Studio', description: 'Freelance lead discovery and automated proposal drafting.', icon: 'Briefcase', enabled: true, maintenanceMode: false, visibility: 'all', order: 9 },
   { id: 'workflows', name: 'Visual Workflows', description: 'DAG event nodes and integration webhooks.', icon: 'Workflow', enabled: true, maintenanceMode: false, visibility: 'all', order: 10 },
   { id: 'analytics', name: 'Revenue Analytics', description: 'Multi-touch attribution, forecast charts, and billing metrics.', icon: 'BarChart3', enabled: true, maintenanceMode: false, visibility: 'all', order: 11 },
-  { id: 'admin', name: 'Admin Panel', description: 'Master governance, access control, plans, and platform settings.', icon: 'ShieldCheck', enabled: true, maintenanceMode: false, visibility: 'admin-only', order: 12 },
+  { id: 'admin', name: 'Workspace', description: 'Master governance, access control, plans, and platform settings.', icon: 'ShieldCheck', enabled: true, maintenanceMode: false, visibility: 'admin-only', order: 12 },
   { id: 'settings', name: 'Settings', description: 'Personal profile, team workspaces, cursor, and appearance.', icon: 'Settings', enabled: true, maintenanceMode: false, visibility: 'all', order: 13 },
 ];
 
@@ -1151,7 +1151,7 @@ const STORAGE_KEY = 'outtricks_admin_state_v2';
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { success, error: toastError, info } = useToast();
-  const { user: authUser } = useAuth();
+  const { user: authUser, currentWorkspace } = useAuth();
 
   const [users, setUsers] = useState<AdminUser[]>(() => {
     try {
@@ -1376,10 +1376,25 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem(`${STORAGE_KEY}_audit`, JSON.stringify(auditLogs));
   }, [auditLogs]);
 
-  // Current active admin role
-  const activeUser = impersonatedUser || users.find(u => u.email === authUser?.email) || users[0];
-  const currentAdminRole: AdminRole = activeUser?.role || 'super-admin';
-  const isAdmin = currentAdminRole === 'super-admin' || currentAdminRole === 'admin' || currentAdminRole === 'billing-admin';
+  // Current active admin role & workspace governance
+  const isWorkspaceOwner = currentWorkspace?.role === 'owner';
+  const isWorkspaceAdmin = currentWorkspace?.role === 'admin' || isWorkspaceOwner;
+
+  const activeUser = 
+    impersonatedUser || 
+    users.find(u => u.email === authUser?.email) || 
+    (authUser?.email === 'sarah@cloudscale.ai' ? users.find(u => u.email === 'sarah.j@cloudscale.ai') : undefined) ||
+    users[0];
+
+  const currentAdminRole: AdminRole = 
+    isWorkspaceOwner ? 'super-admin' : 
+    (isWorkspaceAdmin && activeUser?.role !== 'super-admin' ? 'admin' : (activeUser?.role || 'super-admin'));
+
+  const isAdmin = 
+    isWorkspaceAdmin || 
+    currentAdminRole === 'super-admin' || 
+    currentAdminRole === 'admin' || 
+    currentAdminRole === 'billing-admin';
 
   // Audit Logger Helper
   const logAdminAction = useCallback((action: string, target: string, oldValue?: string, newValue?: string, reason?: string) => {
@@ -1401,10 +1416,21 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Check Role Permission
   const hasPermission = useCallback((permissionKey: keyof AdminRoleDefinition['permissions']): boolean => {
-    if (currentAdminRole === 'super-admin') return true;
+    if (isWorkspaceOwner || currentAdminRole === 'super-admin') return true;
+    if (isWorkspaceAdmin && (
+      permissionKey === 'adminPanel' || 
+      permissionKey === 'manageUsers' || 
+      permissionKey === 'manageTeams' || 
+      permissionKey === 'managePlans' || 
+      permissionKey === 'manageBilling' || 
+      permissionKey === 'manageCredits' || 
+      permissionKey === 'manageIntegrations' ||
+      permissionKey === 'analytics' ||
+      permissionKey === 'workflows'
+    )) return true;
     const roleDef = roles.find(r => r.id === currentAdminRole);
     return roleDef ? Boolean(roleDef.permissions[permissionKey]) : false;
-  }, [currentAdminRole, roles]);
+  }, [currentAdminRole, roles, isWorkspaceOwner, isWorkspaceAdmin]);
 
   // Impersonate
   const impersonateUser = useCallback((userId: string) => {
@@ -2031,7 +2057,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Access Control Query Helpers
   const hasModuleAccess = useCallback((moduleId: string): boolean => {
-    const canonicalId = moduleId === 'mail' ? 'inbox' : moduleId;
+    const canonicalId = 
+      moduleId === 'mail' ? 'inbox' :
+      moduleId === 'trixie' ? 'copilot' :
+      moduleId === 'master-box' ? 'campaigns' :
+      moduleId === 'work' ? 'upwork' :
+      moduleId === 'people' ? 'crm' :
+      moduleId === 'automation' ? 'workflows' :
+      moduleId;
     // 1. Is module globally disabled?
     const modConfig = modules.find(m => m.id === canonicalId);
     if (modConfig && !modConfig.enabled) {

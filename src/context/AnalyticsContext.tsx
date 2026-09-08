@@ -293,6 +293,8 @@ interface AnalyticsContextType {
   setDateRange: (range: DateRangeType) => void;
   comparison: ComparisonPeriod;
   setComparison: (comp: ComparisonPeriod) => void;
+  comparePriorPeriod: boolean;
+  setComparePriorPeriod: (enabled: boolean) => void;
 
   // Actions
   isRefreshing: boolean;
@@ -375,6 +377,29 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const setComparison = useCallback((comp: ComparisonPeriod) => {
     setFilters(prev => ({ ...prev, comparison: comp }));
   }, []);
+
+  const [comparePriorPeriod, setComparePriorPeriodState] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('outtricks_analytics_compare_period');
+      return saved !== null ? saved === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const setComparePriorPeriod = useCallback((enabled: boolean) => {
+    setComparePriorPeriodState(enabled);
+    try {
+      localStorage.setItem('outtricks_analytics_compare_period', String(enabled));
+    } catch (e) {
+      console.warn('Failed to save analytics comparison setting', e);
+    }
+    if (enabled) {
+      success('Period-over-period delta comparison enabled.', 'Comparison Active');
+    } else {
+      info('Period-over-period delta comparison disabled. Showing current period metrics.', 'Comparison Paused');
+    }
+  }, [success, info]);
 
   const resetFilters = useCallback(() => {
     setFilters({
@@ -950,6 +975,8 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setDateRange,
         comparison: filters.comparison,
         setComparison,
+        comparePriorPeriod,
+        setComparePriorPeriod,
         isRefreshing,
         refreshData,
         exportReport,

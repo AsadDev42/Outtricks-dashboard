@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { 
   SettingsProvider, 
@@ -9,6 +9,7 @@ import {
   SettingsOverview,
   SettingsProfileView,
   SettingsAccountView,
+  SettingsWorkspaceView,
   SettingsOrganizationView,
   SettingsTeamView,
   SettingsBillingView,
@@ -31,8 +32,9 @@ export const resolveSettingsSection = (pathname: string): SettingsSubTab => {
   if (p.includes('/profile')) return 'profile';
   if (p.includes('/account') && !p.includes('/connected-accounts')) return 'account';
   if (p.includes('/security')) return 'account';
-  if (p.includes('/organization') || p.includes('/org')) return 'organization';
-  if (p.includes('/team') || p.includes('/members')) return 'team';
+  if (p.includes('/workspace')) return 'workspace';
+  if (p.includes('/organization') || p.includes('/org')) return 'workspace';
+  if (p.includes('/team') || p.includes('/members')) return 'workspace';
   if (p.includes('/billing') || p.includes('/credits') || p.includes('/billing-credits')) return 'billing-credits';
   if (p.includes('/connected-accounts') || p.includes('/channels')) return 'connected-accounts';
   if (p.includes('/sending-inboxes') || p.includes('/inboxes')) return 'sending-inboxes';
@@ -76,12 +78,16 @@ const AppSettingsContent: React.FC = () => {
           <SettingsAccountView />
         )}
 
+        {currentSection === 'workspace' && (
+          <SettingsWorkspaceView />
+        )}
+
         {currentSection === 'organization' && (
-          <SettingsOrganizationView />
+          <SettingsWorkspaceView initialTab="workspace" />
         )}
 
         {currentSection === 'team' && (
-          <SettingsTeamView />
+          <SettingsWorkspaceView initialTab="team" />
         )}
 
         {currentSection === 'billing-credits' && (

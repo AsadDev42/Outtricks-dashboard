@@ -5,6 +5,7 @@ export type SettingsSubTab =
   | 'overview'
   | 'profile'
   | 'account'
+  | 'workspace'
   | 'organization'
   | 'team'
   | 'billing-credits'
@@ -272,8 +273,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
 
   const [orgData, setOrgData] = useState({
-    name: 'CloudScale AI Technologies Inc.',
-    domain: 'cloudscale.ai',
+    name: 'Redlumb',
+    domain: 'redlumb.com',
     taxId: 'US-EIN-88-2940192',
     timezone: 'America/Los_Angeles (PST)',
     currency: 'USD ($)',

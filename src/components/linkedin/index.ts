@@ -24,3 +24,6 @@ export * from './LinkedInActivityView';
 export * from './CreateLinkedInCampaignModal';
 export * from './ConnectLinkedInAccountModal';
 export * from './CreateAutomationRuleModal';
+export * from './AiAutomationRuleModal';
+export * from './LinkedInSequenceBuilder';
+export * from './LinkedInEmbeddedCanvasStep';

@@ -27,33 +27,33 @@ export const CoPilotHeader: React.FC = () => {
     <div className="space-y-4">
       {/* Top Banner Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs">
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-3.5 min-w-0">
           <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center font-bold shadow-md shadow-primary/30 shrink-0">
             <Sparkles className="w-6 h-6" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-black text-slate-950 dark:text-white font-sans">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <h1 className="text-xl font-black text-slate-950 dark:text-white font-sans truncate">
                 Tricksy AI Revenue Assistant
               </h1>
               <Badge variant="emerald" size="sm" dot>
                 Online
               </Badge>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-sans">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-sans truncate">
               Autonomous conversational AI assistant connected directly to your PostgreSQL database, leads, and outreach channels.
             </p>
           </div>
         </div>
 
-        {/* Telemetry & Quick Action */}
-        <div className="flex items-center gap-3">
+        {/* Telemetry & Quick Action — never clip */}
+        <div className="flex items-center gap-3 shrink-0">
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-xs">
             <Cpu className="w-3.5 h-3.5 text-primary" />
             <span className="text-slate-600 dark:text-slate-400 font-mono">Claude 3.5 Sonnet</span>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 dark:bg-white/[0.04] border border-primary/20 dark:border-primary/30 text-xs text-primary font-bold font-mono">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 dark:bg-white/[0.04] border border-primary/20 dark:border-primary/30 text-xs text-primary font-bold font-mono whitespace-nowrap">
             <Coins className="w-3.5 h-3.5 text-primary" />
             <span>1,840 Credits</span>
           </div>
@@ -63,6 +63,7 @@ export const CoPilotHeader: React.FC = () => {
             size="sm"
             onClick={createNewConversation}
             leftIcon={<Plus className="w-4 h-4" />}
+            className="shrink-0 whitespace-nowrap"
           >
             New Chat
           </Button>

@@ -22,8 +22,11 @@ import {
   LinkedInActivityView,
   CreateLinkedInCampaignModal,
   ConnectLinkedInAccountModal,
-  CreateAutomationRuleModal
+  CreateAutomationRuleModal,
+  AiAutomationRuleModal
 } from '../../components/linkedin';
+import { LinkedInAutomationRule } from '../../context/LinkedInContext';
+import { MultiChannelCanvasModal } from '../../components/workflows/MultiChannelCanvasModal';
 
 type LinkedInSection = 
   | 'campaigns'
@@ -72,6 +75,24 @@ const LinkedInPageContent: React.FC = () => {
   const [isCreateCampaignOpen, setIsCreateCampaignOpen] = useState(false);
   const [isConnectAccountOpen, setIsConnectAccountOpen] = useState(false);
   const [isCreateRuleOpen, setIsCreateRuleOpen] = useState(false);
+  const [isAiRuleOpen, setIsAiRuleOpen] = useState(false);
+  const [editingRule, setEditingRule] = useState<LinkedInAutomationRule | null>(null);
+  const [isCanvasOpen, setIsCanvasOpen] = useState(false);
+
+  const handleOpenCreateRule = () => {
+    setEditingRule(null);
+    setIsCreateRuleOpen(true);
+  };
+
+  const handleEditRule = (rule: LinkedInAutomationRule) => {
+    setEditingRule(rule);
+    setIsCreateRuleOpen(true);
+  };
+
+  const handleOpenAiFromBuilder = (aiGeneratedRule: LinkedInAutomationRule) => {
+    setEditingRule(aiGeneratedRule);
+    setIsCreateRuleOpen(true);
+  };
 
   return (
     <div className="space-y-6 font-sans">
@@ -81,21 +102,24 @@ const LinkedInPageContent: React.FC = () => {
         noindex={true}
       />
 
-      {/* Header Banner with Metrics & Actions */}
-      <LinkedInHeader
-        onOpenCreateCampaign={() => setIsCreateCampaignOpen(true)}
-        onOpenConnectAccount={() => setIsConnectAccountOpen(true)}
-        onOpenCreateRule={() => setIsCreateRuleOpen(true)}
-      />
-
       {/* Dynamic Route-Driven View Content */}
       <div className="animate-in fade-in duration-150">
         {currentSection === 'overview' && (
-          <LinkedInOverview
-            onOpenCreateCampaign={() => setIsCreateCampaignOpen(true)}
-            onOpenConnectAccount={() => setIsConnectAccountOpen(true)}
-            onOpenCreateRule={() => setIsCreateRuleOpen(true)}
-          />
+          <div className="space-y-6">
+            {/* Overview Summary: Safe Cloud Automation Hero & Metrics */}
+            <LinkedInHeader
+              onOpenCreateCampaign={() => setIsCreateCampaignOpen(true)}
+              onOpenConnectAccount={() => setIsConnectAccountOpen(true)}
+              onOpenCreateRule={handleOpenCreateRule}
+              onOpenAiRuleBuilder={() => setIsAiRuleOpen(true)}
+              onOpenVisualCanvas={() => setIsCanvasOpen(true)}
+            />
+            <LinkedInOverview
+              onOpenCreateCampaign={() => setIsCreateCampaignOpen(true)}
+              onOpenConnectAccount={() => setIsConnectAccountOpen(true)}
+              onOpenCreateRule={handleOpenCreateRule}
+            />
+          </div>
         )}
 
         {currentSection === 'campaigns' && (
@@ -110,7 +134,9 @@ const LinkedInPageContent: React.FC = () => {
 
         {currentSection === 'automation' && (
           <LinkedInAutomationView
-            onOpenCreateRule={() => setIsCreateRuleOpen(true)}
+            onOpenCreateRule={handleOpenCreateRule}
+            onOpenAiRuleBuilder={() => setIsAiRuleOpen(true)}
+            onEditRule={handleEditRule}
           />
         )}
 
@@ -178,7 +204,27 @@ const LinkedInPageContent: React.FC = () => {
 
       <CreateAutomationRuleModal
         isOpen={isCreateRuleOpen}
-        onClose={() => setIsCreateRuleOpen(false)}
+        onClose={() => {
+          setIsCreateRuleOpen(false);
+          setEditingRule(null);
+        }}
+        initialRule={editingRule}
+        onOpenCanvas={() => setIsCanvasOpen(true)}
+      />
+
+      <AiAutomationRuleModal
+        isOpen={isAiRuleOpen}
+        onClose={() => setIsAiRuleOpen(false)}
+        onOpenRuleBuilder={(generatedRule) => {
+          handleOpenAiFromBuilder(generatedRule);
+        }}
+      />
+
+      <MultiChannelCanvasModal
+        isOpen={isCanvasOpen}
+        onClose={() => setIsCanvasOpen(false)}
+        customChannelMode="linkedin"
+        title="LinkedIn Visual Automation Canvas (Lemlist Style)"
       />
 
     </div>

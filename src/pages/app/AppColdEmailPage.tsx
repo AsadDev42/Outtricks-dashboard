@@ -61,12 +61,14 @@ const AppColdEmailPageContent: React.FC = () => {
         noindex={true}
       />
 
-      {/* Top Header & Sub-Tab Bar */}
-      <EmailHeader
-        onOpenCreateCampaign={() => setIsCreateCampaignOpen(true)}
-        onOpenCreateSequence={() => setIsCreateSequenceOpen(true)}
-        onOpenConnectMailbox={() => setIsConnectMailboxOpen(true)}
-      />
+      {/* Top Header & Sub-Tab Bar - Rendered strictly on Campaigns */}
+      {isCampaigns && (
+        <EmailHeader
+          onOpenCreateCampaign={() => setIsCreateCampaignOpen(true)}
+          onOpenCreateSequence={() => setIsCreateSequenceOpen(true)}
+          onOpenConnectMailbox={() => setIsConnectMailboxOpen(true)}
+        />
+      )}
 
       {/* Sub-Tab View Content */}
       <div className="animate-in fade-in duration-150">

@@ -63,7 +63,7 @@ export const CrmPipelineView: React.FC<CrmPipelineViewProps> = ({
             onClick={exportDealsToCsv}
             leftIcon={<Download className="w-3.5 h-3.5" />}
           >
-            Export CSV
+            Export CSV ({allFilteredDeals.length})
           </Button>
 
           <Button

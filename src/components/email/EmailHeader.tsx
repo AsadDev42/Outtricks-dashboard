@@ -30,7 +30,7 @@ export const EmailHeader: React.FC<EmailHeaderProps> = ({
   return (
     <div className="font-sans">
       {/* Top Banner with KPIs & Actions */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
+      <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs flex flex-col 2xl:flex-row 2xl:items-center 2xl:justify-between gap-5">
         
         <div className="space-y-1.5 min-w-0">
           <div className="flex items-center gap-2.5">
@@ -47,9 +47,9 @@ export const EmailHeader: React.FC<EmailHeaderProps> = ({
         </div>
 
         {/* Right Area: Metric Badges & Action CTAs */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Metric Badges */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs shrink-0">
             <div className="p-2.5 rounded-2xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] space-y-0.5 min-w-[95px]">
               <div className="text-[9px] text-slate-400 font-bold uppercase">Active Inboxes</div>
               <div className="text-sm font-extrabold text-slate-900 dark:text-white font-mono">{activeMailboxesCount} Pools</div>

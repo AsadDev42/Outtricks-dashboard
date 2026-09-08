@@ -10,15 +10,18 @@ import {
   CheckCircle2, 
   AlertCircle,
   Filter,
-  X
+  X,
+  Flame,
+  DollarSign
 } from 'lucide-react';
-import { useCrm, CrmTask } from '../../context/CrmContext';
+import { useCrm, CrmTask, CrmDeal } from '../../context/CrmContext';
+import { AsyncSearchCombobox } from './AsyncSearchCombobox';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { formatNumber } from '../../utils/formatters';
 
 export const CrmTasksView: React.FC = () => {
-  const { tasks, deals, createTask, toggleTaskCompleted, deleteTask } = useCrm();
+  const { tasks, deals, createTask, toggleTaskCompleted, deleteTask, searchDealsAsync, getDealByIdAsync } = useCrm();
   const [tabFilter, setTabFilter] = useState<'today' | 'upcoming' | 'overdue' | 'completed' | 'all'>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
@@ -29,6 +32,7 @@ export const CrmTasksView: React.FC = () => {
   const [taskAssignee, setTaskAssignee] = useState<any>('Sarah Jenkins');
   const [taskPriority, setTaskPriority] = useState<'high' | 'medium' | 'low'>('medium');
   const [taskDealId, setTaskDealId] = useState<string>('');
+  const [selectedTaskDealItem, setSelectedTaskDealItem] = useState<CrmDeal | undefined>(undefined);
 
   const filteredTasks = tasks.filter((t) => {
     const matchesPriority = priorityFilter === 'all' || t.priority === priorityFilter;
@@ -40,6 +44,13 @@ export const CrmTasksView: React.FC = () => {
 
     return matchesPriority;
   });
+
+  const handleCloseTaskModal = () => {
+    setIsNewTaskModalOpen(false);
+    setTaskTitle('');
+    setTaskDealId('');
+    setSelectedTaskDealItem(undefined);
+  };
 
   const handleCreateTask = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,9 +64,7 @@ export const CrmTasksView: React.FC = () => {
       taskPriority
     );
 
-    setIsNewTaskModalOpen(false);
-    setTaskTitle('');
-    setTaskDealId('');
+    handleCloseTaskModal();
   };
 
   return (
@@ -272,24 +281,79 @@ export const CrmTasksView: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Associated Deal (Optional)</label>
-                <select
-                  value={taskDealId}
-                  onChange={(e) => setTaskDealId(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200 dark:border-[#2A2A2A] text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 focus:outline-none"
-                >
-                  <option value="">None (General Task)</option>
-                  {deals.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.companyName} - {d.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <AsyncSearchCombobox<CrmDeal>
+                label="Associated Deal (Optional)"
+                placeholder="Search deals by title, company..."
+                value={taskDealId}
+                initialItem={selectedTaskDealItem}
+                onChange={(id, item) => {
+                  setTaskDealId(id);
+                  setSelectedTaskDealItem(item);
+                }}
+                onSearch={(query, signal) => searchDealsAsync(query, { limit: 15, signal })}
+                getItemById={getDealByIdAsync}
+                getItemKey={(d) => d.id}
+                recentSectionTitle="Recent Deals"
+                emptyMessage="No deals found"
+                errorMessage="Unable to load deals. Try again."
+                renderItem={(deal) => (
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                      <DollarSign className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="min-w-0 flex-1 text-left space-y-0.5">
+                      <div className="flex items-center gap-1.5 justify-between">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          {deal.title}
+                        </span>
+                        <span className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
+                          ${deal.value.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] text-slate-400 dark:text-slate-500">
+                        <span className="truncate font-medium text-slate-600 dark:text-slate-300">{deal.companyName}</span>
+                        {deal.contactName && <span className="truncate">• {deal.contactName}</span>}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                renderSelected={(deal, onClear) => (
+                  <div className="p-2.5 rounded-xl border border-primary/30 bg-primary/5 dark:bg-primary/10 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                        <DollarSign className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 space-y-0.5 text-left">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                            {deal.title}
+                          </span>
+                          <span className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                            ${deal.value.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
+                          <span className="font-semibold text-slate-700 dark:text-slate-300">{deal.companyName}</span>
+                          {deal.contactName && <span>• {deal.contactName}</span>}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={onClear}
+                      className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
+                      title="Remove deal link"
+                      aria-label="Remove deal link"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              />
 
               <div className="flex items-center justify-end gap-2 pt-3">
-                <Button variant="secondary" size="sm" type="button" onClick={() => setIsNewTaskModalOpen(false)}>
+                <Button variant="secondary" size="sm" type="button" onClick={handleCloseTaskModal}>
                   Cancel
                 </Button>
                 <Button variant="primary" size="sm" type="submit">

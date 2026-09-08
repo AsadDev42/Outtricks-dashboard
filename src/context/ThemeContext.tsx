@@ -103,15 +103,15 @@ export const DEFAULT_APPEARANCE_SETTINGS: AppearanceSettings = {
 };
 
 export const ACCENT_PRESETS = [
-  { id: 'green', name: 'Emerald Green (Default)', hex: '#10B981', hoverHex: '#059669', softHex: '#ECFDF5', darkSoftHex: 'rgba(16, 185, 129, 0.15)', glowHex: 'rgba(16, 185, 129, 0.35)' },
+  { id: 'orange', name: 'Outtricks Orange (Default)', hex: '#F97316', hoverHex: '#EA580C', softHex: '#FFF7ED', darkSoftHex: 'rgba(249, 115, 22, 0.15)', glowHex: 'rgba(249, 115, 22, 0.35)' },
   { id: 'outtricks-blue', name: 'Outtricks Blue', hex: '#2563EB', hoverHex: '#1D4ED8', softHex: '#EFF6FF', darkSoftHex: 'rgba(37, 99, 235, 0.15)', glowHex: 'rgba(37, 99, 235, 0.35)' },
   { id: 'electric-blue', name: 'Electric Blue', hex: '#0066FF', hoverHex: '#0052CC', softHex: '#EBF3FF', darkSoftHex: 'rgba(0, 102, 255, 0.15)', glowHex: 'rgba(0, 102, 255, 0.35)' },
+  { id: 'green', name: 'Emerald Green', hex: '#10B981', hoverHex: '#059669', softHex: '#ECFDF5', darkSoftHex: 'rgba(16, 185, 129, 0.15)', glowHex: 'rgba(16, 185, 129, 0.35)' },
   { id: 'indigo', name: 'Indigo', hex: '#6366F1', hoverHex: '#4F46E5', softHex: '#EEF2FF', darkSoftHex: 'rgba(99, 102, 241, 0.15)', glowHex: 'rgba(99, 102, 241, 0.35)' },
   { id: 'purple', name: 'Purple', hex: '#8B5CF6', hoverHex: '#7C3AED', softHex: '#F5F3FF', darkSoftHex: 'rgba(139, 92, 246, 0.15)', glowHex: 'rgba(139, 92, 246, 0.35)' },
   { id: 'violet', name: 'Violet', hex: '#A855F7', hoverHex: '#9333EA', softHex: '#FAF5FF', darkSoftHex: 'rgba(168, 85, 247, 0.15)', glowHex: 'rgba(168, 85, 247, 0.35)' },
   { id: 'cyan', name: 'Cyan', hex: '#06B6D4', hoverHex: '#0891B2', softHex: '#ECFEFF', darkSoftHex: 'rgba(6, 182, 212, 0.15)', glowHex: 'rgba(6, 182, 212, 0.35)' },
   { id: 'teal', name: 'Teal', hex: '#0D9488', hoverHex: '#0F766E', softHex: '#F0FDFA', darkSoftHex: 'rgba(13, 148, 136, 0.15)', glowHex: 'rgba(13, 148, 136, 0.35)' },
-  { id: 'orange', name: 'Orange', hex: '#F97316', hoverHex: '#EA580C', softHex: '#FFF7ED', darkSoftHex: 'rgba(249, 115, 22, 0.15)', glowHex: 'rgba(249, 115, 22, 0.35)' },
   { id: 'rose', name: 'Rose', hex: '#F43F5E', hoverHex: '#E11D48', softHex: '#FFF1F2', darkSoftHex: 'rgba(244, 63, 94, 0.15)', glowHex: 'rgba(244, 63, 94, 0.35)' },
 ];
 
@@ -245,40 +245,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const root = document.documentElement;
 
-    // 1. Dark / Light class & Neutral Dark Theme Preset
-    if (theme === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
-
-      const preset = DARK_THEME_PRESETS.find(p => p.id === settings.darkPreset) || DARK_THEME_PRESETS[0];
-      root.style.setProperty('--color-bg-main', preset.appBg);
-      root.style.setProperty('--color-bg-primary', preset.surfaceBg);
-      root.style.setProperty('--color-bg-card', preset.cardBg);
-      root.style.setProperty('--color-bg-elevated', preset.elevatedBg);
-      root.style.setProperty('--color-bg-hover', preset.hoverBg);
-      root.style.setProperty('--color-bg-input', preset.inputBg);
-      root.style.setProperty('--color-border-default', preset.border);
-      root.style.setProperty('--color-text-primary', '#FFFFFF');
-      root.style.setProperty('--color-text-secondary', '#B5B5B5');
-      root.style.setProperty('--color-text-muted', '#777777');
-      root.style.setProperty('--color-text-disabled', '#555555');
-    } else {
-      root.classList.remove('dark');
-      root.classList.add('light');
-      root.style.setProperty('--color-bg-main', '#FFFFFF');
-      root.style.setProperty('--color-bg-primary', '#F8FAFC');
-      root.style.setProperty('--color-bg-card', '#FFFFFF');
-      root.style.setProperty('--color-bg-elevated', '#FFFFFF');
-      root.style.setProperty('--color-bg-hover', '#F1F5F9');
-      root.style.setProperty('--color-bg-input', '#F8FAFC');
-      root.style.setProperty('--color-border-default', '#E2E8F0');
-      root.style.setProperty('--color-text-primary', '#0B1020');
-      root.style.setProperty('--color-text-secondary', '#475569');
-      root.style.setProperty('--color-text-muted', '#94A3B8');
-      root.style.setProperty('--color-text-disabled', '#CBD5E1');
-    }
-
-    // 2. Accent Color & Centralized Tokens
+    // 1. Accent Color & Centralized Tokens
     const foundPreset = ACCENT_PRESETS.find(p => p.hex.toLowerCase() === settings.accentColor.toLowerCase());
     const accentHex = settings.accentColor || '#F97316';
     const rgbObj = parseHex(accentHex) || { r: 249, g: 115, b: 22 };
@@ -294,6 +261,78 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const accentBorder = theme === 'dark' ? `rgba(${rgbString}, 0.3)` : `rgba(${rgbString}, 0.25)`;
     const activeBg = theme === 'dark' ? `rgba(${rgbString}, 0.12)` : `rgba(${rgbString}, 0.08)`;
     const focusRing = theme === 'dark' ? `rgba(${rgbString}, 0.35)` : `rgba(${rgbString}, 0.25)`;
+
+    // 2. Dark / Light class & Neutral Dark Theme Preset
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+
+      const preset = DARK_THEME_PRESETS.find(p => p.id === settings.darkPreset) || DARK_THEME_PRESETS[0];
+
+      // Semantic Tokens (Requirement 4)
+      root.style.setProperty('--background', preset.appBg);
+      root.style.setProperty('--surface', preset.surfaceBg);
+      root.style.setProperty('--surface-secondary', preset.elevatedBg);
+      root.style.setProperty('--card', preset.cardBg);
+      root.style.setProperty('--border', preset.border);
+      root.style.setProperty('--text-primary', '#FFFFFF');
+      root.style.setProperty('--text-secondary', '#B5B5B5');
+      root.style.setProperty('--text-muted', '#777777');
+      root.style.setProperty('--input-background', preset.inputBg);
+      root.style.setProperty('--sidebar-background', preset.appBg === '#050505' ? '#050505' : '#090909');
+      root.style.setProperty('--sidebar-surface', preset.surfaceBg);
+      root.style.setProperty('--sidebar-border', preset.border);
+      root.style.setProperty('--sidebar-text-primary', '#FFFFFF');
+      root.style.setProperty('--sidebar-text-secondary', '#8A8A8A');
+      root.style.setProperty('--sidebar-hover', 'rgba(255, 255, 255, 0.06)');
+      root.style.setProperty('--sidebar-active', accentHex);
+      root.style.setProperty('--sidebar-active-text', '#FFFFFF');
+
+      root.style.setProperty('--color-bg-main', preset.appBg);
+      root.style.setProperty('--color-bg-primary', preset.surfaceBg);
+      root.style.setProperty('--color-bg-card', preset.cardBg);
+      root.style.setProperty('--color-bg-elevated', preset.elevatedBg);
+      root.style.setProperty('--color-bg-hover', preset.hoverBg);
+      root.style.setProperty('--color-bg-input', preset.inputBg);
+      root.style.setProperty('--color-border-default', preset.border);
+      root.style.setProperty('--color-text-primary', '#FFFFFF');
+      root.style.setProperty('--color-text-secondary', '#B5B5B5');
+      root.style.setProperty('--color-text-muted', '#777777');
+      root.style.setProperty('--color-text-disabled', '#555555');
+    } else {
+      root.classList.remove('dark');
+      root.classList.add('light');
+
+      // Semantic Tokens (Requirement 4)
+      root.style.setProperty('--background', '#FFFFFF');
+      root.style.setProperty('--surface', '#F8FAFC');
+      root.style.setProperty('--surface-secondary', '#F1F5F9');
+      root.style.setProperty('--card', '#FFFFFF');
+      root.style.setProperty('--border', '#E2E8F0');
+      root.style.setProperty('--text-primary', '#0B1020');
+      root.style.setProperty('--text-secondary', '#475569');
+      root.style.setProperty('--text-muted', '#94A3B8');
+      root.style.setProperty('--input-background', '#F8FAFC');
+      root.style.setProperty('--sidebar-background', '#FFFFFF');
+      root.style.setProperty('--sidebar-surface', '#F8FAFC');
+      root.style.setProperty('--sidebar-border', '#E2E8F0');
+      root.style.setProperty('--sidebar-text-primary', '#0B1020');
+      root.style.setProperty('--sidebar-text-secondary', '#64748B');
+      root.style.setProperty('--sidebar-hover', '#F1F5F9');
+      root.style.setProperty('--sidebar-active', accentHex);
+      root.style.setProperty('--sidebar-active-text', '#FFFFFF');
+
+      root.style.setProperty('--color-bg-main', '#FFFFFF');
+      root.style.setProperty('--color-bg-primary', '#F8FAFC');
+      root.style.setProperty('--color-bg-card', '#FFFFFF');
+      root.style.setProperty('--color-bg-elevated', '#FFFFFF');
+      root.style.setProperty('--color-bg-hover', '#F1F5F9');
+      root.style.setProperty('--color-bg-input', '#F8FAFC');
+      root.style.setProperty('--color-border-default', '#E2E8F0');
+      root.style.setProperty('--color-text-primary', '#0B1020');
+      root.style.setProperty('--color-text-secondary', '#475569');
+      root.style.setProperty('--color-text-muted', '#94A3B8');
+    }
 
     // Centralized Design Tokens (Per Master Theme Architecture)
     root.style.setProperty('--accent-primary', accentHex);

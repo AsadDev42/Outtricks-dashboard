@@ -89,15 +89,17 @@ export function getRouteMetadata(pathname: string): { title: string; module: str
   }
 
   // 3. CRM
-  if (p === '/crm' || p === '/crm/overview' || p === '/app/crm' || p === '/app/crm/overview') {
-    return { title: 'CRM Overview', module: 'crm' };
+  if (p === '/crm' || p === '/crm/overview' || p === '/crm/dashboard' || p === '/app/crm' || p === '/app/crm/overview' || p === '/people') {
+    return { title: 'CRM Dashboard', module: 'crm' };
   }
-  if (p.startsWith('/crm/deals')) return { title: 'Deals Pipeline', module: 'crm' };
+  if (p.startsWith('/crm/pipeline') || p.startsWith('/crm/deals')) return { title: 'Deals & Pipeline', module: 'crm' };
   if (p.startsWith('/crm/companies') || p === '/companies' || p === '/accounts' || p === '/app/companies') {
-    return { title: 'Target Companies', module: 'crm' };
+    return { title: 'Companies', module: 'crm' };
   }
-  if (p.startsWith('/crm/contacts')) return { title: 'Verified Contacts', module: 'crm' };
-  if (p.startsWith('/crm/pipeline')) return { title: 'Attribution Pipeline', module: 'crm' };
+  if (p.startsWith('/crm/leads')) return { title: 'Leads', module: 'crm' };
+  if (p.startsWith('/crm/contacts')) return { title: 'Contacts', module: 'crm' };
+  if (p.startsWith('/crm/activities')) return { title: 'Activities', module: 'crm' };
+  if (p.startsWith('/crm/reminders') || p.startsWith('/crm/tasks')) return { title: 'Tasks & Reminders', module: 'crm' };
   if (p.startsWith('/crm/contracts')) return { title: 'Revenue Contracts', module: 'crm' };
   if (p.startsWith('/crm/labels')) return { title: 'Label Intelligence', module: 'crm' };
   if (p.startsWith('/crm/signals')) return { title: 'Signals Sentinel', module: 'crm' };
@@ -230,7 +232,11 @@ export function getRouteMetadata(pathname: string): { title: string; module: str
   }
 
   // 9. Upwork Studio
-  if (p.startsWith('/upwork') || p.startsWith('/app/upwork')) return { title: 'Upwork Studio', module: 'upwork' };
+  if (p === '/upwork/jobs' || p === '/upwork' || p === '/app/upwork') return { title: 'All Jobs', module: 'upwork' };
+  if (p.startsWith('/upwork/applications') || p.startsWith('/upwork/interviews') || p.startsWith('/upwork/proposals') || p.startsWith('/upwork/contracts') || p.startsWith('/upwork/earnings')) return { title: 'Work Pipeline', module: 'upwork' };
+  if (p.startsWith('/upwork/intelligence') || p.startsWith('/upwork/proposal-intel') || p.startsWith('/upwork/client-intel') || p.startsWith('/upwork/match-score') || p.startsWith('/intelligence')) return { title: 'Profile', module: 'upwork' };
+  if (p.startsWith('/upwork/profile')) return { title: 'Profile', module: 'upwork' };
+  if (p.startsWith('/upwork') || p.startsWith('/app/upwork') || p.startsWith('/work')) return { title: 'Upwork', module: 'upwork' };
 
   // 10. Workflows / Flow Builder
   if (p.startsWith('/flow-builder') || p.startsWith('/workflows') || p.startsWith('/app/flow-builder')) return { title: 'Workflows', module: 'workflows' };
@@ -261,25 +267,24 @@ export function getRouteMetadata(pathname: string): { title: string; module: str
   if (p.startsWith('/analytics/vip-intelligence') || p.startsWith('/app/analytics/vip-intelligence')) return { title: 'VIP Intelligence', module: 'analytics' };
   if (p.startsWith('/analytics') || p.startsWith('/app/analytics')) return { title: 'Analytics', module: 'analytics' };
 
-  // 12. Admin Panel
-  if (p === '/admin' || p === '/admin/overview' || p === '/app/admin' || p === '/app/admin/overview') return { title: 'Admin Dashboard', module: 'admin' };
-  if (p.startsWith('/admin/people') || p.startsWith('/admin/users') || p.startsWith('/admin/teams') || p.startsWith('/admin/roles') || p.startsWith('/app/admin/people')) return { title: 'Admin People', module: 'admin' };
-  if (p.startsWith('/admin/product') || p.startsWith('/admin/modules') || p.startsWith('/admin/plans') || p.startsWith('/admin/bundles') || p.startsWith('/admin/feature-access') || p.startsWith('/app/admin/product')) return { title: 'Admin Product', module: 'admin' };
-  if (p.startsWith('/admin/assignments') || p.startsWith('/admin/user-assignments') || p.startsWith('/admin/team-assignments') || p.startsWith('/admin/access-overrides') || p.startsWith('/app/admin/assignments')) return { title: 'Admin Assignments', module: 'admin' };
-  if (p.startsWith('/admin/billing') || p.startsWith('/admin/subscriptions') || p.startsWith('/admin/payments') || p.startsWith('/admin/invoices') || p.startsWith('/admin/credits') || p.startsWith('/admin/coupons') || p.startsWith('/app/admin/billing')) return { title: 'Admin Billing', module: 'admin' };
-  if (p.startsWith('/admin/usage') || p.startsWith('/admin/usage-overview') || p.startsWith('/admin/resource-limits') || p.startsWith('/admin/credit-usage') || p.startsWith('/app/admin/usage')) return { title: 'Admin Usage', module: 'admin' };
-  if (p.startsWith('/admin/platform') || p.startsWith('/admin/integrations') || p.startsWith('/admin/navigation') || p.startsWith('/admin/tricksy') || p.startsWith('/app/admin/platform')) return { title: 'Admin Platform', module: 'admin' };
-  if (p.startsWith('/admin/security') || p.startsWith('/admin/sessions') || p.startsWith('/admin/audit') || p.startsWith('/app/admin/security')) return { title: 'Admin Security', module: 'admin' };
-  if (p.startsWith('/admin/configuration') || p.startsWith('/admin/notifications') || p.startsWith('/admin/branding') || p.startsWith('/admin/settings') || p.startsWith('/admin/global-settings') || p.startsWith('/app/admin/configuration')) return { title: 'Admin Configuration', module: 'admin' };
-  if (p.startsWith('/admin') || p.startsWith('/app/admin')) return { title: 'Admin Panel', module: 'admin' };
+  // 12. Workspace
+  if (p === '/workspace' || p === '/workspace/overview' || p === '/app/workspace' || p === '/app/workspace/overview' || p === '/admin' || p === '/admin/overview' || p === '/app/admin' || p === '/app/admin/overview') return { title: 'Workspace Dashboard', module: 'workspace' };
+  if (p.startsWith('/workspace/people') || p.startsWith('/workspace/users') || p.startsWith('/workspace/teams') || p.startsWith('/workspace/roles') || p.startsWith('/admin/people') || p.startsWith('/admin/users') || p.startsWith('/admin/teams') || p.startsWith('/admin/roles') || p.startsWith('/app/workspace/people') || p.startsWith('/app/admin/people')) return { title: 'People & Roles', module: 'workspace' };
+  if (p.startsWith('/workspace/product') || p.startsWith('/workspace/modules') || p.startsWith('/workspace/plans') || p.startsWith('/workspace/bundles') || p.startsWith('/workspace/feature-access') || p.startsWith('/admin/product') || p.startsWith('/admin/modules') || p.startsWith('/admin/plans') || p.startsWith('/app/workspace/product') || p.startsWith('/app/admin/product')) return { title: 'Products & Plans', module: 'workspace' };
+  if (p.startsWith('/workspace/assignments') || p.startsWith('/workspace/user-assignments') || p.startsWith('/workspace/team-assignments') || p.startsWith('/workspace/access-overrides') || p.startsWith('/admin/assignments') || p.startsWith('/admin/user-assignments') || p.startsWith('/app/workspace/assignments') || p.startsWith('/app/admin/assignments')) return { title: 'User & Team Assignments', module: 'workspace' };
+  if (p.startsWith('/workspace/billing') || p.startsWith('/workspace/subscriptions') || p.startsWith('/workspace/payments') || p.startsWith('/workspace/invoices') || p.startsWith('/workspace/credits') || p.startsWith('/workspace/coupons') || p.startsWith('/admin/billing') || p.startsWith('/admin/subscriptions') || p.startsWith('/app/workspace/billing') || p.startsWith('/app/admin/billing')) return { title: 'Subscriptions & Billing', module: 'workspace' };
+  if (p.startsWith('/workspace/usage') || p.startsWith('/workspace/usage-overview') || p.startsWith('/workspace/resource-limits') || p.startsWith('/workspace/credit-usage') || p.startsWith('/admin/usage') || p.startsWith('/app/workspace/usage') || p.startsWith('/app/admin/usage')) return { title: 'Usage & Quotas', module: 'workspace' };
+  if (p.startsWith('/workspace/platform') || p.startsWith('/workspace/integrations') || p.startsWith('/workspace/navigation') || p.startsWith('/workspace/tricksy') || p.startsWith('/workspace/trixie') || p.startsWith('/admin/platform') || p.startsWith('/app/workspace/platform') || p.startsWith('/app/admin/platform')) return { title: 'Platform & AI', module: 'workspace' };
+  if (p.startsWith('/workspace/security') || p.startsWith('/workspace/sessions') || p.startsWith('/workspace/audit') || p.startsWith('/admin/security') || p.startsWith('/app/workspace/security') || p.startsWith('/app/admin/security')) return { title: 'Security & Audit', module: 'workspace' };
+  if (p.startsWith('/workspace/configuration') || p.startsWith('/workspace/notifications') || p.startsWith('/workspace/branding') || p.startsWith('/workspace/settings') || p.startsWith('/workspace/global-settings') || p.startsWith('/admin/configuration') || p.startsWith('/app/workspace/configuration') || p.startsWith('/app/admin/configuration')) return { title: 'Configuration & Settings', module: 'workspace' };
+  if (p.startsWith('/workspace') || p.startsWith('/app/workspace') || p.startsWith('/admin') || p.startsWith('/app/admin')) return { title: 'Workspace', module: 'workspace' };
 
   // 13. Settings
   if (p === '/settings' || p === '/settings/overview' || p === '/app/settings' || p === '/app/settings/overview') return { title: 'Settings', module: 'settings' };
   if (p.startsWith('/settings/profile') || p.startsWith('/app/settings/profile')) return { title: 'Profile', module: 'settings' };
   if (p.startsWith('/settings/account') || p.startsWith('/app/settings/account')) return { title: 'Account', module: 'settings' };
   if (p.startsWith('/settings/security') || p.startsWith('/app/settings/security')) return { title: 'Security', module: 'settings' };
-  if (p.startsWith('/settings/organization') || p.startsWith('/app/settings/organization')) return { title: 'Organization', module: 'settings' };
-  if (p.startsWith('/settings/team') || p.startsWith('/app/settings/team')) return { title: 'Team', module: 'settings' };
+  if (p.startsWith('/settings/workspace') || p.startsWith('/app/settings/workspace') || p.startsWith('/settings/organization') || p.startsWith('/app/settings/organization') || p.startsWith('/settings/team') || p.startsWith('/app/settings/team')) return { title: 'Workspace', module: 'settings' };
   if (p.startsWith('/settings/billing') || p.startsWith('/app/settings/billing')) return { title: 'Billing & Credits', module: 'settings' };
   if (p.startsWith('/settings/connected-accounts') || p.startsWith('/settings/channels') || p.startsWith('/app/settings/connected-accounts')) return { title: 'Connected Accounts', module: 'settings' };
   if (p.startsWith('/settings/sending-inboxes') || p.startsWith('/settings/inboxes') || p.startsWith('/app/settings/sending-inboxes')) return { title: 'Sending Inboxes', module: 'settings' };

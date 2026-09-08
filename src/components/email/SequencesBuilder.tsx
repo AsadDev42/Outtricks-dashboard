@@ -16,6 +16,7 @@ import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { useEmail, SequenceStep } from '../../context/EmailContext';
 import { useToast } from '../../context/ToastContext';
+import { SequenceStepEditor, SequenceStepItem } from './SequenceStepEditor';
 
 export interface SequencesBuilderProps {
   onOpenCreateSequence: () => void;
@@ -66,19 +67,30 @@ export const SequencesBuilder: React.FC<SequencesBuilderProps> = ({
       
       {/* Top Selector & Stats Strip */}
       <div className="p-4 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="text-slate-400 font-bold uppercase text-[10px]">Active Sequence:</span>
-          <select
-            value={selectedSeqId}
-            onChange={(e) => setSelectedSeqId(e.target.value)}
-            className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-xs font-extrabold text-slate-900 dark:text-white outline-none cursor-pointer"
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-slate-400 font-bold uppercase text-[10px]">Active Sequence:</span>
+            <select
+              value={selectedSeqId}
+              onChange={(e) => setSelectedSeqId(e.target.value)}
+              className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-xs font-extrabold text-slate-900 dark:text-white outline-none cursor-pointer"
+            >
+              {sequences.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onOpenCreateSequence}
+            className="h-8 gap-1.5 text-xs font-bold rounded-xl"
           >
-            {sequences.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+            <Plus className="w-3.5 h-3.5" />
+            <span>New Sequence</span>
+          </Button>
         </div>
 
         <div className="flex items-center gap-4">
@@ -127,7 +139,7 @@ export const SequencesBuilder: React.FC<SequencesBuilderProps> = ({
           return (
             <div
               key={step.id}
-              className="p-5 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs space-y-3"
+              className="p-5 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs space-y-4"
             >
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202020] pb-3">
                 <div className="flex items-center gap-2">
@@ -135,64 +147,59 @@ export const SequencesBuilder: React.FC<SequencesBuilderProps> = ({
                     {idx + 1}
                   </span>
                   <span className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
-                    Touch #{idx + 1} • Cold Email Step
+                    Touch #{idx + 1} • Multi-Touch Email Step
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-                    ✓ Spintax & Personalization Active
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveStep(step.id)}
-                    className="p-1.5 text-slate-400 hover:text-rose-500 cursor-pointer"
-                    title="Remove step"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  <Badge variant="emerald" size="sm">
+                    WYSIWYG & AI Spam Engine Active
+                  </Badge>
+                  {steps.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveStep(step.id)}
+                      className="p-1.5 text-slate-400 hover:text-rose-500 cursor-pointer transition-colors"
+                      title="Remove step"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Subject */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Subject Line</label>
-                <input
-                  type="text"
-                  value={step.subject || ''}
-                  onChange={(e) => {
-                    const next = [...steps];
-                    next[idx].subject = e.target.value;
-                    setSteps(next);
-                  }}
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 font-mono"
-                />
-              </div>
-
-              {/* Body */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase font-mono">Email Body Copy</label>
-                <textarea
-                  rows={4}
-                  value={step.body || ''}
-                  onChange={(e) => {
-                    const next = [...steps];
-                    next[idx].body = e.target.value;
-                    setSteps(next);
-                  }}
-                  className="w-full p-3.5 rounded-2xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 leading-relaxed font-sans"
-                />
-              </div>
-
-              {/* Personalization Pills */}
-              <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[10px] text-slate-400 font-mono">
-                <span>Variables:</span>
-                {['{{first_name}}', '{{company}}', '{{title}}', '{{sender_name}}'].map((v) => (
-                  <span key={v} className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">
-                    {v}
-                  </span>
-                ))}
-              </div>
+              {/* Advanced WYSIWYG & Deliverability Editor */}
+              <SequenceStepEditor
+                step={{
+                  stepNumber: idx + 1,
+                  delayDays: step.delayDays || 0,
+                  subject: step.subject || '',
+                  body: step.body || '',
+                  attachments: (step as any).attachments || [],
+                  threadReply: (step as any).threadReply ?? (idx > 0),
+                  unsubscribeOption: (step as any).unsubscribeOption || 'standard',
+                  signatureType: (step as any).signatureType || 'default',
+                  hasVariantB: (step as any).hasVariantB || false,
+                  variantBSubject: (step as any).variantBSubject || '',
+                  variantBBody: (step as any).variantBBody || '',
+                  activeVariant: (step as any).activeVariant || 'A',
+                  trackOpens: (step as any).trackOpens ?? true,
+                  trackClicks: (step as any).trackClicks ?? true,
+                }}
+                stepIndex={idx}
+                totalSteps={steps.length}
+                onChange={(updatedStep: SequenceStepItem) => {
+                  const next = [...steps];
+                  next[idx] = {
+                    ...next[idx],
+                    subject: updatedStep.subject,
+                    body: updatedStep.body,
+                    delayDays: updatedStep.delayDays,
+                    ...(updatedStep as any),
+                  };
+                  setSteps(next);
+                }}
+              />
             </div>
           );
         })}

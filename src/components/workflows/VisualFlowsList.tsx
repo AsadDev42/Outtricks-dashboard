@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Workflow, 
   Play, 
@@ -27,6 +28,7 @@ export interface VisualFlowsListProps {
 export const VisualFlowsList: React.FC<VisualFlowsListProps> = ({
   onOpenCreateWorkflow,
 }) => {
+  const navigate = useNavigate();
   const {
     workflows,
     setActiveWorkflow,
@@ -53,6 +55,7 @@ export const VisualFlowsList: React.FC<VisualFlowsListProps> = ({
   const handleEditWorkflow = (wf: WorkflowType) => {
     setActiveWorkflow(wf);
     setActiveTab('builder');
+    navigate('/flow-builder/builder');
   };
 
   return (
@@ -82,6 +85,19 @@ export const VisualFlowsList: React.FC<VisualFlowsListProps> = ({
             <option value="paused">Paused</option>
             <option value="draft">Drafts</option>
           </select>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setActiveTab('builder');
+              navigate('/flow-builder/builder');
+            }}
+            leftIcon={<Workflow className="w-3.5 h-3.5 text-emerald-500" />}
+            className="border-emerald-500/30 hover:border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10 font-bold"
+          >
+            Visual Canvas (Lemlist Style)
+          </Button>
 
           <Button
             variant="primary"

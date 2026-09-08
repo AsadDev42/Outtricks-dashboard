@@ -71,7 +71,7 @@ const AppCrmPageContent: React.FC = () => {
     else if (p.includes('/labels')) resolvedTab = 'labels';
     else if (p.includes('/signals')) resolvedTab = 'signals';
     else if (p.includes('/health')) resolvedTab = 'health';
-    else if (p.includes('/overview') || p === '/crm' || p === '/app/crm') resolvedTab = 'overview';
+    else if (p.includes('/overview') || p.includes('/dashboard') || p === '/crm' || p === '/crm/' || p === '/app/crm' || p === '/people') resolvedTab = 'overview';
     else {
       const tabParam = searchParams.get('tab') as CrmTabType | null;
       if (tabParam && [

@@ -23,8 +23,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     const p = pathname.toLowerCase().replace(/\/$/, '') || '/';
     if (
       p === '/' ||
-      p === '/master-box' ||
-      p.startsWith('/master-box/') ||
       p === '/copilot' ||
       p.startsWith('/copilot/') ||
       p === '/chat' ||
@@ -38,6 +36,23 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       p === '/app/dashboard'
     ) {
       return 'copilot';
+    }
+
+    if (
+      p === '/inbox' ||
+      p.startsWith('/inbox/') ||
+      p === '/master-box' ||
+      p.startsWith('/master-box/') ||
+      p === '/mail' ||
+      p.startsWith('/mail/') ||
+      p === '/messages' ||
+      p.startsWith('/messages/') ||
+      p === '/app/inbox' ||
+      p.startsWith('/app/inbox/') ||
+      p === '/app/mail' ||
+      p.startsWith('/app/mail/')
+    ) {
+      return 'master-inbox';
     }
 
     if (
@@ -75,7 +90,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     const matched = sorted.find((item) =>
       item.matchPrefixes.some((prefix) => p === prefix || p.startsWith(`${prefix}/`))
     );
-    return matched?.id || 'copilot';
+    return matched?.id || 'trixie';
   };
 
   const [activePrimaryId, setActivePrimaryId] = useState<string>(() => resolveActivePrimary(location.pathname));
@@ -113,11 +128,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   const currentPath = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
   const isMasterBoxOrAiChat = 
+    activePrimaryId === 'trixie' ||
     activePrimaryId === 'copilot' ||
-    activePrimaryId === 'master-box' ||
     currentPath === '/' ||
-    currentPath === '/master-box' ||
-    currentPath.startsWith('/master-box/') ||
+    currentPath === '/trixie' ||
+    currentPath.startsWith('/trixie/') ||
     currentPath === '/copilot' ||
     currentPath.startsWith('/copilot/') ||
     currentPath === '/chat' ||
@@ -131,10 +146,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     currentPath === '/app/dashboard';
 
   const isInboxOrMail =
+    activePrimaryId === 'master-inbox' ||
+    activePrimaryId === 'master-box' ||
     activePrimaryId === 'inbox' ||
     activePrimaryId === 'mail' ||
     currentPath === '/inbox' ||
     currentPath.startsWith('/inbox/') ||
+    currentPath === '/master-box' ||
+    currentPath.startsWith('/master-box/') ||
     currentPath === '/mail' ||
     currentPath.startsWith('/mail/') ||
     currentPath === '/messages' ||

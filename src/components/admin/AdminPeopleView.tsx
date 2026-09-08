@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { Users, Building2, ShieldCheck } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
@@ -16,9 +16,9 @@ export const AdminPeopleView: React.FC<{ initialTab?: PeopleTabType }> = ({ init
 
   const getInitialTab = (): PeopleTabType => {
     const p = location.pathname.toLowerCase();
-    if (p.includes('/admin/teams')) return 'teams';
-    if (p.includes('/admin/roles')) return 'roles';
-    if (p.includes('/admin/users')) return 'users';
+    if (p.includes('/workspace/teams') || p.includes('/admin/teams')) return 'teams';
+    if (p.includes('/workspace/roles') || p.includes('/admin/roles')) return 'roles';
+    if (p.includes('/workspace/users') || p.includes('/admin/users')) return 'users';
     
     const tabParam = searchParams.get('tab') as PeopleTabType | null;
     if (tabParam && ['users', 'teams', 'roles'].includes(tabParam)) {
@@ -32,9 +32,9 @@ export const AdminPeopleView: React.FC<{ initialTab?: PeopleTabType }> = ({ init
   useEffect(() => {
     const p = location.pathname.toLowerCase();
     let nextTab: PeopleTabType = 'users';
-    if (p.includes('/admin/teams')) nextTab = 'teams';
-    else if (p.includes('/admin/roles')) nextTab = 'roles';
-    else if (p.includes('/admin/users')) nextTab = 'users';
+    if (p.includes('/workspace/teams') || p.includes('/admin/teams')) nextTab = 'teams';
+    else if (p.includes('/workspace/roles') || p.includes('/admin/roles')) nextTab = 'roles';
+    else if (p.includes('/workspace/users') || p.includes('/admin/users')) nextTab = 'users';
     else {
       const tabParam = searchParams.get('tab') as PeopleTabType | null;
       if (tabParam && ['users', 'teams', 'roles'].includes(tabParam)) {

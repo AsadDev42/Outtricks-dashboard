@@ -62,14 +62,14 @@ export const ComparisonDropdown: React.FC<ComparisonDropdownProps> = ({
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        className={`w-[145px] px-3 py-1.5 rounded-xl bg-[#1C1C1C] border border-[#2A2A2A] text-xs font-mono text-slate-300 flex items-center justify-between gap-2 transition-all cursor-pointer select-none focus:outline-none hover:border-primary/60 hover:text-white ${
-          isOpen ? 'border-primary ring-1 ring-primary/30 text-white' : ''
+        className={`w-[145px] px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#2A2A2A] text-xs font-mono text-slate-700 dark:text-slate-300 flex items-center justify-between gap-2 transition-all cursor-pointer select-none focus:outline-none hover:border-primary/60 hover:text-slate-950 dark:hover:text-white ${
+          isOpen ? 'border-primary ring-1 ring-primary/30 text-slate-950 dark:text-white' : ''
         }`}
       >
         <span className="truncate">{selectedOption.label}</span>
         <ChevronDown
           className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
-            isOpen ? 'rotate-180 text-primary' : 'text-slate-400'
+            isOpen ? 'rotate-180 text-primary' : 'text-slate-400 dark:text-slate-500'
           }`}
         />
       </button>
@@ -78,7 +78,7 @@ export const ComparisonDropdown: React.FC<ComparisonDropdownProps> = ({
       {isOpen && (
         <div
           role="listbox"
-          className="absolute right-0 top-full mt-1.5 w-[145px] z-50 p-1 bg-[#161616] border border-[#2A2A2A] rounded-xl shadow-xl shadow-black/80 backdrop-blur-md animate-in fade-in zoom-in-95 duration-100"
+          className="absolute right-0 top-full mt-1.5 w-[145px] z-50 p-1 bg-white dark:bg-[#161616] border border-slate-200 dark:border-[#2A2A2A] rounded-xl shadow-xl shadow-slate-900/10 dark:shadow-black/80 backdrop-blur-md animate-in fade-in zoom-in-95 duration-100"
         >
           {COMPARISON_OPTIONS.map((option) => {
             const isSelected = option.id === value;
@@ -92,7 +92,7 @@ export const ComparisonDropdown: React.FC<ComparisonDropdownProps> = ({
                 className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-mono text-left flex items-center justify-between transition-colors select-none cursor-pointer ${
                   isSelected
                     ? 'bg-primary/15 text-primary font-bold border border-primary/25'
-                    : 'text-slate-300 hover:text-white hover:bg-white/[0.06] border border-transparent'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] border border-transparent'
                 }`}
               >
                 <span className="truncate">{option.label}</span>

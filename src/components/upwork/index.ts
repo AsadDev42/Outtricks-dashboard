@@ -20,3 +20,6 @@ export * from './CreateProposalModal';
 export * from './CreateJobAlertModal';
 export * from './CreateUpworkRuleModal';
 export * from './CreateUpworkTemplateModal';
+export * from './JobDetailDrawer';
+export * from './ProposalWorkspaceModal';
+export * from './CreateRadarModal';

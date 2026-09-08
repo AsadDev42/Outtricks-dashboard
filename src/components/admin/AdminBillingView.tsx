@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { CreditCard, DollarSign, FileText, Coins, Tag } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
@@ -18,11 +18,11 @@ export const AdminBillingView: React.FC<{ initialTab?: BillingTabType }> = ({ in
 
   const getInitialTab = (): BillingTabType => {
     const p = location.pathname.toLowerCase();
-    if (p.includes('/admin/payments')) return 'payments';
-    if (p.includes('/admin/invoices')) return 'invoices';
-    if (p.includes('/admin/credits')) return 'credits';
-    if (p.includes('/admin/coupons')) return 'coupons';
-    if (p.includes('/admin/subscriptions')) return 'subscriptions';
+    if (p.includes('/workspace/payments') || p.includes('/admin/payments')) return 'payments';
+    if (p.includes('/workspace/invoices') || p.includes('/admin/invoices')) return 'invoices';
+    if (p.includes('/workspace/credits') || p.includes('/admin/credits')) return 'credits';
+    if (p.includes('/workspace/coupons') || p.includes('/admin/coupons')) return 'coupons';
+    if (p.includes('/workspace/subscriptions') || p.includes('/admin/subscriptions')) return 'subscriptions';
 
     const tabParam = searchParams.get('tab') as BillingTabType | null;
     if (tabParam && ['subscriptions', 'payments', 'invoices', 'credits', 'coupons'].includes(tabParam)) {
@@ -36,11 +36,11 @@ export const AdminBillingView: React.FC<{ initialTab?: BillingTabType }> = ({ in
   useEffect(() => {
     const p = location.pathname.toLowerCase();
     let nextTab: BillingTabType = 'subscriptions';
-    if (p.includes('/admin/payments')) nextTab = 'payments';
-    else if (p.includes('/admin/invoices')) nextTab = 'invoices';
-    else if (p.includes('/admin/credits')) nextTab = 'credits';
-    else if (p.includes('/admin/coupons')) nextTab = 'coupons';
-    else if (p.includes('/admin/subscriptions')) nextTab = 'subscriptions';
+    if (p.includes('/workspace/payments') || p.includes('/admin/payments')) nextTab = 'payments';
+    else if (p.includes('/workspace/invoices') || p.includes('/admin/invoices')) nextTab = 'invoices';
+    else if (p.includes('/workspace/credits') || p.includes('/admin/credits')) nextTab = 'credits';
+    else if (p.includes('/workspace/coupons') || p.includes('/admin/coupons')) nextTab = 'coupons';
+    else if (p.includes('/workspace/subscriptions') || p.includes('/admin/subscriptions')) nextTab = 'subscriptions';
     else {
       const tabParam = searchParams.get('tab') as BillingTabType | null;
       if (tabParam && ['subscriptions', 'payments', 'invoices', 'credits', 'coupons'].includes(tabParam)) {

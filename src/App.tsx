@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
@@ -21,6 +21,18 @@ import { AppInboxPage } from './pages/app/AppInboxPage';
 import { AppDeliverabilityPage } from './pages/app/AppDeliverabilityPage';
 import { AppSettingsPage } from './pages/app/AppSettingsPage';
 import { AppAdminPage } from './pages/app/AppAdminPage';
+import { WorkspaceGuard } from './components/admin/WorkspaceGuard';
+import {
+  WorkspaceDashboardPage,
+  PeopleRolesPage,
+  ProductsPlansPage,
+  UserTeamAssignmentPage,
+  SubscriptionsBillingPage,
+  UsageQuotasPage,
+  PlatformAiPage,
+  SecurityAuditPage,
+  ConfigurationSettingsPage
+} from './pages/workspace';
 import { AppUpworkPage } from './pages/app/AppUpworkPage';
 import { AppAnalyticsPage } from './pages/app/AppAnalyticsPage';
 import { AppAiAgentsPage } from './pages/app/AppAiAgentsPage';
@@ -90,19 +102,21 @@ export const App: React.FC = () => {
                                               <CustomCursor />
                                               <AppLayout>
                                                 <Routes>
-                                                  {/* 1. Master Box / Co-Pilot / AI Assistant */}
-                                                  <Route path="/" element={<AppCoPilotPage />} />
-                                                  <Route path="/master-box" element={<AppCoPilotPage />} />
-                                                  <Route path="/master-box/*" element={<AppCoPilotPage />} />
-                                                  <Route path="/chat" element={<AppCoPilotPage />} />
-                                                  <Route path="/ai-chat" element={<AppCoPilotPage />} />
-                                                  <Route path="/copilot" element={<AppCoPilotPage />} />
-                                                  <Route path="/copilot/*" element={<AppCoPilotPage />} />
-                                                  <Route path="/app/copilot" element={<AppCoPilotPage />} />
-                                                  <Route path="/dashboard" element={<DashboardPage />} />
-                                                  <Route path="/command-center" element={<DashboardPage />} />
-                                                  <Route path="/app" element={<AppCoPilotPage />} />
-                                                  <Route path="/app/dashboard" element={<DashboardPage />} />
+                                                   {/* 1. Trixie AI / Copilot */}
+                                                   <Route path="/" element={<AppCoPilotPage />} />
+                                                   <Route path="/trixie" element={<AppCoPilotPage />} />
+                                                   <Route path="/trixie/*" element={<AppCoPilotPage />} />
+                                                   <Route path="/master-box" element={<AppInboxPage />} />
+                                                   <Route path="/master-box/*" element={<AppInboxPage />} />
+                                                   <Route path="/chat" element={<AppCoPilotPage />} />
+                                                   <Route path="/ai-chat" element={<AppCoPilotPage />} />
+                                                   <Route path="/copilot" element={<AppCoPilotPage />} />
+                                                   <Route path="/copilot/*" element={<AppCoPilotPage />} />
+                                                   <Route path="/app/copilot" element={<AppCoPilotPage />} />
+                                                   <Route path="/dashboard" element={<DashboardPage />} />
+                                                   <Route path="/command-center" element={<DashboardPage />} />
+                                                   <Route path="/app" element={<AppCoPilotPage />} />
+                                                   <Route path="/app/dashboard" element={<DashboardPage />} />
 
                                                   {/* 2. Agents / Freelance Bidders */}
                                                   <Route path="/ai-agents" element={<AppAiAgentsPage />} />
@@ -115,10 +129,12 @@ export const App: React.FC = () => {
                                                   <Route path="/app/agents/*" element={<AppAiAgentsPage />} />
 
                                                   {/* 3. Deals CRM & Accounts */}
-                                                  <Route path="/crm" element={<AppCrmPage />} />
-                                                  <Route path="/crm/*" element={<AppCrmPage />} />
-                                                  <Route path="/app/crm" element={<AppCrmPage />} />
-                                                  <Route path="/app/crm/*" element={<AppCrmPage />} />
+                                                   <Route path="/crm" element={<AppCrmPage />} />
+                                                   <Route path="/crm/*" element={<AppCrmPage />} />
+                                                   <Route path="/people" element={<AppCrmPage />} />
+                                                   <Route path="/people/*" element={<AppCrmPage />} />
+                                                   <Route path="/app/crm" element={<AppCrmPage />} />
+                                                   <Route path="/app/crm/*" element={<AppCrmPage />} />
                                                   <Route path="/companies" element={<AppCompaniesPage />} />
                                                   <Route path="/app/companies" element={<AppCompaniesPage />} />
                                                   <Route path="/accounts" element={<AppCompaniesPage />} />
@@ -176,21 +192,27 @@ export const App: React.FC = () => {
                                                   <Route path="/app/calls" element={<AppVoiceAiPage />} />
                                                   <Route path="/app/calls/*" element={<AppVoiceAiPage />} />
 
-                                                  {/* 9. Upwork Prospecting & Bidding Studio */}
-                                                  <Route path="/upwork" element={<AppUpworkPage />} />
-                                                  <Route path="/upwork/*" element={<AppUpworkPage />} />
-                                                  <Route path="/app/upwork" element={<AppUpworkPage />} />
-                                                  <Route path="/app/upwork/*" element={<AppUpworkPage />} />
+                                                   {/* 9. Upwork / Work Prospecting & Bidding Studio */}
+                                                   <Route path="/upwork" element={<AppUpworkPage />} />
+                                                   <Route path="/upwork/*" element={<AppUpworkPage />} />
+                                                   <Route path="/work" element={<AppUpworkPage />} />
+                                                   <Route path="/work/*" element={<AppUpworkPage />} />
+                                                   <Route path="/app/upwork" element={<AppUpworkPage />} />
+                                                   <Route path="/app/upwork/*" element={<AppUpworkPage />} />
+                                                   <Route path="/intelligence" element={<AppUpworkPage />} />
+                                                   <Route path="/intelligence/*" element={<AppUpworkPage />} />
 
-                                                  {/* 10. Visual Workflows & DAG Flows */}
-                                                  <Route path="/flow-builder" element={<AppFlowBuilderPage />} />
-                                                  <Route path="/flow-builder/*" element={<AppFlowBuilderPage />} />
-                                                  <Route path="/workflows" element={<AppFlowBuilderPage />} />
-                                                  <Route path="/workflows/*" element={<AppFlowBuilderPage />} />
-                                                  <Route path="/app/flow-builder" element={<AppFlowBuilderPage />} />
-                                                  <Route path="/app/flow-builder/*" element={<AppFlowBuilderPage />} />
-                                                  <Route path="/app/workflows" element={<AppFlowBuilderPage />} />
-                                                  <Route path="/app/workflows/*" element={<AppFlowBuilderPage />} />
+                                                   {/* 10. Visual Workflows & Automation Flows */}
+                                                   <Route path="/flow-builder" element={<AppFlowBuilderPage />} />
+                                                   <Route path="/flow-builder/*" element={<AppFlowBuilderPage />} />
+                                                   <Route path="/workflows" element={<AppFlowBuilderPage />} />
+                                                   <Route path="/workflows/*" element={<AppFlowBuilderPage />} />
+                                                   <Route path="/automation" element={<AppFlowBuilderPage />} />
+                                                   <Route path="/automation/*" element={<AppFlowBuilderPage />} />
+                                                   <Route path="/app/flow-builder" element={<AppFlowBuilderPage />} />
+                                                   <Route path="/app/flow-builder/*" element={<AppFlowBuilderPage />} />
+                                                   <Route path="/app/workflows" element={<AppFlowBuilderPage />} />
+                                                   <Route path="/app/workflows/*" element={<AppFlowBuilderPage />} />
 
                                                   {/* 11. Revenue Analytics & Intelligence */}
                                                   <Route path="/analytics" element={<AppAnalyticsPage />} />
@@ -198,11 +220,53 @@ export const App: React.FC = () => {
                                                   <Route path="/app/analytics" element={<AppAnalyticsPage />} />
                                                   <Route path="/platform/analytics" element={<AnalyticsPage />} />
 
-                                                  {/* 12. Central Admin Panel */}
-                                                  <Route path="/admin" element={<AppAdminPage />} />
-                                                  <Route path="/admin/*" element={<AppAdminPage />} />
-                                                  <Route path="/app/admin" element={<AppAdminPage />} />
-                                                  <Route path="/app/admin/*" element={<AppAdminPage />} />
+                                                   {/* Canonical Workspace Routes */}
+                                                   <Route path="/workspace" element={<WorkspaceGuard />}>
+                                                     <Route index element={<Navigate to="/workspace/dashboard" replace />} />
+                                                     <Route path="dashboard" element={<WorkspaceDashboardPage />} />
+                                                     <Route path="people-roles" element={<PeopleRolesPage />} />
+                                                     <Route path="products-plans" element={<ProductsPlansPage />} />
+                                                     <Route path="assignments" element={<UserTeamAssignmentPage />} />
+                                                     <Route path="billing" element={<SubscriptionsBillingPage />} />
+                                                     <Route path="quotas" element={<UsageQuotasPage />} />
+                                                     <Route path="platform-ai" element={<PlatformAiPage />} />
+                                                     <Route path="security" element={<SecurityAuditPage />} />
+                                                     <Route path="configuration" element={<ConfigurationSettingsPage />} />
+
+                                                     {/* Backwards-Compatibility Sub-Routes */}
+                                                     <Route path="overview" element={<Navigate to="/workspace/dashboard" replace />} />
+                                                     <Route path="users" element={<Navigate to="/workspace/people-roles" replace />} />
+                                                     <Route path="people" element={<Navigate to="/workspace/people-roles" replace />} />
+                                                     <Route path="plans" element={<Navigate to="/workspace/products-plans" replace />} />
+                                                     <Route path="product" element={<Navigate to="/workspace/products-plans" replace />} />
+                                                     <Route path="user-assignments" element={<Navigate to="/workspace/assignments" replace />} />
+                                                     <Route path="team-assignments" element={<Navigate to="/workspace/assignments" replace />} />
+                                                     <Route path="subscriptions" element={<Navigate to="/workspace/billing" replace />} />
+                                                     <Route path="usage-overview" element={<Navigate to="/workspace/quotas" replace />} />
+                                                     <Route path="usage" element={<Navigate to="/workspace/quotas" replace />} />
+                                                     <Route path="integrations" element={<Navigate to="/workspace/platform-ai" replace />} />
+                                                     <Route path="platform" element={<Navigate to="/workspace/platform-ai" replace />} />
+                                                     <Route path="audit-center" element={<Navigate to="/workspace/security" replace />} />
+                                                     <Route path="global-settings" element={<Navigate to="/workspace/configuration" replace />} />
+                                                     <Route path="*" element={<Navigate to="/workspace/dashboard" replace />} />
+                                                   </Route>
+
+                                                   {/* Backwards-Compatibility Redirects */}
+                                                   <Route path="/admin" element={<Navigate to="/workspace" replace />} />
+                                                   <Route path="/admin/*" element={<Navigate to="/workspace" replace />} />
+                                                   <Route path="/app/workspace" element={<Navigate to="/workspace" replace />} />
+                                                   <Route path="/app/workspace/*" element={<Navigate to="/workspace" replace />} />
+                                                   <Route path="/app/admin" element={<Navigate to="/workspace" replace />} />
+                                                   <Route path="/app/admin/*" element={<Navigate to="/workspace" replace />} />
+                                                   {/* Settings Merged Workspace Routes & Backwards Compatibility */}
+                                                   <Route path="/settings/workspace" element={<AppSettingsPage />} />
+                                                   <Route path="/settings/organization" element={<Navigate to="/settings/workspace?tab=workspace" replace />} />
+                                                   <Route path="/settings/team" element={<Navigate to="/settings/workspace?tab=team" replace />} />
+                                                   <Route path="/settings/members" element={<Navigate to="/settings/workspace?tab=team" replace />} />
+                                                   <Route path="/app/settings/workspace" element={<AppSettingsPage />} />
+                                                   <Route path="/app/settings/organization" element={<Navigate to="/settings/workspace?tab=workspace" replace />} />
+                                                   <Route path="/app/settings/team" element={<Navigate to="/settings/workspace?tab=team" replace />} />
+                                                   <Route path="/app/settings/members" element={<Navigate to="/settings/workspace?tab=team" replace />} />
 
                                                   {/* 13. Workspace Settings & Governance */}
                                                   <Route path="/settings" element={<AppSettingsPage />} />

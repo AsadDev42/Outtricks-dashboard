@@ -18,3 +18,5 @@ export * from './SavedComponentsView';
 export * from './CreateWorkflowModal';
 export * from './CreateVariableModal';
 export * from './AddNodeModal';
+export * from './MultiChannelAutomationCanvas';
+export * from './MultiChannelCanvasModal';

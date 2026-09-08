@@ -4,6 +4,7 @@ export * from './SettingsProfileView';
 export * from './SettingsAccountView';
 export * from './SettingsOrganizationView';
 export * from './SettingsTeamView';
+export * from './SettingsWorkspaceView';
 export * from './SettingsBillingView';
 export * from './SettingsConnectedAccountsView';
 export * from './SettingsSendingInboxesView';

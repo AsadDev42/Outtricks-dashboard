@@ -64,7 +64,8 @@ export const AnalyticsOverviewView: React.FC = () => {
     revenueData,
     campaigns, 
     activityTrends,
-    setActiveTab
+    setActiveTab,
+    comparePriorPeriod
   } = useAnalytics();
   const navigate = useNavigate();
 
@@ -216,7 +217,7 @@ export const AnalyticsOverviewView: React.FC = () => {
               <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
                 <DollarSign className="w-4 h-4" />
               </div>
-              <button type="button" className="text-slate-400 hover:text-white transition-colors">
+              <button type="button" className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                 <MoreVertical className="w-4 h-4" />
               </button>
             </div>
@@ -229,16 +230,22 @@ export const AnalyticsOverviewView: React.FC = () => {
                 <span className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 dark:text-white">
                   {formatCurrency(totalRev)}
                 </span>
-                <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-emerald-500">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                  <span>+12.5%</span>
-                </span>
+                {comparePriorPeriod ? (
+                  <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-emerald-500">
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    <span>+12.5%</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-0.5 text-[11px] font-mono text-slate-400">
+                    <span>Current</span>
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
           <div className="relative z-10 pt-2 text-[11px] text-slate-500 dark:text-[#777777] font-medium">
-            Driven mainly by Paid traffic (+18%)
+            {comparePriorPeriod ? 'Driven mainly by Paid traffic (+18%)' : 'Gross ARR recorded in period'}
           </div>
         </div>
 
@@ -249,7 +256,7 @@ export const AnalyticsOverviewView: React.FC = () => {
               <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#202020] text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold">
                 <Target className="w-4 h-4" />
               </div>
-              <button type="button" className="text-slate-400 hover:text-white transition-colors">
+              <button type="button" className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                 <MoreVertical className="w-4 h-4" />
               </button>
             </div>
@@ -262,16 +269,22 @@ export const AnalyticsOverviewView: React.FC = () => {
                 <span className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 dark:text-white">
                   {formatCurrency(pipelineVal)}
                 </span>
-                <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-emerald-500">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                  <span>+18.2%</span>
-                </span>
+                {comparePriorPeriod ? (
+                  <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-emerald-500">
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    <span>+18.2%</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-0.5 text-[11px] font-mono text-slate-400">
+                    <span>Current</span>
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
           <div className="pt-2 text-[11px] text-slate-500 dark:text-[#777777] font-medium">
-            Enterprise deals up +24% vs last mo
+            {comparePriorPeriod ? 'Enterprise deals up +24% vs last mo' : 'Weighted deal pipeline active in CRM'}
           </div>
         </div>
 
@@ -282,7 +295,7 @@ export const AnalyticsOverviewView: React.FC = () => {
               <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#202020] text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold">
                 <Users className="w-4 h-4" />
               </div>
-              <button type="button" className="text-slate-400 hover:text-white transition-colors">
+              <button type="button" className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                 <MoreVertical className="w-4 h-4" />
               </button>
             </div>
@@ -295,16 +308,22 @@ export const AnalyticsOverviewView: React.FC = () => {
                 <span className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 dark:text-white">
                   8,450
                 </span>
-                <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-rose-500">
-                  <ArrowDownRight className="w-3.5 h-3.5" />
-                  <span>-5.4%</span>
-                </span>
+                {comparePriorPeriod ? (
+                  <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-rose-500">
+                    <ArrowDownRight className="w-3.5 h-3.5" />
+                    <span>-5.4%</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-0.5 text-[11px] font-mono text-slate-400">
+                    <span>Current</span>
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
           <div className="pt-2 text-[11px] text-slate-500 dark:text-[#777777] font-medium">
-            Decline driven by mobile users (-7%)
+            {comparePriorPeriod ? 'Decline driven by mobile users (-7%)' : 'Engaged prospects across active sequences'}
           </div>
         </div>
 
@@ -315,7 +334,7 @@ export const AnalyticsOverviewView: React.FC = () => {
               <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#202020] text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold">
                 <TrendingUp className="w-4 h-4" />
               </div>
-              <button type="button" className="text-slate-400 hover:text-white transition-colors">
+              <button type="button" className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                 <MoreVertical className="w-4 h-4" />
               </button>
             </div>
@@ -328,16 +347,22 @@ export const AnalyticsOverviewView: React.FC = () => {
                 <span className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 dark:text-white">
                   {formatPercentage(convRate)}
                 </span>
-                <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-emerald-500">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                  <span>+1.2%</span>
-                </span>
+                {comparePriorPeriod ? (
+                  <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-emerald-500">
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    <span>+1.2%</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-0.5 text-[11px] font-mono text-slate-400">
+                    <span>Current</span>
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
           <div className="pt-2 text-[11px] text-slate-500 dark:text-[#777777] font-medium">
-            Improved after checkout optimization (+1.2%)
+            {comparePriorPeriod ? 'Improved after checkout optimization (+1.2%)' : 'Average visitor to qualified opportunity rate'}
           </div>
         </div>
 
@@ -348,7 +373,7 @@ export const AnalyticsOverviewView: React.FC = () => {
               <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#202020] text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold">
                 <Calendar className="w-4 h-4" />
               </div>
-              <button type="button" className="text-slate-400 hover:text-white transition-colors">
+              <button type="button" className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                 <MoreVertical className="w-4 h-4" />
               </button>
             </div>
@@ -361,16 +386,22 @@ export const AnalyticsOverviewView: React.FC = () => {
                 <span className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 dark:text-white">
                   {formatNumber(qualLeads)}
                 </span>
-                <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-emerald-500">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                  <span>+9.4%</span>
-                </span>
+                {comparePriorPeriod ? (
+                  <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-emerald-500">
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    <span>+9.4%</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-0.5 text-[11px] font-mono text-slate-400">
+                    <span>Current</span>
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
           <div className="pt-2 text-[11px] text-slate-500 dark:text-[#777777] font-medium">
-            Avg velocity 14.2 days to qualified
+            {comparePriorPeriod ? 'Avg velocity 14.2 days to qualified' : 'Verified high-intent leads generated in period'}
           </div>
         </div>
 
@@ -642,7 +673,7 @@ export const AnalyticsOverviewView: React.FC = () => {
               <h3 className="text-sm font-bold text-slate-950 dark:text-white">
                 Revenue Breakdown
               </h3>
-              <button type="button" className="text-slate-400 hover:text-white">
+              <button type="button" className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                 <MoreVertical className="w-4 h-4" />
               </button>
             </div>

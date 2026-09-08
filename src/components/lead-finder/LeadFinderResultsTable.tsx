@@ -31,9 +31,11 @@ import {
   TrendingUp,
   Search,
   RotateCcw,
-  RefreshCw
+  RefreshCw,
+  Lock
 } from 'lucide-react';
 
+import { useAuth } from '../../context/AuthContext';
 import { useCrm } from '../../context/CrmContext';
 import { useToast } from '../../context/ToastContext';
 
@@ -69,9 +71,60 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
   } = useLeadSearch();
 
   const { saveLeadToCrm } = useCrm();
+  const { currentWorkspace, updateWorkspace } = useAuth();
   const { success, info } = useToast();
 
+  const [unlockedEmails, setUnlockedEmails] = useState<Set<string>>(() => new Set());
+  const [unlockedPhones, setUnlockedPhones] = useState<Set<string>>(() => new Set());
+
   const { selectedIds, isAllSelectedOnPage, isAllMatchesSelected } = selection;
+
+  const handleEnrichEmail = (lead: LeadDetailData) => {
+    if (unlockedEmails.has(lead.id)) return;
+    if (currentWorkspace && currentWorkspace.credits < 1) {
+      info('Insufficient credits to enrich email. Please add credits in Settings > Billing.');
+      return;
+    }
+    if (currentWorkspace) {
+      updateWorkspace(currentWorkspace.id, { credits: Math.max(0, currentWorkspace.credits - 1) });
+    }
+    setUnlockedEmails((prev) => new Set(prev).add(lead.id));
+    success(`Enriched email for ${lead.name} · 1 Credit consumed.`);
+  };
+
+  const handleEnrichPhone = (lead: LeadDetailData) => {
+    if (unlockedPhones.has(lead.id)) return;
+    if (currentWorkspace && currentWorkspace.credits < 1) {
+      info('Insufficient credits to enrich phone number. Please add credits in Settings > Billing.');
+      return;
+    }
+    if (currentWorkspace) {
+      updateWorkspace(currentWorkspace.id, { credits: Math.max(0, currentWorkspace.credits - 1) });
+    }
+    setUnlockedPhones((prev) => new Set(prev).add(lead.id));
+    success(`Enriched phone number for ${lead.name} · 1 Credit consumed.`);
+  };
+
+  const handleFullEnrichLead = (lead: LeadDetailData) => {
+    const needEmail = !unlockedEmails.has(lead.id);
+    const needPhone = !unlockedPhones.has(lead.id) && !!lead.phone;
+    const creditsToUse = (needEmail ? 1 : 0) + (needPhone ? 1 : 0);
+
+    if (creditsToUse > 0 && currentWorkspace && currentWorkspace.credits < creditsToUse) {
+      info(`Insufficient credits. Need ${creditsToUse} credits for Full Enrich.`);
+      return;
+    }
+
+    if (creditsToUse > 0 && currentWorkspace) {
+      updateWorkspace(currentWorkspace.id, { credits: Math.max(0, currentWorkspace.credits - creditsToUse) });
+    }
+
+    setUnlockedEmails((prev) => new Set(prev).add(lead.id));
+    if (lead.phone) {
+      setUnlockedPhones((prev) => new Set(prev).add(lead.id));
+    }
+    success(`Full Enrich complete for ${lead.name}: Email & Phone unlocked (${creditsToUse} credit${creditsToUse === 1 ? '' : 's'} used).`);
+  };
 
   const handleSaveSingleLeadToCrm = (lead: LeadDetailData) => {
     const result = saveLeadToCrm({
@@ -298,13 +351,6 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
               Verified Contact Channels
             </TableHead>
             <TableHead>Buying Intent & Tech</TableHead>
-            <TableHead
-              sortable
-              sortDirection={sorting.field === 'icpScore' ? sorting.order : null}
-              onSort={() => setSorting('icpScore')}
-            >
-              ICP Match
-            </TableHead>
             <th className="p-4 text-right">Actions</th>
           </tr>
         </TableHeader>
@@ -312,6 +358,8 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
         <TableBody>
           {results.map((lead) => {
             const isSelected = selectedIds.includes(lead.id);
+            const isEmailUnlocked = unlockedEmails.has(lead.id);
+            const isPhoneUnlocked = unlockedPhones.has(lead.id);
 
             return (
               <TableRow key={lead.id} selected={isSelected}>
@@ -361,18 +409,45 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
 
                 {/* Contact Channels */}
                 <TableCell>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-700 dark:text-slate-300">
-                      <Mail className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                      <span className="truncate">{lead.email}</span>
-                      <span className="text-emerald-500 text-[10px] font-bold">✓ {lead.deliverabilityScore}%</span>
-                    </div>
-                    {lead.phone && (
-                      <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-500">
-                        <Phone className="w-3 h-3 text-blue-500 shrink-0" />
-                        <span>{lead.phone}</span>
-                        <span className="text-[10px] text-slate-400">({lead.phoneStatus})</span>
+                  <div className="space-y-1.5 text-xs">
+                    {/* Email Contact State */}
+                    {isEmailUnlocked ? (
+                      <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-700 dark:text-slate-300">
+                        <Mail className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                        <span className="truncate">{lead.email}</span>
+                        <span className="text-emerald-500 text-[10px] font-bold">✓ {lead.deliverabilityScore}%</span>
                       </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleEnrichEmail(lead)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-[11px] font-bold border border-blue-500/20 hover:border-blue-500/40 transition-all cursor-pointer"
+                        title="Deduct 1 credit to reveal verified email"
+                      >
+                        <Lock className="w-3 h-3 text-blue-500 shrink-0" />
+                        <span>Enrich Email · 1 Credit</span>
+                      </button>
+                    )}
+
+                    {/* Phone Contact State */}
+                    {lead.phone && (
+                      isPhoneUnlocked ? (
+                        <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-500">
+                          <Phone className="w-3 h-3 text-emerald-500 shrink-0" />
+                          <span>{lead.phone}</span>
+                          <span className="text-[10px] text-slate-400">({lead.phoneStatus})</span>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleEnrichPhone(lead)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold border border-emerald-500/20 hover:border-emerald-500/40 transition-all cursor-pointer"
+                          title="Deduct 1 credit to reveal verified phone number"
+                        >
+                          <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
+                          <span>Enrich Phone Number · 1 Credit</span>
+                        </button>
+                      )
                     )}
                   </div>
                 </TableCell>
@@ -405,14 +480,6 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
                   </div>
                 </TableCell>
 
-                {/* ICP Score */}
-                <TableCell>
-                  <div className="flex items-center gap-1.5 font-mono font-black text-xs text-blue-600 dark:text-blue-400">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span>{lead.icpScore}%</span>
-                  </div>
-                </TableCell>
-
                 {/* Inline Actions */}
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-1">
@@ -435,10 +502,10 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleEnrichSingleLead(lead)}
+                      onClick={() => handleFullEnrichLead(lead)}
                       leftIcon={<Zap className="w-3.5 h-3.5 text-amber-400" />}
                     >
-                      Enrich
+                      Full Enrich
                     </Button>
                   </div>
                 </TableCell>

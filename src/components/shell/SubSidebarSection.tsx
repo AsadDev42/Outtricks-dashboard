@@ -6,6 +6,7 @@ export interface SubSidebarItemConfig {
   href: string;
   badge?: string;
   icon?: React.ComponentType<{ className?: string }>;
+  indented?: boolean;
 }
 
 export interface SubSidebarSectionProps {
@@ -26,9 +27,9 @@ export const SubSidebarSection: React.FC<SubSidebarSectionProps> = ({
   onItemClick,
 }) => {
   return (
-    <div>
-      {!isCollapsed && (
-        <div className="px-2.5 mb-2 text-[10.5px] font-semibold text-slate-400/80 uppercase tracking-[0.04em] transition-opacity duration-150">
+    <div className={heading ? 'pt-2.5' : ''}>
+      {!isCollapsed && heading && (
+        <div className="px-2.5 mb-1.5 text-[10px] font-bold text-slate-400/80 dark:text-slate-400/70 uppercase tracking-[0.06em] select-none transition-opacity duration-150">
           {heading}
         </div>
       )}
@@ -46,6 +47,7 @@ export const SubSidebarSection: React.FC<SubSidebarSectionProps> = ({
               isCollapsed={isCollapsed}
               isActive={active}
               onClick={onItemClick}
+              indented={item.indented}
             />
           );
         })}

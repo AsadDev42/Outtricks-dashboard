@@ -141,9 +141,9 @@ export const WorkspaceSelector: React.FC<{ className?: string }> = ({ className 
                     setIsOpen(false);
                     setIsCreateOpen(true);
                   }}
-                  className="w-full flex items-center gap-2.5 p-2.5 rounded-2xl text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50/70 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-2.5 p-2.5 rounded-2xl text-xs font-bold text-primary hover:bg-primary-muted/15 transition-colors cursor-pointer"
                 >
-                  <div className="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                  <div className="w-6 h-6 rounded-lg bg-primary-muted/20 flex items-center justify-center text-primary">
                     <Plus className="w-3.5 h-3.5" />
                   </div>
                   <span>Create New Workspace</span>

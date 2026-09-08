@@ -1,10 +1,12 @@
-﻿import React from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Sparkles, ArrowRight, CheckCircle2, Layers, Zap } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { useWorkflows } from '../../context/WorkflowsContext';
 
 export const WorkflowTemplatesView: React.FC = () => {
+  const navigate = useNavigate();
   const { templates, createWorkflowFromTemplate } = useWorkflows();
 
   return (
@@ -13,11 +15,11 @@ export const WorkflowTemplatesView: React.FC = () => {
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           <h2 className="text-base sm:text-lg font-extrabold text-slate-950 dark:text-white">
-            Pre-Built Multi-Channel Blueprints ({templates.length})
+            Multi-Channel Sequences & Blueprints ({templates.length})
           </h2>
         </div>
         <p className="text-xs text-slate-500">
-          Battle-tested revenue cadences connecting email warmup, safe LinkedIn messaging, sub-400ms Voice SDR calling, and Deals CRM.
+          Battle-tested automated cadences connecting cold email, LinkedIn safe touches, Voice AI SDR calling, and Deals CRM.
         </p>
       </div>
 
@@ -69,7 +71,10 @@ export const WorkflowTemplatesView: React.FC = () => {
               <Button
                 variant="primary"
                 size="sm"
-                onClick={() => createWorkflowFromTemplate(tmpl.id)}
+                onClick={() => {
+                  createWorkflowFromTemplate(tmpl.id);
+                  navigate('/flow-builder/builder');
+                }}
                 rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
               >
                 Clone Blueprint

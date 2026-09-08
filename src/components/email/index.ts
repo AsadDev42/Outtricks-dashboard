@@ -18,3 +18,4 @@ export * from './CreateSequenceModal';
 export * from './CreateTemplateModal';
 export * from './ConnectMailboxModal';
 export * from './InboxPlacementView';
+export * from './SequenceStepEditor';

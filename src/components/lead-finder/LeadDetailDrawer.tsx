@@ -317,13 +317,6 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                 <option value="Unassigned">Unassigned</option>
               </select>
             </div>
-
-            {/* ICP Score */}
-            <div className="flex items-center gap-1.5 font-mono font-black text-xs text-blue-600 dark:text-blue-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>ICP Fit {lead.icpScore}/100</span>
-            </div>
-
           </div>
 
           {/* Tags Row */}

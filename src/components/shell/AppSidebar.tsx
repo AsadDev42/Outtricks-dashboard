@@ -88,7 +88,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 <span className="font-extrabold text-base text-slate-950 dark:text-white tracking-tight block">
                   Outtricks
                 </span>
-                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest block font-mono">
+                <span className="text-[9px] font-bold text-primary uppercase tracking-widest block font-mono">
                   Revenue OS Platform
                 </span>
               </div>

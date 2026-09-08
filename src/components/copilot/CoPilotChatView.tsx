@@ -199,19 +199,19 @@ export const CoPilotChatView: React.FC = () => {
       {/* ================================================== */}
       {/* 1. TOP CHAT HEADER (ChatGPT / Claude / Kimi Style) */}
       {/* ================================================== */}
-      <header className="h-14 px-4 sm:px-6 bg-slate-50/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-[#2A2A2A] flex items-center justify-between gap-3 shrink-0 z-20">
+      <header className="h-14 px-4 sm:px-6 bg-slate-50/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-[#2A2A2A] flex items-center justify-between gap-2 sm:gap-3 shrink-0 z-20">
         
-        {/* Left: Brand / Title */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center shadow-xs">
+        {/* Left: Brand / Title — shrinks when space is tight */}
+        <div className="flex items-center gap-2.5 min-w-0 shrink">
+          <div className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center shadow-xs shrink-0">
             <Sparkles className="w-4 h-4" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-sm text-slate-950 dark:text-white tracking-tight">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-extrabold text-sm text-slate-950 dark:text-white tracking-tight truncate">
                 Master Box
               </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 shrink-0 whitespace-nowrap">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 Live Revenue OS
               </span>
@@ -219,15 +219,15 @@ export const CoPilotChatView: React.FC = () => {
           </div>
         </div>
 
-        {/* Center: Model Selector Dropdown */}
-        <div className="relative">
+        {/* Center: Model Selector Dropdown — shrinks and hides on xs */}
+        <div className="relative hidden sm:block min-w-0 shrink">
           <button
             type="button"
             onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-primary transition-colors shadow-2xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#2A2A2A] text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-primary transition-colors shadow-2xs min-w-0 max-w-[220px]"
           >
-            <span>{MODEL_LABELS[selectedModel]}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            <span className="truncate">{MODEL_LABELS[selectedModel]}</span>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
           </button>
 
           {isModelDropdownOpen && (
@@ -255,8 +255,8 @@ export const CoPilotChatView: React.FC = () => {
           )}
         </div>
 
-        {/* Right: Controls (New Chat, History, Export) */}
-        <div className="flex items-center gap-1.5">
+        {/* Right: Controls (New Chat, History, Export) — never clip */}
+        <div className="flex items-center gap-1.5 shrink-0">
           {/* History Button (Compact Slide-out Drawer) */}
           <button
             type="button"
@@ -286,7 +286,7 @@ export const CoPilotChatView: React.FC = () => {
             variant="primary"
             size="sm"
             onClick={createNewConversation}
-            className="text-xs font-bold gap-1.5 shadow-sm shadow-primary/25"
+            className="text-xs font-bold gap-1.5 shadow-sm shadow-primary/25 shrink-0 whitespace-nowrap"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>New Chat</span>

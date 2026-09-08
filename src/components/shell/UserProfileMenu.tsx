@@ -27,11 +27,13 @@ import {
 export interface UserProfileMenuProps {
   variant?: 'sidebar' | 'header';
   className?: string;
+  isCollapsed?: boolean;
 }
 
 export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({ 
   variant = 'sidebar',
-  className = '' 
+  className = '',
+  isCollapsed = true,
 }) => {
   const { user, currentWorkspace, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -79,21 +81,50 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
     <>
       <div className={`relative ${className}`}>
         {variant === 'sidebar' ? (
-          <Tooltip content={`${user.name} • ${user.title || 'VP of Growth & Revenue'}`} placement="right">
+          isCollapsed ? (
+            <Tooltip content={`${user.name} • ${user.title || 'VP of Growth & Revenue'}`} placement="right">
+              <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                aria-label="User profile menu"
+                className="w-10 h-10 rounded-xl overflow-hidden border border-slate-200 dark:border-white/20 hover:border-primary active:scale-95 transition-all shadow-xs relative cursor-pointer group flex items-center justify-center bg-slate-100 dark:bg-[#141414]"
+              >
+                <img
+                  src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
+                  alt={user.name || 'User'}
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#090909]" />
+              </button>
+            </Tooltip>
+          ) : (
             <button
               type="button"
               onClick={() => setIsOpen(!isOpen)}
               aria-label="User profile menu"
-              className="w-10 h-10 rounded-xl overflow-hidden border border-white/20 hover:border-primary active:scale-95 transition-all shadow-xs relative cursor-pointer group flex items-center justify-center bg-[#141414]"
+              className="w-full flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/[0.03] hover:bg-slate-200/80 dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/10 hover:border-primary/40 transition-all cursor-pointer shadow-xs group text-left"
             >
-              <img
-                src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
-                alt={user.name || 'User'}
-                className="w-full h-full object-cover"
-              />
-              <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#090909]" />
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl overflow-hidden relative shrink-0">
+                  <img
+                    src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
+                    alt={user.name || 'User'}
+                    className="w-full h-full object-cover"
+                  />
+                  <span className="absolute bottom-0.5 right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-1 ring-white dark:ring-[#090909]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-bold text-slate-950 dark:text-white truncate">
+                    {user.name}
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                    {user.title || user.email}
+                  </div>
+                </div>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors shrink-0" />
             </button>
-          </Tooltip>
+          )
         ) : (
           <button
             type="button"
@@ -122,7 +153,7 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
             />
             <div className={
               variant === 'sidebar'
-                ? "fixed left-[72px] bottom-3 w-72 sm:w-80 p-2 bg-white dark:bg-[#161616] border border-slate-200/90 dark:border-[#2A2A2A] rounded-3xl shadow-2xl z-[800] backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150 space-y-1.5 font-sans"
+                ? "absolute left-full bottom-0 ml-3 w-72 sm:w-80 p-2 bg-white dark:bg-[#161616] border border-slate-200/90 dark:border-[#2A2A2A] rounded-3xl shadow-2xl z-[800] backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150 space-y-1.5 font-sans"
                 : "absolute right-0 top-full mt-2 w-72 p-2 bg-white dark:bg-[#161616] border border-slate-200/90 dark:border-[#2A2A2A] rounded-3xl shadow-2xl z-[800] backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150 space-y-1.5 font-sans"
             }>
               

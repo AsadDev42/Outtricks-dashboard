@@ -25,6 +25,7 @@ import {
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { useSettings } from '../../context/SettingsContext';
+import { formatWorkspaceName } from '../../lib/workspaceUtils';
 
 export const SettingsOverview: React.FC = () => {
   const { 
@@ -55,7 +56,7 @@ export const SettingsOverview: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">
-                {orgData.name}
+                {formatWorkspaceName(orgData.name)}
               </h2>
               <Badge variant="primary" size="sm" dot>Enterprise Growth Tier</Badge>
               <span className="text-xs font-mono text-slate-400">ID: {orgData.workspaceId}</span>
@@ -110,7 +111,7 @@ export const SettingsOverview: React.FC = () => {
         </Link>
 
         {/* Team Members */}
-        <Link to="/settings/team" className="p-4 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs space-y-1 hover:border-primary-border transition-all block">
+        <Link to="/workspace/people-roles" className="p-4 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs space-y-1 hover:border-primary-border transition-all block">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-sans font-bold text-slate-400 uppercase tracking-wider">Team Seats</span>
             <Users className="w-3.5 h-3.5 text-primary" />
@@ -169,8 +170,7 @@ export const SettingsOverview: React.FC = () => {
           {[
             { title: 'Personal Profile', href: '/settings/profile', desc: `${profileData.fullName} • ${profileData.email}`, icon: User, badge: 'Personal' },
             { title: 'Account Security & 2FA', href: '/settings/account', desc: 'Password security, 2FA authenticator, active sessions', icon: ShieldCheck, badge: 'Security' },
-            { title: 'Organization Identity', href: '/settings/organization', desc: `${orgData.name} • ${orgData.domain}`, icon: Building2, badge: 'Workspace' },
-            { title: 'Team & RBAC Roles', href: '/settings/team', desc: `${teamMembers.length} active seats • Owner, Admin, SDR`, icon: Users, badge: 'Team' },
+            { title: formatWorkspaceName(orgData.name), href: '/settings/workspace', desc: `${orgData.name} • ${teamMembers.length} active seats & RBAC roles`, icon: Building2, badge: 'Workspace' },
             { title: 'Billing & Plan Quotas', href: '/settings/billing-credits', desc: 'Enterprise Growth Tier • 1,840 credits available', icon: CreditCard, badge: 'Billing' },
             { title: 'Connected Channels', href: '/settings/connected-accounts', desc: 'LinkedIn 4G Proxy, Google, Microsoft, Twilio', icon: Share2, badge: 'Integrations' },
             { title: 'Multi-Inbox Sending Pool', href: '/settings/sending-inboxes', desc: '24 Mailboxes configured with DNS warmup', icon: Mail, badge: 'Deliverability' },

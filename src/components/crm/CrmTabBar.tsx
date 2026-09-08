@@ -29,7 +29,7 @@ interface TabMeta {
 }
 
 const TAB_DEFINITIONS: Record<CrmTabType, TabMeta> = {
-  overview: { id: 'overview', title: 'Overview', icon: LayoutDashboard, closable: true },
+  overview: { id: 'overview', title: 'Dashboard', icon: LayoutDashboard, closable: true },
   deals: { id: 'deals', title: 'Deals', icon: DollarSign, closable: true },
   companies: { id: 'companies', title: 'Companies', icon: Building2, closable: true },
   contacts: { id: 'contacts', title: 'Contacts', icon: Users, closable: true },

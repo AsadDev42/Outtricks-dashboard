@@ -19,7 +19,8 @@ import {
   Activity, 
   Briefcase, 
   FileText,
-  Check
+  Check,
+  Radio
 } from 'lucide-react';
 import { useUpwork } from '../../context/UpworkContext';
 import { Button } from '../ui/Button';
@@ -335,6 +336,109 @@ export const UpworkAnalyticsView: React.FC<UpworkAnalyticsViewProps> = ({
                   <div className="text-right">
                     <div className="font-mono font-black text-slate-600 dark:text-slate-300 text-sm">48.6% Win Rate</div>
                     <div className="text-[10px] text-slate-400">Avg $5,400 Contract</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Smart Radar Performance & Proposal Template Telemetry */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Smart Job Radar Conversion Breakdown */}
+            <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Radio className="w-4 h-4 text-blue-500" />
+                  <h3 className="text-sm font-extrabold text-slate-950 dark:text-white">
+                    Smart Job Radar Telemetry & Wins
+                  </h3>
+                </div>
+                <span className="text-[10px] font-mono text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-md">
+                  Active Radars
+                </span>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] space-y-1.5">
+                  <div className="flex justify-between items-center font-bold">
+                    <span className="text-slate-900 dark:text-white">Deliverability & Cold Email Architect</span>
+                    <span className="text-emerald-500 font-mono">66.7% Win Rate</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <span>Discovered: 42 • Qualified: 18 • Applied: 3</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-300">$8,400 Won</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] space-y-1.5">
+                  <div className="flex justify-between items-center font-bold">
+                    <span className="text-slate-900 dark:text-white">Voice AI & Real-Time SDR Engineers</span>
+                    <span className="text-emerald-500 font-mono">50.0% Win Rate</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <span>Discovered: 29 • Qualified: 9 • Applied: 2</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-300">$24,500 Won</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] space-y-1.5">
+                  <div className="flex justify-between items-center font-bold">
+                    <span className="text-slate-900 dark:text-white">High-Density React / Next.js SaaS Architect</span>
+                    <span className="text-emerald-500 font-mono">100% Win Rate</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <span>Discovered: 55 • Qualified: 14 • Applied: 1</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-300">$9,500 Won</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Proposal Template Response Velocity */}
+            <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-500" />
+                  <h3 className="text-sm font-extrabold text-slate-950 dark:text-white">
+                    Proposal Hook & Template Response
+                  </h3>
+                </div>
+                <span className="text-[10px] font-mono text-purple-600 dark:text-purple-400 font-bold bg-purple-50 dark:bg-purple-950/40 px-2 py-0.5 rounded-md">
+                  AI Polish Powered
+                </span>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] flex items-center justify-between">
+                  <div>
+                    <div className="font-bold text-slate-900 dark:text-white">Real-Time Voice AI SDR Architecture Hook</div>
+                    <div className="text-[10px] text-slate-400">29 dispatches • Sub-400ms WebRTC angle</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-mono font-black text-emerald-500 text-sm">48.3% Reply</div>
+                    <div className="text-[10px] text-slate-400">Highest converter</div>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] flex items-center justify-between">
+                  <div>
+                    <div className="font-bold text-slate-900 dark:text-white">Enterprise Outbound & Deliverability Hook</div>
+                    <div className="text-[10px] text-slate-400">42 dispatches • 2048-bit DKIM angle</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-mono font-black text-emerald-500 text-sm">41.2% Reply</div>
+                    <div className="text-[10px] text-slate-400">Enterprise tier</div>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] flex items-center justify-between">
+                  <div>
+                    <div className="font-bold text-slate-900 dark:text-white">High-Performance React / TypeScript SaaS Hook</div>
+                    <div className="text-[10px] text-slate-400">68 dispatches • 60FPS UI angle</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-mono font-black text-emerald-500 text-sm">38.5% Reply</div>
+                    <div className="text-[10px] text-slate-400">Consistent performer</div>
                   </div>
                 </div>
               </div>

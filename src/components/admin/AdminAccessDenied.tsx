@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { ShieldAlert, ArrowLeft, Lock } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Link } from 'react-router-dom';
@@ -46,3 +46,5 @@ export const AdminAccessDenied: React.FC = () => {
     </div>
   );
 };
+
+export const AccessDenied = AdminAccessDenied;

@@ -37,3 +37,4 @@ export * from './AdminBrandingView';
 export * from './AdminGlobalSettingsView';
 export * from './AdminConfirmModal';
 export * from './AdminAccessDenied';
+export * from './WorkspaceGuard';

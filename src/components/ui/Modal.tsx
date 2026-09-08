@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -111,7 +111,7 @@ export const Modal: React.FC<ModalProps> = ({
             )}
 
             {/* Content Body */}
-            <div className="p-6 sm:p-7 max-h-[75vh] overflow-y-auto font-sans">{children}</div>
+            <div className={`p-6 sm:p-7 overflow-y-auto font-sans ${size === 'full' ? 'max-h-[86vh]' : 'max-h-[75vh]'}`}>{children}</div>
 
             {/* Footer */}
             {footer && (

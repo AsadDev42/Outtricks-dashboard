@@ -4,3 +4,4 @@ export * from './ConversationView';
 export * from './ContactCrmSidebar';
 export * from './AddLabelModal';
 export * from './ScheduleMeetingModal';
+export * from './KeyboardShortcutsModal';

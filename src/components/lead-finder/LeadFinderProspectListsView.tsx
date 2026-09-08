@@ -13,6 +13,7 @@ import {
   Share2,
   Download
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useLeadsManagement } from '../../context/LeadsManagementContext';
 import { Button } from '../ui/Button';
 import { CreateListModal } from '../leads-management/CreateListModal';
@@ -25,6 +26,7 @@ interface LeadFinderProspectListsViewProps {
 export const LeadFinderProspectListsView: React.FC<LeadFinderProspectListsViewProps> = ({
   onOpenListDetail
 }) => {
+  const navigate = useNavigate();
   const { customLists, selectedListId, setSelectedListId, deleteCustomList, leads } = useLeadsManagement();
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -170,7 +172,19 @@ export const LeadFinderProspectListsView: React.FC<LeadFinderProspectListsViewPr
                     <span>Created {list.createdAt}</span>
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedListId(list.id);
+                        if (onOpenListDetail) onOpenListDetail(list.id);
+                        else navigate('/lead-finder/find-people');
+                      }}
+                      className="px-2 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 font-bold text-[11px] transition-colors flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>View Leads</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
                     <button
                       type="button"
                       onClick={() => handleExportList(list.name)}

@@ -85,7 +85,7 @@ export const GlobalSearchModal: React.FC<{ isOpen: boolean; onClose: () => void 
         
         {/* Search Header */}
         <div className="flex items-center px-5 py-4 border-b border-slate-100 dark:border-[#202020]">
-          <Search className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mr-3 shrink-0" />
+          <Search className="w-5 h-5 text-primary mr-3 shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -112,7 +112,7 @@ export const GlobalSearchModal: React.FC<{ isOpen: boolean; onClose: () => void 
         <div className="max-h-[55vh] overflow-y-auto p-3 space-y-1.5">
           {!query.trim() ? (
             <div className="p-8 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-2xl bg-primary-muted text-primary flex items-center justify-center mx-auto">
                 <Search className="w-6 h-6" />
               </div>
               <div className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">
@@ -135,7 +135,7 @@ export const GlobalSearchModal: React.FC<{ isOpen: boolean; onClose: () => void 
               >
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-mono">
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-primary-muted text-primary font-mono">
                       {res.category}
                     </span>
                     <h4 className="text-xs sm:text-sm font-bold text-slate-950 dark:text-white truncate">

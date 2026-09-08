@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { GsapPageTransition } from '../../components/ui/GsapPageTransition';
 import { useAdmin } from '../../context/AdminContext';
+import { useAuth } from '../../context/AuthContext';
 import { 
   AdminDashboardView,
   AdminPeopleView,
@@ -56,61 +57,75 @@ export type AdminSubSection =
 export const resolveAdminSection = (pathname: string): AdminSubSection => {
   const p = pathname.toLowerCase();
   
-  // Parent Route Matches
-  if (p.includes('/admin/people')) return 'people';
-  if (p.includes('/admin/product')) return 'product';
-  if (p.includes('/admin/assignments')) return 'assignments';
-  if (p.includes('/admin/billing')) return 'billing';
-  if (p.includes('/admin/usage')) return 'usage';
-  if (p.includes('/admin/platform')) return 'platform';
-  if (p.includes('/admin/security')) return 'security';
-  if (p.includes('/admin/configuration')) return 'configuration';
+  // Parent Route Matches (Supports both /workspace/* and /admin/*)
+  if (p.includes('/workspace/people') || p.includes('/admin/people')) return 'people';
+  if (p.includes('/workspace/product') || p.includes('/admin/product')) return 'product';
+  if (p.includes('/workspace/assignments') || p.includes('/admin/assignments')) return 'assignments';
+  if (p.includes('/workspace/billing') || p.includes('/admin/billing')) return 'billing';
+  if (p.includes('/workspace/usage') || p.includes('/admin/usage')) return 'usage';
+  if (p.includes('/workspace/platform') || p.includes('/admin/platform')) return 'platform';
+  if (p.includes('/workspace/security') || p.includes('/admin/security')) return 'security';
+  if (p.includes('/workspace/configuration') || p.includes('/admin/configuration')) return 'configuration';
 
   // Sub-route deep-link compatibility
-  if (p.includes('/admin/users')) return 'users';
-  if (p.includes('/admin/teams')) return 'teams';
-  if (p.includes('/admin/roles')) return 'roles';
-  if (p.includes('/admin/modules')) return 'modules';
-  if (p.includes('/admin/plans')) return 'plans';
-  if (p.includes('/admin/bundles')) return 'bundles';
-  if (p.includes('/admin/feature-access')) return 'feature-access';
-  if (p.includes('/admin/user-assignments')) return 'user-assignments';
-  if (p.includes('/admin/team-assignments')) return 'team-assignments';
-  if (p.includes('/admin/access-overrides')) return 'access-overrides';
-  if (p.includes('/admin/subscriptions')) return 'subscriptions';
-  if (p.includes('/admin/payments')) return 'payments';
-  if (p.includes('/admin/invoices')) return 'invoices';
-  if (p.includes('/admin/credits')) return 'credits';
-  if (p.includes('/admin/coupons')) return 'coupons';
-  if (p.includes('/admin/usage-overview')) return 'usage-overview';
-  if (p.includes('/admin/resource-limits')) return 'resource-limits';
-  if (p.includes('/admin/credit-usage')) return 'credit-usage';
-  if (p.includes('/admin/integrations')) return 'integrations';
-  if (p.includes('/admin/navigation')) return 'navigation';
-  if (p.includes('/admin/tricksy-ai') || p.includes('/admin/tricksy') || p.includes('/admin/ai')) return 'tricksy-ai';
-  if (p.includes('/admin/sessions')) return 'sessions';
-  if (p.includes('/admin/audit-center') || p.includes('/admin/audit')) return 'audit-center';
-  if (p.includes('/admin/notifications')) return 'notifications';
-  if (p.includes('/admin/branding')) return 'branding';
-  if (p.includes('/admin/global-settings') || p.includes('/admin/settings')) return 'global-settings';
-  if (p === '/admin' || p === '/app/admin' || p.includes('/admin/overview')) return 'overview';
+  if (p.includes('/workspace/users') || p.includes('/admin/users')) return 'users';
+  if (p.includes('/workspace/teams') || p.includes('/admin/teams')) return 'teams';
+  if (p.includes('/workspace/roles') || p.includes('/admin/roles')) return 'roles';
+  if (p.includes('/workspace/modules') || p.includes('/admin/modules')) return 'modules';
+  if (p.includes('/workspace/plans') || p.includes('/admin/plans')) return 'plans';
+  if (p.includes('/workspace/bundles') || p.includes('/admin/bundles')) return 'bundles';
+  if (p.includes('/workspace/feature-access') || p.includes('/admin/feature-access')) return 'feature-access';
+  if (p.includes('/workspace/user-assignments') || p.includes('/admin/user-assignments')) return 'user-assignments';
+  if (p.includes('/workspace/team-assignments') || p.includes('/admin/team-assignments')) return 'team-assignments';
+  if (p.includes('/workspace/access-overrides') || p.includes('/admin/access-overrides')) return 'access-overrides';
+  if (p.includes('/workspace/subscriptions') || p.includes('/admin/subscriptions')) return 'subscriptions';
+  if (p.includes('/workspace/payments') || p.includes('/admin/payments')) return 'payments';
+  if (p.includes('/workspace/invoices') || p.includes('/admin/invoices')) return 'invoices';
+  if (p.includes('/workspace/credits') || p.includes('/admin/credits')) return 'credits';
+  if (p.includes('/workspace/coupons') || p.includes('/admin/coupons')) return 'coupons';
+  if (p.includes('/workspace/usage-overview') || p.includes('/admin/usage-overview')) return 'usage-overview';
+  if (p.includes('/workspace/resource-limits') || p.includes('/admin/resource-limits')) return 'resource-limits';
+  if (p.includes('/workspace/credit-usage') || p.includes('/admin/credit-usage')) return 'credit-usage';
+  if (p.includes('/workspace/integrations') || p.includes('/admin/integrations')) return 'integrations';
+  if (p.includes('/workspace/navigation') || p.includes('/admin/navigation')) return 'navigation';
+  if (p.includes('/workspace/tricksy-ai') || p.includes('/workspace/trixie') || p.includes('/admin/tricksy-ai') || p.includes('/admin/tricksy') || p.includes('/admin/ai')) return 'tricksy-ai';
+  if (p.includes('/workspace/sessions') || p.includes('/admin/sessions')) return 'sessions';
+  if (p.includes('/workspace/audit-center') || p.includes('/workspace/audit') || p.includes('/admin/audit-center') || p.includes('/admin/audit')) return 'audit-center';
+  if (p.includes('/workspace/notifications') || p.includes('/admin/notifications')) return 'notifications';
+  if (p.includes('/workspace/branding') || p.includes('/admin/branding')) return 'branding';
+  if (p.includes('/workspace/global-settings') || p.includes('/workspace/settings') || p.includes('/admin/global-settings') || p.includes('/admin/settings')) return 'global-settings';
+  if (p === '/workspace' || p === '/app/workspace' || p.includes('/workspace/overview') || p === '/admin' || p === '/app/admin' || p.includes('/admin/overview')) return 'overview';
   return 'overview';
 };
 
 export const AppAdminPage: React.FC = () => {
   const location = useLocation();
   const { currentAdminRole, isAdmin, hasPermission } = useAdmin();
+  const { user, currentWorkspace } = useAuth();
 
   const currentSection = useMemo(() => resolveAdminSection(location.pathname), [location.pathname]);
 
-  // Authorization Security Guard
-  const canAccessAdmin = isAdmin || 
-    hasPermission('adminPanel') || 
-    currentAdminRole === 'super-admin' || 
-    currentAdminRole === 'admin' || 
-    currentAdminRole === 'billing-admin';
+  // Proper role & ownership check:
+  const isWorkspaceAdmin = Boolean(
+    user?.role === 'owner' ||
+    user?.role === 'admin' ||
+    user?.role === 'workspace_admin' ||
+    user?.role === 'super_admin' ||
+    user?.role === 'super-admin' ||
+    user?.isWorkspaceOwner ||
+    user?.permissions?.includes('workspace:admin') ||
+    user?.permissions?.includes('admin:access') ||
+    currentWorkspace?.role === 'owner' ||
+    currentWorkspace?.role === 'admin' ||
+    (currentWorkspace as any)?.role === 'workspace_admin' ||
+    isAdmin ||
+    hasPermission('adminPanel') ||
+    currentAdminRole === 'super-admin' ||
+    currentAdminRole === 'admin' ||
+    currentAdminRole === 'billing-admin'
+  );
 
-  if (!canAccessAdmin) {
+  if (!isWorkspaceAdmin) {
     return <AdminAccessDenied />;
   }
 
@@ -164,7 +179,7 @@ export const AppAdminPage: React.FC = () => {
 
   const getPageTitle = () => {
     const formatted = currentSection.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
-    return `${formatted} | Admin Panel - Outtricks Platform`;
+    return `${formatted} | Workspace - Outtricks Platform`;
   };
 
   return (

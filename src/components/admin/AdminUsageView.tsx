@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { Activity, BarChart3, Sliders, Coins } from 'lucide-react';
 import { AdminParentSectionLayout } from './AdminParentSectionLayout';
@@ -14,9 +14,9 @@ export const AdminUsageView: React.FC<{ initialTab?: UsageTabType }> = ({ initia
 
   const getInitialTab = (): UsageTabType => {
     const p = location.pathname.toLowerCase();
-    if (p.includes('/admin/resource-limits')) return 'resource-limits';
-    if (p.includes('/admin/credit-usage')) return 'credit-usage';
-    if (p.includes('/admin/usage-overview') || p.includes('/admin/usage')) return 'usage-overview';
+    if (p.includes('/workspace/resource-limits') || p.includes('/admin/resource-limits')) return 'resource-limits';
+    if (p.includes('/workspace/credit-usage') || p.includes('/admin/credit-usage')) return 'credit-usage';
+    if (p.includes('/workspace/usage-overview') || p.includes('/workspace/usage') || p.includes('/admin/usage-overview') || p.includes('/admin/usage')) return 'usage-overview';
 
     const tabParam = searchParams.get('tab') as UsageTabType | null;
     if (tabParam && ['usage-overview', 'resource-limits', 'credit-usage'].includes(tabParam)) {
@@ -30,9 +30,9 @@ export const AdminUsageView: React.FC<{ initialTab?: UsageTabType }> = ({ initia
   useEffect(() => {
     const p = location.pathname.toLowerCase();
     let nextTab: UsageTabType = 'usage-overview';
-    if (p.includes('/admin/resource-limits')) nextTab = 'resource-limits';
-    else if (p.includes('/admin/credit-usage')) nextTab = 'credit-usage';
-    else if (p.includes('/admin/usage-overview')) nextTab = 'usage-overview';
+    if (p.includes('/workspace/resource-limits') || p.includes('/admin/resource-limits')) nextTab = 'resource-limits';
+    else if (p.includes('/workspace/credit-usage') || p.includes('/admin/credit-usage')) nextTab = 'credit-usage';
+    else if (p.includes('/workspace/usage-overview') || p.includes('/workspace/usage') || p.includes('/admin/usage-overview') || p.includes('/admin/usage')) nextTab = 'usage-overview';
     else {
       const tabParam = searchParams.get('tab') as UsageTabType | null;
       if (tabParam && ['usage-overview', 'resource-limits', 'credit-usage'].includes(tabParam)) {

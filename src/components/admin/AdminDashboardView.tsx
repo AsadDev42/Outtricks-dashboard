@@ -59,7 +59,7 @@ export const AdminDashboardView: React.FC = () => {
     { title: 'Voice AI Calls Made', value: '1,420 mins', change: 'Sub-400ms avg', icon: PhoneCall, variant: 'cyan' as const },
     { title: 'Leads Found & Verified', value: '51,900', change: '480M+ pool', icon: Search, variant: 'blue' as const },
     { title: 'LinkedIn Safe Actions', value: '19,300', change: 'Zero flags', icon: Linkedin, variant: 'indigo' as const },
-    { title: 'Tricksy AI Inference Runs', value: '52,800', change: '1.2s avg latency', icon: Sparkles, variant: 'purple' as const },
+    { title: 'TRIXIE AI Inference Runs', value: '52,800', change: '1.2s avg latency', icon: Sparkles, variant: 'purple' as const },
     { title: 'System Infrastructure Health', value: '99.96%', change: 'All 7 nodes green', icon: Activity, variant: 'emerald' as const },
   ];
 
@@ -106,20 +106,20 @@ export const AdminDashboardView: React.FC = () => {
           <div className="space-y-0.5 min-w-0">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight">
-                Admin Control Center
+                Workspace Control Center
               </h1>
               <Badge variant="primary" size="sm" className="font-mono text-[10px] uppercase tracking-wider font-bold">
-                Super Governance
+                Workspace Governance
               </Badge>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
-              Manage users, workspaces, products, access, billing, usage and platform configuration.
+              Manage workspace members, teams, products, access, billing, usage and configuration.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 flex-wrap relative z-10">
-          <Link to="/admin/users">
+          <Link to="/workspace/users">
             <Button
               variant="secondary"
               size="sm"
@@ -129,7 +129,7 @@ export const AdminDashboardView: React.FC = () => {
               Manage Users
             </Button>
           </Link>
-          <Link to="/admin/plans">
+          <Link to="/workspace/plans">
             <Button
               variant="primary"
               size="sm"
@@ -187,7 +187,7 @@ export const AdminDashboardView: React.FC = () => {
                 Recent Admin Activity & Audit Trail
               </h3>
             </div>
-            <Link to="/admin/audit-center" className="text-xs text-primary hover:underline font-bold flex items-center gap-1">
+            <Link to="/workspace/audit-center" className="text-xs text-primary hover:underline font-bold flex items-center gap-1">
               <span>View All Logs</span>
               <ArrowUpRight className="w-3 h-3" />
             </Link>

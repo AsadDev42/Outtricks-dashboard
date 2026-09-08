@@ -107,12 +107,12 @@ export const AnalyticsAiUsageView: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* Card 1: Total AI Requests */}
-        <div className="p-5 rounded-3xl bg-[#141414] border border-[#222222] shadow-xs relative overflow-hidden flex flex-col justify-between group hover:border-[#333333] transition-all">
+        <div className="p-5 rounded-3xl bg-white dark:bg-[#141414] border border-slate-200/90 dark:border-[#222222] shadow-xs relative overflow-hidden flex flex-col justify-between group hover:border-slate-300 dark:hover:border-[#333333] transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
               Total AI Requests
             </span>
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 font-mono">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">
               <TrendingUp className="w-3 h-3" />
               +12.4%
             </span>
@@ -120,10 +120,10 @@ export const AnalyticsAiUsageView: React.FC = () => {
 
           <div className="my-3 flex items-baseline justify-between">
             <div>
-              <div className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight">
+              <div className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white font-mono tracking-tight">
                 18,420
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 Inference completions
               </div>
             </div>
@@ -153,19 +153,19 @@ export const AnalyticsAiUsageView: React.FC = () => {
             </div>
           </div>
 
-          <div className="text-[10px] text-slate-400 font-mono pt-2 border-t border-[#222222]/80 flex items-center justify-between">
+          <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono pt-2 border-t border-slate-100 dark:border-[#222222]/80 flex items-center justify-between">
             <span>Daily Average: 3.68K</span>
-            <span className="text-slate-400">7D Active Window</span>
+            <span className="text-slate-500 dark:text-slate-400">7D Active Window</span>
           </div>
         </div>
 
         {/* Card 2: Token Throughput */}
-        <div className="p-5 rounded-3xl bg-[#141414] border border-[#222222] shadow-xs relative overflow-hidden flex flex-col justify-between group hover:border-[#333333] transition-all">
+        <div className="p-5 rounded-3xl bg-white dark:bg-[#141414] border border-slate-200/90 dark:border-[#222222] shadow-xs relative overflow-hidden flex flex-col justify-between group hover:border-slate-300 dark:hover:border-[#333333] transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
               Tokens Processed
             </span>
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 font-mono">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">
               <TrendingUp className="w-3 h-3" />
               +14.2%
             </span>
@@ -173,10 +173,10 @@ export const AnalyticsAiUsageView: React.FC = () => {
 
           <div className="my-3 flex items-baseline justify-between">
             <div>
-              <div className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight">
+              <div className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white font-mono tracking-tight">
                 14.28M
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 Prompt & Completion volume
               </div>
             </div>
@@ -206,29 +206,29 @@ export const AnalyticsAiUsageView: React.FC = () => {
             </div>
           </div>
 
-          <div className="text-[10px] text-slate-400 font-mono pt-2 border-t border-[#222222]/80 flex items-center justify-between">
+          <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono pt-2 border-t border-slate-100 dark:border-[#222222]/80 flex items-center justify-between">
             <span>Tokens / Req: 775</span>
-            <span className="text-slate-400">Context Density 99.4%</span>
+            <span className="text-slate-500 dark:text-slate-400">Context Density 99.4%</span>
           </div>
         </div>
 
         {/* Card 3: Success SLA % with Circular Ring */}
-        <div className="p-5 rounded-3xl bg-[#141414] border border-[#222222] shadow-xs relative overflow-hidden flex flex-col justify-between group hover:border-[#333333] transition-all">
+        <div className="p-5 rounded-3xl bg-white dark:bg-[#141414] border border-slate-200/90 dark:border-[#222222] shadow-xs relative overflow-hidden flex flex-col justify-between group hover:border-slate-300 dark:hover:border-[#333333] transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
               Success SLA Rate
             </span>
-            <span className="text-[11px] font-bold text-emerald-400 font-mono">
+            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">
               SLA Met
             </span>
           </div>
 
           <div className="my-3 flex items-center justify-between">
             <div>
-              <div className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight">
+              <div className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white font-mono tracking-tight">
                 98.2%
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 6,128 passed / 112 retried
               </div>
             </div>
@@ -237,7 +237,7 @@ export const AnalyticsAiUsageView: React.FC = () => {
             <div className="w-12 h-12 relative flex items-center justify-center shrink-0">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                 <path
-                  className="text-[#222222]"
+                  className="text-slate-200 dark:text-[#222222]"
                   strokeWidth="3.5"
                   stroke="currentColor"
                   fill="none"
@@ -253,46 +253,46 @@ export const AnalyticsAiUsageView: React.FC = () => {
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                 />
               </svg>
-              <span className="absolute text-[10px] font-mono font-bold text-white">98%</span>
+              <span className="absolute text-[10px] font-mono font-bold text-slate-900 dark:text-white">98%</span>
             </div>
           </div>
 
-          <div className="text-[10px] text-slate-400 font-mono pt-2 border-t border-[#222222]/80 flex items-center justify-between">
+          <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono pt-2 border-t border-slate-100 dark:border-[#222222]/80 flex items-center justify-between">
             <span>Auto-Retry: &lt; 800ms</span>
-            <span className="text-emerald-400 font-bold">Zero Data Loss</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-bold">Zero Data Loss</span>
           </div>
         </div>
 
         {/* Card 4: Compute Latency & Efficiency */}
-        <div className="p-5 rounded-3xl bg-[#141414] border border-[#222222] shadow-xs relative overflow-hidden flex flex-col justify-between group hover:border-[#333333] transition-all">
+        <div className="p-5 rounded-3xl bg-white dark:bg-[#141414] border border-slate-200/90 dark:border-[#222222] shadow-xs relative overflow-hidden flex flex-col justify-between group hover:border-slate-300 dark:hover:border-[#333333] transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
               Inference Latency
             </span>
-            <span className="text-[11px] font-bold text-emerald-400 font-mono">
+            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">
               Sub-400ms SLA
             </span>
           </div>
 
           <div className="my-3 flex items-baseline justify-between">
             <div>
-              <div className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight">
+              <div className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white font-mono tracking-tight">
                 380ms
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 $62.40 Total Compute Cost
               </div>
             </div>
 
-            <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0 font-mono text-xs font-bold text-center">
+            <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0 font-mono text-xs font-bold text-center">
               <div>992x</div>
-              <div className="text-[9px] text-slate-400">Assisted ROI</div>
+              <div className="text-[9px] text-slate-500 dark:text-slate-400">Assisted ROI</div>
             </div>
           </div>
 
-          <div className="text-[10px] text-slate-400 font-mono pt-2 border-t border-[#222222]/80 flex items-center justify-between">
+          <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono pt-2 border-t border-slate-100 dark:border-[#222222]/80 flex items-center justify-between">
             <span>$0.0034 / request</span>
-            <span className="text-slate-300">$62K Revenue Linked</span>
+            <span className="text-slate-600 dark:text-slate-300">$62K Revenue Linked</span>
           </div>
         </div>
 
@@ -302,24 +302,24 @@ export const AnalyticsAiUsageView: React.FC = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         
         {/* Left 2 Columns: Daily Tricksy AI Utilization & Compute Curve (Reference 1 & 2) */}
-        <div className="xl:col-span-2 p-6 rounded-3xl bg-[#141414] border border-[#222222] shadow-xs space-y-5 flex flex-col justify-between">
+        <div className="xl:col-span-2 p-6 rounded-3xl bg-white dark:bg-[#141414] border border-slate-200/90 dark:border-[#222222] shadow-xs space-y-5 flex flex-col justify-between">
           
           {/* Header Row with Title and Sleek Metric Switcher Pills */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#222222]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-[#222222]">
             <div>
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <h3 className="font-extrabold text-base text-white tracking-tight">
+                <h3 className="font-extrabold text-base text-slate-950 dark:text-white tracking-tight">
                   Daily Tricksy AI Utilization & Compute Curve
                 </h3>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Autonomous execution volume, token throughput, and compute cost across active agent runs.
               </p>
             </div>
 
             {/* Sleek Pill Selectors */}
-            <div className="flex items-center p-1 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] text-xs font-mono">
+            <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-[#1A1A1A] border border-slate-200/80 dark:border-[#2A2A2A] text-xs font-mono">
               {(['requests', 'tokens', 'credits', 'cost'] as const).map((m) => (
                 <button
                   key={m}
@@ -327,8 +327,8 @@ export const AnalyticsAiUsageView: React.FC = () => {
                   onClick={() => setActiveChartMetric(m)}
                   className={`px-3 py-1.5 rounded-lg capitalize font-bold transition-all cursor-pointer ${
                     activeChartMetric === m
-                      ? 'bg-emerald-600 text-white shadow-xs'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-primary text-white shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white'
                   }`}
                 >
                   {m}
@@ -443,22 +443,22 @@ export const AnalyticsAiUsageView: React.FC = () => {
           </div>
 
           {/* Quick Summary Bar */}
-          <div className="p-3 rounded-2xl bg-[#191919] border border-[#262626] flex items-center justify-between text-xs font-mono">
-            <span className="text-slate-400">Weekly Compute Spend: <strong className="text-white font-mono">$62.40</strong></span>
-            <span className="text-emerald-400 font-bold">Latency SLA: 99.8% within target</span>
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#191919] border border-slate-200/80 dark:border-[#262626] flex items-center justify-between text-xs font-mono">
+            <span className="text-slate-500 dark:text-slate-400">Weekly Compute Spend: <strong className="text-slate-900 dark:text-white font-mono">$62.40</strong></span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-bold">Latency SLA: 99.8% within target</span>
           </div>
 
         </div>
 
         {/* Right 1 Column: Foundation Model Allocation & Donut Breakdown (Reference 3) */}
-        <div className="p-6 rounded-3xl bg-[#141414] border border-[#222222] shadow-xs space-y-6 flex flex-col justify-between">
+        <div className="p-6 rounded-3xl bg-white dark:bg-[#141414] border border-slate-200/90 dark:border-[#222222] shadow-xs space-y-6 flex flex-col justify-between">
           
-          <div className="flex items-center justify-between pb-3 border-b border-[#222222]">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#222222]">
             <div>
-              <h3 className="font-extrabold text-base text-white tracking-tight">
+              <h3 className="font-extrabold text-base text-slate-950 dark:text-white tracking-tight">
                 LLM Model Allocation
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Token distribution by neural architecture.
               </p>
             </div>
@@ -514,8 +514,8 @@ export const AnalyticsAiUsageView: React.FC = () => {
               
               {/* Centered Total */}
               <div className="absolute text-center">
-                <div className="text-lg font-black text-white font-mono">14.28M</div>
-                <div className="text-[10px] uppercase font-bold text-slate-400">Total Tokens</div>
+                <div className="text-lg font-black text-slate-950 dark:text-white font-mono">14.28M</div>
+                <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Total Tokens</div>
               </div>
             </div>
           </div>
@@ -523,14 +523,14 @@ export const AnalyticsAiUsageView: React.FC = () => {
           {/* Legend List */}
           <div className="space-y-2.5 text-xs font-sans">
             {modelBreakdown.map((m) => (
-              <div key={m.name} className="flex items-center justify-between p-2 rounded-xl bg-[#191919] border border-[#242424]">
+              <div key={m.name} className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-[#191919] border border-slate-200/80 dark:border-[#242424]">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: m.color }} />
-                  <span className="font-semibold text-slate-200 truncate">{m.name}</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">{m.name}</span>
                 </div>
                 <div className="flex items-center gap-2 font-mono shrink-0">
-                  <span className="font-bold text-white">{m.percentage}%</span>
-                  <span className="text-[10px] text-slate-400">({m.tokens})</span>
+                  <span className="font-bold text-slate-950 dark:text-white">{m.percentage}%</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400">({m.tokens})</span>
                 </div>
               </div>
             ))}
@@ -541,14 +541,14 @@ export const AnalyticsAiUsageView: React.FC = () => {
       </div>
 
       {/* 3. Integrated Agent Leaderboard & Mission Telemetry (Seamless Table) */}
-      <div className="p-6 rounded-3xl bg-[#141414] border border-[#222222] shadow-xs space-y-4">
+      <div className="p-6 rounded-3xl bg-white dark:bg-[#141414] border border-slate-200/90 dark:border-[#222222] shadow-xs space-y-4">
         
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#222222]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-[#222222]">
           <div>
-            <h3 className="font-extrabold text-base text-white tracking-tight">
+            <h3 className="font-extrabold text-base text-slate-950 dark:text-white tracking-tight">
               Autonomous Agent Leaderboard & Execution Telemetry
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Live mission completion volume, success rates, latency, and compute consumption.
             </p>
           </div>
@@ -569,7 +569,7 @@ export const AnalyticsAiUsageView: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-sans min-w-[700px]">
             <thead>
-              <tr className="text-slate-400 font-mono text-[11px] border-b border-[#242424]">
+              <tr className="text-slate-500 dark:text-slate-400 font-mono text-[11px] border-b border-slate-200 dark:border-[#242424]">
                 <th className="pb-3 font-bold">Autonomous Agent</th>
                 <th className="pb-3 font-bold">Foundation Model</th>
                 <th className="pb-3 font-bold">Missions</th>
@@ -580,23 +580,23 @@ export const AnalyticsAiUsageView: React.FC = () => {
                 <th className="pb-3 font-bold text-right">Cost</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#202020] font-mono">
+            <tbody className="divide-y divide-slate-100 dark:divide-[#202020] font-mono">
               {agentLeaderboard.map((ag) => (
-                <tr key={ag.agent} className="hover:bg-white/[0.02] transition-colors group">
-                  <td className="py-3.5 font-bold font-sans text-white flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                <tr key={ag.agent} className="hover:bg-slate-50/60 dark:hover:bg-white/[0.02] transition-colors group">
+                  <td className="py-3.5 font-bold font-sans text-slate-950 dark:text-white flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                       <Sparkles className="w-3.5 h-3.5" />
                     </div>
                     <span className="truncate">{ag.agent}</span>
                   </td>
                   
-                  <td className="py-3.5 text-slate-400 font-sans">
-                    <span className="px-2 py-0.5 rounded-md bg-[#1C1C1C] border border-[#282828] text-[11px] text-slate-300">
+                  <td className="py-3.5 text-slate-500 dark:text-slate-400 font-sans">
+                    <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#1C1C1C] border border-slate-200 dark:border-[#282828] text-[11px] text-slate-800 dark:text-slate-300 font-mono">
                       {ag.model}
                     </span>
                   </td>
 
-                  <td className="py-3.5 text-slate-200 font-bold">{formatNumber(ag.runs)}</td>
+                  <td className="py-3.5 text-slate-900 dark:text-slate-200 font-bold">{formatNumber(ag.runs)}</td>
 
                   {/* Inline Mini Sparkline */}
                   <td className="py-3.5">
@@ -616,20 +616,20 @@ export const AnalyticsAiUsageView: React.FC = () => {
                   {/* Success Rate with Progress Bar */}
                   <td className="py-3.5">
                     <div className="flex items-center gap-2">
-                      <div className="w-16 h-1.5 rounded-full bg-[#222222] overflow-hidden">
+                      <div className="w-16 h-1.5 rounded-full bg-slate-200 dark:bg-[#222222] overflow-hidden">
                         <div className="h-full rounded-full bg-emerald-500" style={{ width: `${ag.successRate}%` }} />
                       </div>
-                      <span className="text-emerald-400 font-bold text-[11px]">
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">
                         {formatPercentage(ag.successRate)}
                       </span>
                     </div>
                   </td>
 
-                  <td className="py-3.5 text-slate-300 font-bold">{ag.avgDuration}</td>
+                  <td className="py-3.5 text-slate-700 dark:text-slate-300 font-bold">{ag.avgDuration}</td>
                   
-                  <td className="py-3.5 text-slate-300">{formatNumber(ag.credits)}</td>
+                  <td className="py-3.5 text-slate-700 dark:text-slate-300">{formatNumber(ag.credits)}</td>
 
-                  <td className="py-3.5 font-bold text-white text-right">{ag.cost}</td>
+                  <td className="py-3.5 font-bold text-slate-950 dark:text-white text-right">{ag.cost}</td>
                 </tr>
               ))}
             </tbody>

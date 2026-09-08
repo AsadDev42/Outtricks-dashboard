@@ -607,7 +607,24 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [searchParams, setSearchParams] = useSearchParams();
   const { success, error, info } = useToast();
 
-  const [filters, setFilters] = useState<LeadFilterState>(INITIAL_LEAD_FILTERS);
+  const [filters, setFilters] = useState<LeadFilterState>(() => {
+    const q = searchParams.get('q') || '';
+    const industries = searchParams.getAll('industry');
+    const roles = searchParams.getAll('role');
+    const locations = searchParams.getAll('location');
+    const headcount = searchParams.getAll('headcount');
+    const fundingStage = searchParams.getAll('funding');
+
+    return {
+      ...INITIAL_LEAD_FILTERS,
+      searchQuery: q,
+      industries: industries.length > 0 ? industries : INITIAL_LEAD_FILTERS.industries,
+      roles: roles.length > 0 ? roles : INITIAL_LEAD_FILTERS.roles,
+      locations: locations.length > 0 ? locations : INITIAL_LEAD_FILTERS.locations,
+      headcount: headcount.length > 0 ? headcount : INITIAL_LEAD_FILTERS.headcount,
+      fundingStage: fundingStage.length > 0 ? fundingStage : INITIAL_LEAD_FILTERS.fundingStage,
+    };
+  });
   const [sorting, setSortingState] = useState<{ field: SortField; order: SortOrder }>({
     field: 'icpScore',
     order: 'desc',
@@ -703,6 +720,25 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       console.warn('Failed to save search history', e);
     }
   }, [searchHistory]);
+
+  // Bi-directional URL synchronization for shareable search filter links
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (filters.searchQuery.trim()) {
+      params.set('q', filters.searchQuery.trim());
+    }
+    filters.industries.forEach((ind) => params.append('industry', ind));
+    filters.roles.forEach((r) => params.append('role', r));
+    filters.locations.forEach((loc) => params.append('location', loc));
+    filters.headcount.forEach((h) => params.append('headcount', h));
+    filters.fundingStage.forEach((f) => params.append('funding', f));
+
+    const currentString = searchParams.toString();
+    const newString = params.toString();
+    if (currentString !== newString) {
+      setSearchParams(params, { replace: true });
+    }
+  }, [filters, searchParams, setSearchParams]);
 
   // Robust Multi-Dimension Filtering Engine (AND across categories, OR within arrays)
   const allMatchingResults = useMemo(() => {
@@ -1064,7 +1100,7 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const copyShareableSearchUrl = useCallback(() => {
     navigator.clipboard.writeText(window.location.href);
-    success('Shareable search link copied to clipboard!');
+    success('Shareable search link with active filter state copied to clipboard!', 'Search Link Copied');
   }, [success]);
 
   return (

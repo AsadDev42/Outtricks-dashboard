@@ -1,10 +1,11 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { useWorkflows } from '../../context/WorkflowsContext';
-import { Workflow, Plus } from 'lucide-react';
+import { Workflow, Plus, Sparkles, Layers } from 'lucide-react';
 
 export interface CreateWorkflowModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export const CreateWorkflowModal: React.FC<CreateWorkflowModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const navigate = useNavigate();
   const { createCustomWorkflow } = useWorkflows();
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Cold Outbound');
@@ -29,6 +31,7 @@ export const CreateWorkflowModal: React.FC<CreateWorkflowModalProps> = ({
       description.trim() || 'Custom revenue automation sequence.',
       category
     );
+    navigate('/flow-builder/builder');
     setName('');
     setDescription('');
     onClose();
@@ -43,6 +46,17 @@ export const CreateWorkflowModal: React.FC<CreateWorkflowModalProps> = ({
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4 font-sans text-xs">
+        {/* Lemlist-style Visual Canvas Banner */}
+        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/20 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+            <Workflow className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="text-xs font-bold text-slate-900 dark:text-white">Lemlist-Style Visual Canvas</div>
+            <div className="text-[10px] text-slate-500">Opens the interactive multi-channel canvas with pre-built blueprints, live stats & wire inserters.</div>
+          </div>
+        </div>
+
         <Input
           label="Workflow Name"
           placeholder="e.g. Omnichannel FinTech ICP Pipeline"

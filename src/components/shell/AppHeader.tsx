@@ -96,16 +96,16 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             )}
           </button>
 
-          {/* Tricksy AI Assistant Button */}
+          {/* TRIXIE AI Assistant Button */}
           <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent('toggle-copilot-drawer'))}
             className="h-10 px-3.5 rounded-2xl bg-primary hover:bg-primary-hover active:bg-primary-active text-white text-xs font-bold shadow-xs shadow-primary/25 transition-all flex items-center gap-2 cursor-pointer shrink-0 group"
-            title="Open Tricksy AI Assistant"
-            aria-label="Open Tricksy AI Assistant"
+            title="Open TRIXIE AI Assistant"
+            aria-label="Open TRIXIE AI Assistant"
           >
             <Sparkles className="w-4 h-4 animate-pulse group-hover:rotate-12 transition-transform" />
-            <span className="hidden sm:inline font-sans">Tricksy AI</span>
+            <span className="hidden sm:inline font-sans">TRIXIE AI</span>
           </button>
         </div>
 

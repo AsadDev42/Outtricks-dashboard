@@ -18,7 +18,11 @@ import { Badge } from '../ui/Badge';
 import { useSettings } from '../../context/SettingsContext';
 import { useToast } from '../../context/ToastContext';
 
-export const SettingsOrganizationView: React.FC = () => {
+export interface SettingsOrganizationViewProps {
+  hideHeader?: boolean;
+}
+
+export const SettingsOrganizationView: React.FC<SettingsOrganizationViewProps> = ({ hideHeader = false }) => {
   const { orgData, updateOrg } = useSettings();
   const { success } = useToast();
   
@@ -41,17 +45,19 @@ export const SettingsOrganizationView: React.FC = () => {
     <div className="space-y-6 font-sans">
       
       {/* 1. Header */}
-      <div className="p-6 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs space-y-1">
-        <div className="flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-          <h2 className="text-base sm:text-lg font-extrabold text-slate-950 dark:text-white">
-            Organization Profile & Workspace Governance
-          </h2>
+      {!hideHeader && (
+        <div className="p-6 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] shadow-xs space-y-1">
+          <div className="flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <h2 className="text-base sm:text-lg font-extrabold text-slate-950 dark:text-white">
+              Organization Profile & Workspace Governance
+            </h2>
+          </div>
+          <p className="text-xs text-slate-500">
+            Legal business entity details, corporate domains, default workspace currencies, and compliance data retention rules.
+          </p>
         </div>
-        <p className="text-xs text-slate-500">
-          Legal business entity details, corporate domains, default workspace currencies, and compliance data retention rules.
-        </p>
-      </div>
+      )}
 
       {/* 2. Workspace ID Banner */}
       <div className="p-5 rounded-3xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[#2A2A2A] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">

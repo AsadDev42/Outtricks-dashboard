@@ -117,6 +117,7 @@ export const CursorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (style === 'soft-glow' && (newIntensity === 'none' || newIntensity === 'subtle')) newIntensity = 'soft';
       if (style === 'neon') newIntensity = 'neon';
       if (style === 'pulse' && newIntensity === 'none') newIntensity = 'medium';
+      if (style === 'spotlight' && (newIntensity === 'none' || newIntensity === 'subtle')) newIntensity = 'strong';
       if (style === 'magnetic') newEffects.magneticHover = true;
       if (style === 'trail') newEffects.trailEffect = true;
 

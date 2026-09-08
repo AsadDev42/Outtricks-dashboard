@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useToast } from './ToastContext';
 import { useNavigate } from 'react-router-dom';
+import { cleanAiSlop } from '../utils/noAiSlop';
 
 export type CoPilotSubTab = 'chat' | 'actions' | 'prompts' | 'kb';
 
@@ -127,7 +128,7 @@ export const CoPilotProvider: React.FC<{ children: React.ReactNode }> = ({ child
     {
       id: 'msg-1',
       sender: 'ai',
-      text: "Hello Sarah! I'm Tricksy AI, your Outtricks Revenue Assistant. I can orchestrate lead searches across 480M+ profiles, generate high-converting email spintax, inspect CRM deals, and trigger multi-channel outbound workflows. How can I help you drive pipeline today?",
+      text: "Hello Sarah! I'm Tricksy AI, your Outtricks Revenue Assistant. I run lead searches across 480M+ profiles, draft email spintax, inspect CRM deals, and coordinate outbound workflows. What pipeline goal are we working on today?",
       timestamp: '10:40 AM'
     },
     {
@@ -139,7 +140,7 @@ export const CoPilotProvider: React.FC<{ children: React.ReactNode }> = ({ child
     {
       id: 'msg-3',
       sender: 'ai',
-      text: "I executed an 8-dimension query across the B2B Lead Database. Here are the search results matching your criteria:",
+      text: "I ran an 8-dimension query across the B2B Lead Database. Here are the search results matching your criteria:",
       timestamp: '10:43 AM',
       toolCall: {
         name: 'lead_finder.search_leads',
@@ -163,24 +164,24 @@ export const CoPilotProvider: React.FC<{ children: React.ReactNode }> = ({ child
       id: 'p-1',
       title: 'High-Converting Cold Email Pitch',
       category: 'Cold Outbound',
-      description: 'Pain-point driven 3-sentence email with dynamic spintax variations and low-friction soft CTA.',
-      promptText: 'Draft a high-converting 3-sentence cold email targeting {{prospect.title}} at {{company.name}}, focusing on pipeline attribution and sub-400ms Voice SDR calling.',
+      description: '3-sentence email focused on one clear pain point with dynamic spintax and a soft CTA.',
+      promptText: 'Draft a 3-sentence cold email for {{prospect.title}} at {{company.name}}. Focus on pipeline attribution and sub-400ms Voice SDR calling with a low-friction question at the end.',
       usageCount: 142
     },
     {
       id: 'p-2',
       title: 'Sub-60s Inbound Demo Follow-Up',
       category: 'Speed-to-Lead',
-      description: 'Instant response script for demo form fills with Cal.com booking link.',
-      promptText: 'Generate an instant personalized follow-up for {{lead.first_name}} who just requested a live demo on our website.',
+      description: 'Quick follow-up for demo form submissions with a calendar link.',
+      promptText: 'Draft a personalized follow-up for {{lead.first_name}} who just requested a live demo on our website.',
       usageCount: 98
     },
     {
       id: 'p-3',
       title: 'Enterprise Upwork AI Proposal',
       category: 'Upwork Proposal',
-      description: 'Tailored proposal quoting relevant case studies and proposing 15-min discovery.',
-      promptText: 'Analyze this Upwork job posting and generate a winning proposal highlighting our $48k ARR enterprise case study.',
+      description: 'Concrete proposal citing relevant client metrics and suggesting a 15-minute intro.',
+      promptText: 'Review this Upwork job posting and write a tailored proposal highlighting our $48k ARR enterprise case study and concrete next steps.',
       usageCount: 65
     }
   ]);
@@ -211,7 +212,7 @@ export const CoPilotProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const [executableActions] = useState<ExecutableAction[]>([
     { id: 'ea-1', name: 'Search B2B Leads', module: 'Lead Finder', description: 'Run 8D discovery matrix with real-time multiDimensional criteria.', sampleInput: 'Search Series B FinTech CEOs in California', executionCount: 384 },
-    { id: 'ea-2', name: 'Draft Multi-Inbox Sequence', module: 'Cold Email', description: 'Synthesize personalized email copy with spintax tokens.', sampleInput: 'Draft 3-step sequence for Head of Growth', executionCount: 290 },
+    { id: 'ea-2', name: 'Draft Multi-Inbox Sequence', module: 'Cold Email', description: 'Write personalized email copy with spintax tokens.', sampleInput: 'Draft 3-step sequence for Head of Growth', executionCount: 290 },
     { id: 'ea-3', name: 'Audit Mailbox Health', module: 'Deliverability', description: 'Check SPF, DKIM, DMARC, and sender warmup status.', sampleInput: 'Inspect 24 mailboxes pool', executionCount: 142 },
     { id: 'ea-4', name: 'Forecast Pipeline ARR', module: 'Deals CRM', description: 'Run statistical win-rate prediction on CRM Kanban stages.', sampleInput: 'Analyze Q3 closed-won revenue', executionCount: 98 },
   ]);
@@ -237,7 +238,7 @@ export const CoPilotProvider: React.FC<{ children: React.ReactNode }> = ({ child
         aiMsg = {
           id: `ai-${Date.now()}`,
           sender: 'ai',
-          text: "I analyzed the Lead Finder database: Located 920 verified prospects matching your target criteria. Deliverability score is verified at 99.4%.",
+          text: cleanAiSlop("I checked the Lead Finder database: found 920 verified prospects matching your target criteria. Deliverability score is verified at 99.4%."),
           timestamp: 'Just now',
           toolCall: {
             name: 'lead_finder.discover',
@@ -251,7 +252,7 @@ export const CoPilotProvider: React.FC<{ children: React.ReactNode }> = ({ child
         aiMsg = {
           id: `ai-${Date.now()}`,
           sender: 'ai',
-          text: "Based on historical conversion velocity and stage movement across 38 active deals, Q3 projected closed-won ARR is $295,000 (82% confidence).",
+          text: cleanAiSlop("Based on historical conversion velocity and stage movement across 38 active deals, Q3 projected closed-won ARR is $295,000 (82% confidence)."),
           timestamp: 'Just now',
           toolCall: {
             name: 'crm.forecast_pipeline',
@@ -265,7 +266,7 @@ export const CoPilotProvider: React.FC<{ children: React.ReactNode }> = ({ child
         aiMsg = {
           id: `ai-${Date.now()}`,
           sender: 'ai',
-          text: "Here is a 3-step high-converting sequence drafted with spintax variations:\n\nStep 1: \"Hi {{first_name}}, noticed {{company_name}} is scaling outbound. Are you currently attributing closed revenue back to specific inboxes and Voice AI touches?\"\n\nStep 2: \"Most FinTech leaders we work with achieve 28.4% conversion velocity with our single-tenant database.\"",
+          text: cleanAiSlop("Here is a 3-step sequence drafted with spintax variations:\n\nStep 1: \"Hi {{first_name}}, noticed {{company_name}} is scaling outbound. Are you currently attributing closed revenue back to specific inboxes and Voice AI touches?\"\n\nStep 2: \"Most FinTech leaders we work with achieve 28.4% conversion velocity with our single-tenant database.\""),
           timestamp: 'Just now',
           toolCall: {
             name: 'email_studio.generate_spintax',
@@ -279,7 +280,7 @@ export const CoPilotProvider: React.FC<{ children: React.ReactNode }> = ({ child
         aiMsg = {
           id: `ai-${Date.now()}`,
           sender: 'ai',
-          text: `I've analyzed your instruction. I'm connected directly to your PostgreSQL database with full read/write access across Leads, CRM, Mailboxes, and Workflows. Would you like me to execute this action?`,
+          text: cleanAiSlop(`I reviewed your instruction. I'm connected directly to your PostgreSQL database with full read/write access across Leads, CRM, Mailboxes, and Workflows. Would you like me to execute this action?`),
           timestamp: 'Just now',
           toolCall: {
             name: 'agent_runner.coordinate',

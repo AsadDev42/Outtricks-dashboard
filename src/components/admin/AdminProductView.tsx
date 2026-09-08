@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { Package, Layers, Sparkles, Shield, ToggleLeft } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
@@ -17,10 +17,10 @@ export const AdminProductView: React.FC<{ initialTab?: ProductTabType }> = ({ in
 
   const getInitialTab = (): ProductTabType => {
     const p = location.pathname.toLowerCase();
-    if (p.includes('/admin/plans')) return 'plans';
-    if (p.includes('/admin/bundles')) return 'bundles';
-    if (p.includes('/admin/feature-access')) return 'feature-access';
-    if (p.includes('/admin/modules')) return 'modules';
+    if (p.includes('/workspace/plans') || p.includes('/admin/plans')) return 'plans';
+    if (p.includes('/workspace/bundles') || p.includes('/admin/bundles')) return 'bundles';
+    if (p.includes('/workspace/feature-access') || p.includes('/admin/feature-access')) return 'feature-access';
+    if (p.includes('/workspace/modules') || p.includes('/admin/modules')) return 'modules';
 
     const tabParam = searchParams.get('tab') as ProductTabType | null;
     if (tabParam && ['modules', 'plans', 'bundles', 'feature-access'].includes(tabParam)) {
@@ -34,10 +34,10 @@ export const AdminProductView: React.FC<{ initialTab?: ProductTabType }> = ({ in
   useEffect(() => {
     const p = location.pathname.toLowerCase();
     let nextTab: ProductTabType = 'modules';
-    if (p.includes('/admin/plans')) nextTab = 'plans';
-    else if (p.includes('/admin/bundles')) nextTab = 'bundles';
-    else if (p.includes('/admin/feature-access')) nextTab = 'feature-access';
-    else if (p.includes('/admin/modules')) nextTab = 'modules';
+    if (p.includes('/workspace/plans') || p.includes('/admin/plans')) nextTab = 'plans';
+    else if (p.includes('/workspace/bundles') || p.includes('/admin/bundles')) nextTab = 'bundles';
+    else if (p.includes('/workspace/feature-access') || p.includes('/admin/feature-access')) nextTab = 'feature-access';
+    else if (p.includes('/workspace/modules') || p.includes('/admin/modules')) nextTab = 'modules';
     else {
       const tabParam = searchParams.get('tab') as ProductTabType | null;
       if (tabParam && ['modules', 'plans', 'bundles', 'feature-access'].includes(tabParam)) {

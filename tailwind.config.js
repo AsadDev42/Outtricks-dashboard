@@ -8,6 +8,19 @@ export default {
   theme: {
     extend: {
       colors: {
+        surface: {
+          DEFAULT: 'var(--surface, #FFFFFF)',
+          secondary: 'var(--surface-secondary, #F8FAFC)',
+        },
+        sidebar: {
+          DEFAULT: 'var(--sidebar-background, #FFFFFF)',
+          surface: 'var(--sidebar-surface, #F8FAFC)',
+          border: 'var(--sidebar-border, #E2E8F0)',
+          hover: 'var(--sidebar-hover, #F1F5F9)',
+          active: 'var(--sidebar-active, var(--primary))',
+          text: 'var(--sidebar-text-primary, #0B1020)',
+          'text-muted': 'var(--sidebar-text-secondary, #64748B)',
+        },
         accent: {
           DEFAULT: 'var(--accent-primary, #F97316)',
           hover: 'var(--accent-primary-hover, #EA580C)',

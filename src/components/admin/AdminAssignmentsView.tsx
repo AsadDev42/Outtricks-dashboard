@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { UserCheck, Users, Building2, Sliders } from 'lucide-react';
 import { AdminParentSectionLayout } from './AdminParentSectionLayout';
@@ -14,9 +14,9 @@ export const AdminAssignmentsView: React.FC<{ initialTab?: AssignmentsTabType }>
 
   const getInitialTab = (): AssignmentsTabType => {
     const p = location.pathname.toLowerCase();
-    if (p.includes('/admin/team-assignments')) return 'team-assignments';
-    if (p.includes('/admin/access-overrides')) return 'access-overrides';
-    if (p.includes('/admin/user-assignments')) return 'user-assignments';
+    if (p.includes('/workspace/team-assignments') || p.includes('/admin/team-assignments')) return 'team-assignments';
+    if (p.includes('/workspace/access-overrides') || p.includes('/admin/access-overrides')) return 'access-overrides';
+    if (p.includes('/workspace/user-assignments') || p.includes('/admin/user-assignments')) return 'user-assignments';
 
     const tabParam = searchParams.get('tab') as AssignmentsTabType | null;
     if (tabParam && ['user-assignments', 'team-assignments', 'access-overrides'].includes(tabParam)) {
@@ -30,9 +30,9 @@ export const AdminAssignmentsView: React.FC<{ initialTab?: AssignmentsTabType }>
   useEffect(() => {
     const p = location.pathname.toLowerCase();
     let nextTab: AssignmentsTabType = 'user-assignments';
-    if (p.includes('/admin/team-assignments')) nextTab = 'team-assignments';
-    else if (p.includes('/admin/access-overrides')) nextTab = 'access-overrides';
-    else if (p.includes('/admin/user-assignments')) nextTab = 'user-assignments';
+    if (p.includes('/workspace/team-assignments') || p.includes('/admin/team-assignments')) nextTab = 'team-assignments';
+    else if (p.includes('/workspace/access-overrides') || p.includes('/admin/access-overrides')) nextTab = 'access-overrides';
+    else if (p.includes('/workspace/user-assignments') || p.includes('/admin/user-assignments')) nextTab = 'user-assignments';
     else {
       const tabParam = searchParams.get('tab') as AssignmentsTabType | null;
       if (tabParam && ['user-assignments', 'team-assignments', 'access-overrides'].includes(tabParam)) {

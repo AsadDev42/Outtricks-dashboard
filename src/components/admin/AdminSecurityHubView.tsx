@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { ShieldCheck, Lock, Smartphone, FileText } from 'lucide-react';
 import { AdminParentSectionLayout } from './AdminParentSectionLayout';
@@ -14,9 +14,9 @@ export const AdminSecurityHubView: React.FC<{ initialTab?: SecurityTabType }> = 
 
   const getInitialTab = (): SecurityTabType => {
     const p = location.pathname.toLowerCase();
-    if (p.includes('/admin/sessions')) return 'sessions';
-    if (p.includes('/admin/audit-center') || p.includes('/admin/audit')) return 'audit-center';
-    if (p.includes('/admin/security')) return 'security';
+    if (p.includes('/workspace/sessions') || p.includes('/admin/sessions')) return 'sessions';
+    if (p.includes('/workspace/audit-center') || p.includes('/workspace/audit') || p.includes('/admin/audit-center') || p.includes('/admin/audit')) return 'audit-center';
+    if (p.includes('/workspace/security') || p.includes('/admin/security')) return 'security';
 
     const tabParam = searchParams.get('tab') as SecurityTabType | null;
     if (tabParam && ['security', 'sessions', 'audit-center'].includes(tabParam)) {
@@ -30,9 +30,9 @@ export const AdminSecurityHubView: React.FC<{ initialTab?: SecurityTabType }> = 
   useEffect(() => {
     const p = location.pathname.toLowerCase();
     let nextTab: SecurityTabType = 'security';
-    if (p.includes('/admin/sessions')) nextTab = 'sessions';
-    else if (p.includes('/admin/audit-center') || p.includes('/admin/audit')) nextTab = 'audit-center';
-    else if (p.includes('/admin/security')) nextTab = 'security';
+    if (p.includes('/workspace/sessions') || p.includes('/admin/sessions')) nextTab = 'sessions';
+    else if (p.includes('/workspace/audit-center') || p.includes('/workspace/audit') || p.includes('/admin/audit-center') || p.includes('/admin/audit')) nextTab = 'audit-center';
+    else if (p.includes('/workspace/security') || p.includes('/admin/security')) nextTab = 'security';
     else {
       const tabParam = searchParams.get('tab') as SecurityTabType | null;
       if (tabParam && ['security', 'sessions', 'audit-center'].includes(tabParam)) {

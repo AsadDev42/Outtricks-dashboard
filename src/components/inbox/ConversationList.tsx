@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { 
   Search, 
   Mail, 
@@ -12,7 +12,8 @@ import {
   Inbox,
   Archive,
   Filter,
-  Plus
+  Plus,
+  Keyboard
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useMasterInbox, MasterInboxThread } from '../../context/MasterInboxContext';
@@ -20,11 +21,13 @@ import { useMasterInbox, MasterInboxThread } from '../../context/MasterInboxCont
 export interface ConversationListProps {
   onSelectThreadMobile?: () => void;
   onOpenAddLabelModal?: () => void;
+  onOpenShortcutsModal?: () => void;
 }
 
 export const ConversationList: React.FC<ConversationListProps> = ({
   onSelectThreadMobile,
   onOpenAddLabelModal,
+  onOpenShortcutsModal,
 }) => {
   const navigate = useNavigate();
   const {
@@ -178,6 +181,17 @@ export const ConversationList: React.FC<ConversationListProps> = ({
               title="Add Label"
             >
               <Plus className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {onOpenShortcutsModal && (
+            <button
+              type="button"
+              onClick={onOpenShortcutsModal}
+              className="p-1 rounded-lg bg-slate-50 dark:bg-white/[0.04] text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer shrink-0"
+              title="Keyboard Shortcuts (?)"
+            >
+              <Keyboard className="w-3.5 h-3.5" />
             </button>
           )}
         </div>

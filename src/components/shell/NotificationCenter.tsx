@@ -116,12 +116,12 @@ export const NotificationCenter: React.FC<{ className?: string }> = ({ className
   const filtered = filter === 'unread' ? notifications.filter((n) => !n.read) : notifications;
 
   const icons = {
-    voice: <PhoneCall className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />,
-    email: <Mail className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />,
-    lead: <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />,
-    system: <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />,
-    linkedin: <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />,
-    workflow: <Workflow className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />,
+    voice: <PhoneCall className="w-4 h-4 text-primary" />,
+    email: <Mail className="w-4 h-4 text-primary" />,
+    lead: <Users className="w-4 h-4 text-primary" />,
+    system: <ShieldCheck className="w-4 h-4 text-primary" />,
+    linkedin: <Zap className="w-4 h-4 text-primary" />,
+    workflow: <Workflow className="w-4 h-4 text-primary" />,
   };
 
   return (
@@ -134,7 +134,7 @@ export const NotificationCenter: React.FC<{ className?: string }> = ({ className
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-600 ring-2 ring-white dark:ring-[#141414] animate-pulse" />
+          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary ring-2 ring-white dark:ring-[#141414] animate-pulse" />
         )}
       </button>
 
@@ -153,7 +153,7 @@ export const NotificationCenter: React.FC<{ className?: string }> = ({ className
                   Notifications
                 </span>
                 {unreadCount > 0 && (
-                  <Badge variant="emerald" size="sm">
+                  <Badge variant="primary" size="sm">
                     {unreadCount} new
                   </Badge>
                 )}
@@ -162,7 +162,7 @@ export const NotificationCenter: React.FC<{ className?: string }> = ({ className
                 <button
                   type="button"
                   onClick={markAllAsRead}
-                  className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <CheckCheck className="w-3.5 h-3.5" />
                   <span>Mark all read</span>
@@ -197,9 +197,9 @@ export const NotificationCenter: React.FC<{ className?: string }> = ({ className
             </div>
 
             {/* List */}
-            <div className="max-h-72 overflow-y-auto space-y-1.5 px-1">
+            <div className="max-h-72 overflow-y-auto space-y-1.5 px-1 py-0.5">
               {filtered.length === 0 ? (
-                <div className="text-center py-8 text-xs text-slate-400">
+                <div className="text-center py-8 text-xs text-slate-400 dark:text-slate-400">
                   No notifications to display
                 </div>
               ) : (
@@ -207,24 +207,36 @@ export const NotificationCenter: React.FC<{ className?: string }> = ({ className
                   <div
                     key={item.id}
                     onClick={() => handleNotificationClick(item)}
-                    className={`group relative p-3 rounded-2xl border transition-all cursor-pointer ${
+                    className={`group relative p-3 rounded-xl border transition-all duration-150 cursor-pointer ${
                       item.read
-                        ? 'bg-slate-50/40 dark:bg-[#1C1C1C]/40 border-transparent hover:border-slate-200 dark:hover:border-slate-800'
-                        : 'bg-emerald-50/40 dark:bg-white/[0.04] border-emerald-500/20 dark:border-emerald-500/20'
+                        ? 'bg-transparent hover:bg-slate-50/80 dark:hover:bg-white/[0.025] border-transparent hover:border-slate-200/60 dark:hover:border-white/[0.05]'
+                        : 'bg-slate-50/60 dark:bg-white/[0.025] border-slate-200/60 dark:border-white/[0.06] hover:bg-slate-100/70 dark:hover:bg-white/[0.045] hover:border-slate-300/70 dark:hover:border-white/[0.10]'
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="p-2 rounded-xl bg-white dark:bg-[#181818] shadow-xs shrink-0">
+                      <div className="p-2 rounded-xl bg-slate-100/80 dark:bg-white/[0.04] border border-slate-200/40 dark:border-white/[0.04] shadow-xs shrink-0 mt-0.5">
                         {icons[item.type]}
                       </div>
-                      <div className="flex-1 min-w-0 space-y-0.5">
+                      <div className="flex-1 min-w-0 space-y-1">
                         <div className="flex items-center justify-between gap-2">
-                          <h5 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          <h5 className={`text-xs truncate transition-colors ${
+                            item.read 
+                              ? 'font-medium text-slate-700 dark:text-slate-300 group-hover:text-slate-950 dark:group-hover:text-white' 
+                              : 'font-semibold text-slate-900 dark:text-white'
+                          }`}>
                             {item.title}
                           </h5>
-                          <span className="text-[10px] text-slate-400 whitespace-nowrap">
-                            {item.time}
-                          </span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {!item.read && (
+                              <span 
+                                className="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400 shrink-0" 
+                                title="Unread" 
+                              />
+                            )}
+                            <span className="text-[10px] text-slate-400 dark:text-slate-400 whitespace-nowrap">
+                              {item.time}
+                            </span>
+                          </div>
                         </div>
                         <p className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
                           {item.description}

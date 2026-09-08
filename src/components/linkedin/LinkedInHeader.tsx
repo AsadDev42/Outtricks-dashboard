@@ -6,7 +6,9 @@ import {
   Zap,
   CheckCircle2,
   ShieldCheck,
-  Globe
+  Globe,
+  Sparkles,
+  Workflow
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useLinkedIn } from '../../context/LinkedInContext';
@@ -15,12 +17,16 @@ export interface LinkedInHeaderProps {
   onOpenCreateCampaign: () => void;
   onOpenConnectAccount: () => void;
   onOpenCreateRule: () => void;
+  onOpenAiRuleBuilder?: () => void;
+  onOpenVisualCanvas?: () => void;
 }
 
 export const LinkedInHeader: React.FC<LinkedInHeaderProps> = ({
   onOpenCreateCampaign,
   onOpenConnectAccount,
   onOpenCreateRule,
+  onOpenAiRuleBuilder,
+  onOpenVisualCanvas,
 }) => {
   const { accounts, campaigns } = useLinkedIn();
 
@@ -98,6 +104,30 @@ export const LinkedInHeader: React.FC<LinkedInHeaderProps> = ({
           >
             Connect Profile
           </Button>
+
+          {onOpenAiRuleBuilder && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onOpenAiRuleBuilder}
+              leftIcon={<Sparkles className="w-3.5 h-3.5 text-primary" />}
+              className="border-primary/30 hover:border-primary text-slate-800 dark:text-white font-bold bg-primary/5 hover:bg-primary/10 shadow-xs"
+            >
+              ✦ Make Rule with AI
+            </Button>
+          )}
+
+          {onOpenVisualCanvas && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onOpenVisualCanvas}
+              leftIcon={<Workflow className="w-3.5 h-3.5 text-blue-500" />}
+              className="border-blue-500/30 hover:border-blue-500 text-blue-600 dark:text-blue-400 bg-blue-500/5 hover:bg-blue-500/10 font-bold"
+            >
+              Visual Canvas
+            </Button>
+          )}
 
           <Button
             variant="secondary"

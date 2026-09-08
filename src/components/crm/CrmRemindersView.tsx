@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { 
   Bell, 
   Calendar, 
@@ -19,9 +19,12 @@ import {
   ArrowRight,
   ShieldAlert,
   Flame,
-  CheckSquare
+  CheckSquare,
+  DollarSign,
+  X as CloseIcon
 } from 'lucide-react';
-import { useCrm, CrmReminder } from '../../context/CrmContext';
+import { useCrm, CrmReminder, CrmContact, CrmDeal } from '../../context/CrmContext';
+import { AsyncSearchCombobox } from './AsyncSearchCombobox';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
@@ -37,7 +40,11 @@ export const CrmRemindersView: React.FC = () => {
     createReminder, 
     toggleReminderCompleted, 
     snoozeReminder, 
-    deleteReminder 
+    deleteReminder,
+    searchContactsAsync,
+    getContactByIdAsync,
+    searchDealsAsync,
+    getDealByIdAsync
   } = useCrm();
 
   const [tabFilter, setTabFilter] = useState<'all' | 'overdue' | 'today' | 'upcoming' | 'completed'>('all');
@@ -50,6 +57,8 @@ export const CrmRemindersView: React.FC = () => {
   const [type, setType] = useState<CrmReminder['type']>('follow_up');
   const [contactId, setContactId] = useState('');
   const [dealId, setDealId] = useState('');
+  const [selectedContactItem, setSelectedContactItem] = useState<CrmContact | undefined>(undefined);
+  const [selectedDealItem, setSelectedDealItem] = useState<CrmDeal | undefined>(undefined);
   const [dueDate, setDueDate] = useState(new Date().toISOString().split('T')[0]);
   const [dueTime, setDueTime] = useState('10:00');
   const [reminderTime, setReminderTime] = useState<CrmReminder['reminderTime']>('15_min_before');
@@ -102,12 +111,22 @@ export const CrmRemindersView: React.FC = () => {
     });
   }, [reminders, tabFilter, priorityFilter, searchQuery, todayStr]);
 
+  const handleCloseModal = useCallback(() => {
+    setIsNewModalOpen(false);
+    setTitle('');
+    setNotes('');
+    setContactId('');
+    setDealId('');
+    setSelectedContactItem(undefined);
+    setSelectedDealItem(undefined);
+  }, []);
+
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
-    const selectedContact = contacts.find((c) => c.id === contactId);
-    const selectedDeal = deals.find((d) => d.id === dealId);
+    const selectedContact = selectedContactItem || contacts.find((c) => c.id === contactId);
+    const selectedDeal = selectedDealItem || deals.find((d) => d.id === dealId);
 
     createReminder({
       title: title.trim(),
@@ -125,9 +144,7 @@ export const CrmRemindersView: React.FC = () => {
       notes: notes.trim() || undefined,
     });
 
-    setTitle('');
-    setNotes('');
-    setIsNewModalOpen(false);
+    handleCloseModal();
   };
 
   const getTypeIcon = (t: CrmReminder['type']) => {
@@ -499,30 +516,158 @@ export const CrmRemindersView: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Select
+            <AsyncSearchCombobox<CrmContact>
               label="Link to Contact (Optional)"
+              placeholder="Search contacts by name, email, company..."
               value={contactId}
-              onChange={(e) => setContactId(e.target.value)}
-              options={[
-                { value: '', label: 'Select Contact...' },
-                ...contacts.map((c) => ({
-                  value: c.id,
-                  label: `${c.name} (${c.companyName})`,
-                })),
-              ]}
+              initialItem={selectedContactItem}
+              onChange={(id, item) => {
+                setContactId(id);
+                setSelectedContactItem(item);
+              }}
+              onSearch={(query, signal) => searchContactsAsync(query, { limit: 15, signal })}
+              getItemById={getContactByIdAsync}
+              getItemKey={(c) => c.id}
+              recentSectionTitle="Recent Contacts"
+              emptyMessage="No contacts found"
+              errorMessage="Unable to load contacts. Try again."
+              renderItem={(contact) => (
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-[#252525] flex items-center justify-center text-[11px] font-bold text-slate-700 dark:text-slate-300 shrink-0 overflow-hidden">
+                    {contact.avatar ? (
+                      <img src={contact.avatar} alt={contact.name} className="w-full h-full object-cover" />
+                    ) : (
+                      contact.name.charAt(0)
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1 text-left space-y-0.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        {contact.name}
+                      </span>
+                      {contact.title && (
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                          • {contact.title}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] text-slate-400 dark:text-slate-500">
+                      <span className="truncate font-medium text-slate-600 dark:text-slate-300">{contact.companyName}</span>
+                      {contact.email && <span className="truncate opacity-75">{contact.email}</span>}
+                    </div>
+                  </div>
+                </div>
+              )}
+              renderSelected={(contact, onClear) => (
+                <div className="p-2.5 rounded-xl border border-primary/30 bg-primary/5 dark:bg-primary/10 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0 overflow-hidden">
+                      {contact.avatar ? (
+                        <img src={contact.avatar} alt={contact.name} className="w-full h-full object-cover" />
+                      ) : (
+                        contact.name.charAt(0)
+                      )}
+                    </div>
+                    <div className="min-w-0 space-y-0.5 text-left">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          {contact.name}
+                        </span>
+                        {contact.title && (
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                            {contact.title}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">{contact.companyName}</span>
+                        {contact.email && <span>• {contact.email}</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={onClear}
+                    className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
+                    title="Remove contact link"
+                    aria-label="Remove contact link"
+                  >
+                    <CloseIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             />
 
-            <Select
+            <AsyncSearchCombobox<CrmDeal>
               label="Link to Deal (Optional)"
+              placeholder="Search deals by title, company..."
               value={dealId}
-              onChange={(e) => setDealId(e.target.value)}
-              options={[
-                { value: '', label: 'Select Deal...' },
-                ...deals.map((d) => ({
-                  value: d.id,
-                  label: `${d.title} ($${d.value.toLocaleString()})`,
-                })),
-              ]}
+              initialItem={selectedDealItem}
+              onChange={(id, item) => {
+                setDealId(id);
+                setSelectedDealItem(item);
+              }}
+              onSearch={(query, signal) => searchDealsAsync(query, { limit: 15, signal })}
+              getItemById={getDealByIdAsync}
+              getItemKey={(d) => d.id}
+              recentSectionTitle="Recent Deals"
+              emptyMessage="No deals found"
+              errorMessage="Unable to load deals. Try again."
+              renderItem={(deal) => (
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <DollarSign className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="min-w-0 flex-1 text-left space-y-0.5">
+                    <div className="flex items-center gap-1.5 justify-between">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        {deal.title}
+                      </span>
+                      <span className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
+                        ${deal.value.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] text-slate-400 dark:text-slate-500">
+                      <span className="truncate font-medium text-slate-600 dark:text-slate-300">{deal.companyName}</span>
+                      {deal.contactName && <span className="truncate">• {deal.contactName}</span>}
+                    </div>
+                  </div>
+                </div>
+              )}
+              renderSelected={(deal, onClear) => (
+                <div className="p-2.5 rounded-xl border border-primary/30 bg-primary/5 dark:bg-primary/10 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <DollarSign className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 space-y-0.5 text-left">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          {deal.title}
+                        </span>
+                        <span className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                          ${deal.value.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">{deal.companyName}</span>
+                        {deal.contactName && <span>• {deal.contactName}</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={onClear}
+                    className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
+                    title="Remove deal link"
+                    aria-label="Remove deal link"
+                  >
+                    <CloseIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             />
           </div>
 
@@ -565,12 +710,12 @@ export const CrmRemindersView: React.FC = () => {
               placeholder="Context or specific questions to address during follow-up..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-slate-200/80 dark:border-[#2A2A2A] bg-slate-50 dark:bg-[#1C1C1C] text-xs text-slate-900 dark:text-white focus:outline-hidden focus:border-emerald-500"
+              className="w-full px-3 py-2 rounded-xl border border-slate-200/80 dark:border-[#2A2A2A] bg-slate-50 dark:bg-[#1C1C1C] text-xs text-slate-900 dark:text-white focus:outline-hidden focus:border-primary"
             />
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-2">
-            <Button variant="secondary" size="sm" onClick={() => setIsNewModalOpen(false)} type="button">
+            <Button variant="secondary" size="sm" onClick={handleCloseModal} type="button">
               Cancel
             </Button>
             <Button variant="primary" size="sm" type="submit" disabled={!title.trim()} leftIcon={<Bell className="w-3.5 h-3.5" />}>

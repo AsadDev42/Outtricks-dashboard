@@ -8,9 +8,9 @@ export const CustomCursor: React.FC = () => {
   const { style, glowIntensity, size, motion, effects } = settings;
 
   // Refs for zero-rerender DOM manipulation
-  const mousePos = useRef({ x: -100, y: -100 });
-  const smoothPos = useRef({ x: -100, y: -100 });
-  const ringPos = useRef({ x: -100, y: -100 });
+  const mousePos = useRef({ x: -200, y: -200 });
+  const smoothPos = useRef({ x: -200, y: -200 });
+  const ringPos = useRef({ x: -200, y: -200 });
   const isVisible = useRef(false);
   const isMouseDown = useRef(false);
   const isHovering = useRef(false);
@@ -18,11 +18,11 @@ export const CustomCursor: React.FC = () => {
 
   // Trail history (fixed 5 points, zero heap allocations in RAF)
   const trailCoords = useRef<[number, number][]>([
-    [-100, -100],
-    [-100, -100],
-    [-100, -100],
-    [-100, -100],
-    [-100, -100],
+    [-200, -200],
+    [-200, -200],
+    [-200, -200],
+    [-200, -200],
+    [-200, -200],
   ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -59,8 +59,18 @@ export const CustomCursor: React.FC = () => {
     const onMouseMove = (e: MouseEvent) => {
       mousePos.current.x = e.clientX;
       mousePos.current.y = e.clientY;
+
       if (!isVisible.current) {
         isVisible.current = true;
+        // Snap immediately to initial pointer coordinates to avoid flying in from off-screen
+        smoothPos.current.x = e.clientX;
+        smoothPos.current.y = e.clientY;
+        ringPos.current.x = e.clientX;
+        ringPos.current.y = e.clientY;
+        for (let i = 0; i < 5; i++) {
+          trailCoords.current[i][0] = e.clientX;
+          trailCoords.current[i][1] = e.clientY;
+        }
         if (containerRef.current) containerRef.current.style.opacity = '1';
       }
 
@@ -71,7 +81,7 @@ export const CustomCursor: React.FC = () => {
           target.closest('button, a, [role="button"], input[type="button"], select, .cursor-pointer')
         );
         isText.current = Boolean(
-          target.closest('input[type="text"], input[type="email"], input[type="password"], input[type="search"], textarea, [contenteditable="true"]')
+          target.closest('input[type="text"], input[type="email"], input[type="password"], input[type="search"], input[type="number"], textarea, [contenteditable="true"]')
         );
       }
     };
@@ -99,29 +109,37 @@ export const CustomCursor: React.FC = () => {
       if (cursorRef.current) cursorRef.current.classList.remove('is-active');
     };
 
-    const onMouseLeave = () => {
+    const hideCursor = () => {
       isVisible.current = false;
       if (containerRef.current) containerRef.current.style.opacity = '0';
     };
 
-    const onMouseEnter = () => {
+    const showCursor = () => {
       isVisible.current = true;
-      if (containerRef.current) containerRef.current.style.opacity = '1';
+      if (containerRef.current && !isText.current) containerRef.current.style.opacity = '1';
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) hideCursor();
     };
 
     window.addEventListener('mousemove', onMouseMove, { passive: true });
     window.addEventListener('mousedown', onMouseDown, { passive: true });
     window.addEventListener('mouseup', onMouseUp, { passive: true });
-    document.addEventListener('mouseleave', onMouseLeave);
-    document.addEventListener('mouseenter', onMouseEnter);
+    window.addEventListener('blur', hideCursor);
+    document.documentElement.addEventListener('mouseleave', hideCursor);
+    document.documentElement.addEventListener('mouseenter', showCursor);
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
       document.body.classList.remove('custom-cursor-active');
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mouseup', onMouseUp);
-      document.removeEventListener('mouseleave', onMouseLeave);
-      document.removeEventListener('mouseenter', onMouseEnter);
+      window.removeEventListener('blur', hideCursor);
+      document.documentElement.removeEventListener('mouseleave', hideCursor);
+      document.documentElement.removeEventListener('mouseenter', showCursor);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [style, glowIntensity, effects.clickRipple, effects.trailEffect, glowColorHex, reducedMotion]);
 
@@ -139,53 +157,53 @@ export const CustomCursor: React.FC = () => {
 
       // When text field is hovered, hide custom cursor graphics so native text caret shines
       if (containerRef.current) {
-        if (isText.current) {
+        if (isText.current || !isVisible.current) {
           containerRef.current.style.opacity = '0';
-        } else if (isVisible.current) {
+        } else {
           containerRef.current.style.opacity = '1';
         }
       }
 
-      // Smooth tracking physics
+      // Responsive tracking physics (no sluggish lag; instant or fast natural lerp)
       if (motion === 'standard' || reducedMotion) {
         smoothPos.current.x = targetX;
         smoothPos.current.y = targetY;
       } else if (motion === 'smooth') {
-        smoothPos.current.x += (targetX - smoothPos.current.x) * 0.55;
-        smoothPos.current.y += (targetY - smoothPos.current.y) * 0.55;
+        smoothPos.current.x += (targetX - smoothPos.current.x) * 0.85;
+        smoothPos.current.y += (targetY - smoothPos.current.y) * 0.85;
       } else if (motion === 'very-smooth') {
-        smoothPos.current.x += (targetX - smoothPos.current.x) * 0.32;
-        smoothPos.current.y += (targetY - smoothPos.current.y) * 0.32;
+        smoothPos.current.x += (targetX - smoothPos.current.x) * 0.65;
+        smoothPos.current.y += (targetY - smoothPos.current.y) * 0.65;
       }
 
-      // Trailing ring physics
-      ringPos.current.x += (targetX - ringPos.current.x) * 0.35;
-      ringPos.current.y += (targetY - ringPos.current.y) * 0.35;
+      // Agile trailing ring physics
+      ringPos.current.x += (targetX - ringPos.current.x) * 0.60;
+      ringPos.current.y += (targetY - ringPos.current.y) * 0.60;
 
       const sx = smoothPos.current.x;
       const sy = smoothPos.current.y;
       const rx = ringPos.current.x;
       const ry = ringPos.current.y;
 
-      // Update Cursor Element Direct Transform
+      // Update Cursor Element Direct Transform (Zero CSS transition delay)
       if (cursorRef.current) {
-        const hoverScale = isHovering.current ? 1.3 : (isMouseDown.current ? 0.85 : 1.0);
+        const hoverScale = isHovering.current ? 1.22 : (isMouseDown.current ? 0.88 : 1.0);
         cursorRef.current.style.transform = `translate3d(${sx}px, ${sy}px, 0) scale(${scale * hoverScale})`;
       }
 
-      // Update Glow Aura Direct Transform
+      // Update Glow Aura Direct Transform (Centered exactly on cursor position)
       if (glowRef.current) {
-        const glowScale = isHovering.current ? 1.4 : 1.0;
-        glowRef.current.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) scale(${glowScale})`;
+        const glowScale = (effects.hoverGlow && isHovering.current) ? 1.35 : 1.0;
+        glowRef.current.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) translate(-50%, -50%) scale(${glowScale})`;
       }
 
-      // Update Focus Ring Direct Transform
+      // Update Focus Ring Direct Transform (Centered accurately on ring coordinate)
       if (ringRef.current) {
-        const ringScale = isHovering.current ? 1.5 : 1.0;
-        ringRef.current.style.transform = `translate3d(${rx}px, ${ry}px, 0) scale(${scale * ringScale})`;
+        const ringScale = isHovering.current ? 1.35 : 1.0;
+        ringRef.current.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%) scale(${scale * ringScale})`;
       }
 
-      // Update Lightweight Trail Trajectory
+      // Update Trail Particles
       if ((style === 'trail' || effects.trailEffect) && !reducedMotion) {
         // Shift trail points
         for (let i = 4; i > 0; i--) {
@@ -200,8 +218,8 @@ export const CustomCursor: React.FC = () => {
           if (el) {
             const tx = trailCoords.current[i][0];
             const ty = trailCoords.current[i][1];
-            const tScale = (1 - (i + 1) * 0.18) * scale;
-            el.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${Math.max(0.2, tScale)})`;
+            const tScale = (1 - (i + 1) * 0.16) * scale;
+            el.style.transform = `translate3d(${tx}px, ${ty}px, 0) translate(-50%, -50%) scale(${Math.max(0.2, tScale)})`;
           }
         }
       }
@@ -214,7 +232,7 @@ export const CustomCursor: React.FC = () => {
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, [style, glowIntensity, size, motion, effects.trailEffect, scale, reducedMotion]);
+  }, [style, glowIntensity, size, motion, effects.trailEffect, effects.hoverGlow, scale, reducedMotion]);
 
   if (style === 'default' && glowIntensity === 'none' && !effects.clickRipple && !effects.trailEffect) {
     return null;
@@ -223,11 +241,11 @@ export const CustomCursor: React.FC = () => {
   // Glow Radius mapping
   const glowRadiusMap = {
     none: '0px',
-    subtle: '20px',
-    soft: '36px',
-    medium: '55px',
-    strong: '80px',
-    neon: '110px',
+    subtle: '24px',
+    soft: '40px',
+    medium: '60px',
+    strong: '85px',
+    neon: '115px',
   };
   const glowRadius = glowRadiusMap[glowIntensity] || '0px';
 
@@ -241,17 +259,15 @@ export const CustomCursor: React.FC = () => {
       {/* Click Ripples Container */}
       <div ref={ripplesContainerRef} className="absolute inset-0 pointer-events-none" />
 
-      {/* Ambient Glow Aura */}
+      {/* Ambient Glow Aura - Centered strictly on cursor via translate(-50%, -50%) */}
       {glowIntensity !== 'none' && (
         <div
           ref={glowRef}
-          className="absolute -top-12 -left-12 w-24 h-24 rounded-full pointer-events-none blur-md transition-transform duration-75 ease-out"
+          className="absolute top-0 left-0 rounded-full pointer-events-none blur-md will-change-transform"
           style={{
-            background: `radial-gradient(circle, ${glowColorHex}66 0%, ${glowColorHex}00 70%)`,
+            background: `radial-gradient(circle, ${glowColorHex}55 0%, ${glowColorHex}00 70%)`,
             width: glowRadius,
             height: glowRadius,
-            marginLeft: `calc(-${glowRadius} / 2)`,
-            marginTop: `calc(-${glowRadius} / 2)`,
           }}
         />
       )}
@@ -263,10 +279,10 @@ export const CustomCursor: React.FC = () => {
             <div
               key={idx}
               ref={(el) => (trailRefs.current[idx] = el)}
-              className="absolute -top-1.5 -left-1.5 w-3 h-3 rounded-full pointer-events-none shadow-xs"
+              className="absolute top-0 left-0 w-3 h-3 rounded-full pointer-events-none shadow-xs will-change-transform"
               style={{
                 backgroundColor: glowColorHex,
-                opacity: 0.65 - idx * 0.12,
+                opacity: 0.7 - idx * 0.12,
               }}
             />
           ))}
@@ -277,10 +293,10 @@ export const CustomCursor: React.FC = () => {
       {(style === 'focus-ring' || style === 'magnetic' || style === 'ring') && (
         <div
           ref={ringRef}
-          className="absolute -top-4 -left-4 w-8 h-8 rounded-full border-2 pointer-events-none transition-transform duration-75 ease-out"
+          className="absolute top-0 left-0 w-8 h-8 rounded-full border-2 pointer-events-none will-change-transform"
           style={{
             borderColor: glowColorHex,
-            backgroundColor: style === 'magnetic' ? `${glowColorHex}15` : 'transparent',
+            backgroundColor: style === 'magnetic' ? `${glowColorHex}18` : 'transparent',
           }}
         />
       )}
@@ -299,9 +315,9 @@ export const CustomCursor: React.FC = () => {
           </div>
         )}
 
-        {/* Style 2: Minimal Blue Glow / Soft Glow / Neon / Neon Glow / Minimal Glow */}
+        {/* Style 2: Arrow Pointers with Ambient / Neon Glow */}
         {(style === 'glow' || style === 'minimal-glow' || style === 'soft-glow' || style === 'neon' || style === 'neon-glow') && (
-          <div className="relative -top-1 -left-1">
+          <div className="relative -top-[3px] -left-[3px]">
             <svg
               className="w-5 h-5 drop-shadow-md"
               viewBox="0 0 24 24"
@@ -342,10 +358,6 @@ export const CustomCursor: React.FC = () => {
         {/* Style 5: Spotlight Cursor */}
         {style === 'spotlight' && (
           <div className="relative -top-2 -left-2 w-4 h-4 flex items-center justify-center">
-            <div
-              className="absolute w-24 h-24 rounded-full -top-10 -left-10 blur-md pointer-events-none"
-              style={{ background: `radial-gradient(circle, ${glowColorHex}55 0%, transparent 70%)` }}
-            />
             <div
               className="w-2.5 h-2.5 rounded-full shadow-md custom-cursor-element"
               style={{ backgroundColor: '#FFFFFF', boxShadow: `0 0 0 2px ${glowColorHex}` }}
@@ -411,3 +423,4 @@ export const CustomCursor: React.FC = () => {
     </div>
   );
 };
+

@@ -1,8 +1,9 @@
-﻿import { SEOHead } from '../../components/seo/SEOHead';
+import { SEOHead } from '../../components/seo/SEOHead';
 import React, { useState } from 'react';
 import { PageHeader } from '../../components/PageHeader';
 import { CtaBanner } from '../../components/CtaBanner';
 import { Zap, Copy, Check, Sparkles, RefreshCw } from 'lucide-react';
+import { cleanAiSlop } from '../../utils/noAiSlop';
 
 export const SubjectLineGeneratorPage: React.FC = () => {
   const [keyword, setKeyword] = useState('Outbound pipeline');
@@ -19,11 +20,11 @@ export const SubjectLineGeneratorPage: React.FC = () => {
 
   const handleGenerate = () => {
     setLines([
-      { text: `Thoughts on ${keyword.toLowerCase()} for {{company}}?`, openRate: "74%", badge: "Question Angle" },
-      { text: `{{first_name}} / ${keyword.toLowerCase()}`, openRate: "69%", badge: "Ultra Minimal" },
-      { text: `Fixing ${keyword.toLowerCase()} bottlenecks this month`, openRate: "63%", badge: "Direct Pain" },
-      { text: `Quick idea for ${prospectCompany}`, openRate: "71%", badge: "Top Performer" },
-      { text: `15 mins on Thursday regarding ${keyword.toLowerCase()}?`, openRate: "65%", badge: "Low Friction" }
+      { text: cleanAiSlop(`Thoughts on ${keyword.toLowerCase()} for {{company}}?`), openRate: "74%", badge: "Question Angle" },
+      { text: cleanAiSlop(`{{first_name}} / ${keyword.toLowerCase()}`), openRate: "69%", badge: "Ultra Minimal" },
+      { text: cleanAiSlop(`Fixing ${keyword.toLowerCase()} bottlenecks this month`), openRate: "63%", badge: "Direct Pain" },
+      { text: cleanAiSlop(`Quick idea for ${prospectCompany}`), openRate: "71%", badge: "Top Performer" },
+      { text: cleanAiSlop(`15 mins on Thursday regarding ${keyword.toLowerCase()}?`), openRate: "65%", badge: "Low Friction" }
     ]);
   };
 

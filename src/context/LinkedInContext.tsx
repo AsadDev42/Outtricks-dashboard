@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
 import { useToast } from './ToastContext';
+import { 
+  LinkedInTriggerConfig, 
+  LinkedInRuleCondition, 
+  LinkedInRuleAction 
+} from '../types/linkedinAutomation';
 
 export type LinkedInTabType = 
   | 'overview'
@@ -30,25 +35,85 @@ export type LinkedInStepType =
   | 'message' 
   | 'followup' 
   | 'voice_note' 
+  | 'ai_voice'
   | 'follow' 
+  | 'unfollow'
+  | 'follow_company'
+  | 'view_company'
   | 'like_post' 
   | 'comment' 
   | 'endorse' 
   | 'delay' 
   | 'condition' 
+  | 'inmail'
+  | 'email'
+  | 'whatsapp_message'
+  | 'whatsapp_voice'
+  | 'sms'
+  | 'call'
+  | 'create_task'
+  | 'call_api'
+  | 'send_to_campaign'
+  | 'lead_enrichment'
+  | 'verify_email'
+  | 'ai_intent'
+  | 'add_to_list'
+  | 'add_tag'
+  | 'remove_tag'
+  | 'update_field'
+  | 'assign_owner'
+  | 'move_stage'
+  | 'add_note'
+  | 'trigger_workflow'
   | 'stop';
 
 export interface LinkedInStepConfig {
   note?: string;
   body?: string;
+  subject?: string;
   spintax?: boolean;
   variables?: string[];
   characterLimit?: number;
-  conditionType?: 'invite_accepted' | 'replied' | 'connected' | 'has_profile' | 'score_threshold';
+  conditionType?: 
+    | 'invite_accepted' 
+    | 'connected' 
+    | 'not_connected'
+    | 'replied' 
+    | 'no_reply'
+    | 'profile_viewed'
+    | 'email_opened'
+    | 'email_clicked'
+    | 'email_replied'
+    | 'email_unsubscribed'
+    | 'meeting_booked'
+    | 'message_opened'
+    | 'has_email'
+    | 'has_phone'
+    | 'has_whatsapp'
+    | 'has_linkedin'
+    | 'variable_match'
+    | 'has_profile' 
+    | 'score_threshold'
+    | 'call_status';
   conditionTargetDays?: number;
   postReactionType?: 'Like' | 'Celebrate' | 'Support' | 'Insightful';
   skillsToProfile?: string[];
-  stopReason?: 'replied' | 'connected' | 'manual' | 'failure';
+  stopReason?: 'replied' | 'connected' | 'manual' | 'failure' | 'timeout_or_rejected';
+  listName?: string;
+  tag?: string;
+  fieldName?: string;
+  fieldValue?: string;
+  taskTitle?: string;
+  taskDueDateDays?: number;
+  assigneeName?: string;
+  pipelineStage?: string;
+  workflowId?: string;
+  workflowName?: string;
+  apiUrl?: string;
+  apiMethod?: 'GET' | 'POST' | 'PUT';
+  campaignTargetName?: string;
+  voiceStyle?: string;
+  enrichmentType?: 'emails' | 'phones' | 'profiles' | 'all';
 }
 
 export interface LinkedInStepStats {
@@ -74,8 +139,13 @@ export interface LinkedInStep {
   config?: LinkedInStepConfig;
   stats?: LinkedInStepStats;
   branch?: 'main' | 'yes' | 'no';
+  parentConditionId?: string;
+  parentBranchId?: string;
+  yesBranchId?: string;
+  noBranchId?: string;
   yesBranch?: LinkedInStep[];
   noBranch?: LinkedInStep[];
+  mergeBranches?: boolean; // Controls whether branches converge into main sequence (default: true)
 }
 
 export interface LinkedInLeadTimelineEvent {
@@ -205,15 +275,20 @@ export interface LinkedInAutomationRule {
   id: string;
   name: string;
   trigger: string;
+  triggerConfig?: LinkedInTriggerConfig;
   action: string;
   stepsCount: number;
   steps: string[];
   delayHours: number;
   condition: string;
-  status: 'Active' | 'Paused';
+  conditions?: LinkedInRuleCondition[];
+  conditionLogic?: 'AND' | 'OR';
+  actionsList?: LinkedInRuleAction[];
+  status: 'Active' | 'Paused' | 'Draft';
   runsCount: number;
   successRate: number;
   lastRun: string;
+  created?: string;
 }
 
 export interface LinkedInLog {
@@ -405,6 +480,7 @@ interface LinkedInContextType {
 
   // Account & Proxy Actions
   createAutomationRule: (rule: Partial<LinkedInAutomationRule>) => void;
+  updateAutomationRule: (id: string, updates: Partial<LinkedInAutomationRule>) => void;
   toggleAutomationRule: (id: string) => void;
   deleteAutomationRule: (id: string) => void;
   connectAccount: (account: Partial<LinkedInAccount>) => void;
@@ -795,10 +871,17 @@ const BENCHMARK_SEQUENCE: LinkedInStep[] = [
     ],
     noBranch: [
       {
-        id: 'step_no_end',
-        type: 'stop',
-        title: 'End',
-        subtitle: 'Invitation unaccepted after 60 days — sequence concluded',
+        id: 'step_no_email',
+        type: 'email',
+        title: 'Send Fallback Email',
+        subtitle: 'Multi-channel email touch if invitation pending',
+        timingLabel: 'Wait 1 day',
+        waitDurationDays: 1,
+        config: {
+          subject: 'Connecting regarding {{companyName}}',
+          body: 'Hi {{firstName}},\n\nFollowing up via email regarding {{companyName}}.',
+          variables: ['firstName', 'companyName'],
+        },
         stats: {
           reached: 28,
           completed: 28,
@@ -806,6 +889,7 @@ const BENCHMARK_SEQUENCE: LinkedInStep[] = [
           toCome: 0,
           failed: 0,
           skipped: 0,
+          successRate: 0,
         }
       }
     ]
@@ -1092,30 +1176,79 @@ const INITIAL_AUTOMATION: LinkedInAutomationRule[] = [
   {
     id: 'rule_1',
     name: 'Auto Profile Visit + Warm Connection Invite',
-    trigger: 'Prospect added to Campaign',
+    trigger: 'Lead Added to Campaign',
+    triggerConfig: { days: 0, hours: 2 },
     action: 'Visit Profile → Wait 2 Hours → Send Connection Note',
-    stepsCount: 4,
-    steps: ['Visit Profile', 'Wait 2 Hours', 'Send Connection Request', 'Check Acceptance'],
+    stepsCount: 3,
+    steps: ['Visit Profile', 'Wait 2 Hours', 'Send Connection Note'],
     delayHours: 2,
-    condition: 'If 2nd or 3rd degree connection',
+    condition: 'Connection Degree = 2nd or 3rd AND Has Verified Email = Yes',
+    conditions: [
+      { id: 'c1', field: 'connection_degree', operator: 'equals', value: '2nd' },
+      { id: 'c2', field: 'has_email', operator: 'equals', value: 'Yes' }
+    ],
+    conditionLogic: 'AND',
+    actionsList: [
+      { id: 'a1', type: 'visit_profile' },
+      { id: 'a2', type: 'wait_delay', delay: 2, delayUnit: 'Hours' },
+      { id: 'a3', type: 'send_connection_note', connectionNote: 'Hi {{first_name}}, noticed your work at {{company}}. Would love to connect and share notes on enterprise growth.' }
+    ],
     status: 'Active',
     runsCount: 1420,
     successRate: 98.4,
     lastRun: '4m ago',
+    created: '3 days ago',
   },
   {
     id: 'rule_2',
     name: 'First Follow-Up After Connection Accepted',
     trigger: 'Connection Accepted',
-    action: 'Wait 24 Hours → Send Value-Add Case Study Message',
-    stepsCount: 3,
-    steps: ['Detect Connection', 'Wait 24 Hours', 'Send Welcome Message'],
+    triggerConfig: { days: 1, hours: 0 },
+    action: 'Wait 24 Hours → Send Welcome Message',
+    stepsCount: 2,
+    steps: ['Wait 24 Hours', 'Send Welcome Message'],
     delayHours: 24,
-    condition: 'If no reply received in 24h',
+    condition: 'Lead Status = In Outreach',
+    conditions: [
+      { id: 'c3', field: 'lead_status', operator: 'equals', value: 'In Outreach' }
+    ],
+    conditionLogic: 'AND',
+    actionsList: [
+      { id: 'a4', type: 'wait_delay', delay: 24, delayUnit: 'Hours' },
+      { id: 'a5', type: 'send_message', message: 'Thanks for connecting, {{first_name}}! Here is a quick case study on how we scaled outbound pipeline at {{company}}.' }
+    ],
     status: 'Active',
     runsCount: 890,
     successRate: 96.2,
     lastRun: '18m ago',
+    created: '5 days ago',
+  },
+  {
+    id: 'rule_3',
+    name: 'No Reply Follow-Up → Profile Visit → Status Update',
+    trigger: 'No Reply After 3 Days',
+    triggerConfig: { days: 3, hours: 0 },
+    action: 'Wait 2 Hours → Visit Profile → Send Follow-up Message → Change Lead Status',
+    stepsCount: 4,
+    steps: ['Wait 2 Hours', 'Visit Profile', 'Send Follow-up Message', 'Change Lead Status'],
+    delayHours: 2,
+    condition: 'Connection Degree = 1st AND Lead Status = Contacted',
+    conditions: [
+      { id: 'c4', field: 'connection_degree', operator: 'equals', value: '1st' },
+      { id: 'c5', field: 'lead_status', operator: 'equals', value: 'Contacted' }
+    ],
+    conditionLogic: 'AND',
+    actionsList: [
+      { id: 'a6', type: 'wait_delay', delay: 2, delayUnit: 'Hours' },
+      { id: 'a7', type: 'visit_profile' },
+      { id: 'a8', type: 'send_message', message: 'Hi {{first_name}}, following up regarding my previous message. Are you free for a brief 10-minute sync this week?' },
+      { id: 'a9', type: 'change_lead_status', leadStatus: 'Follow-up' }
+    ],
+    status: 'Draft',
+    runsCount: 0,
+    successRate: 100,
+    lastRun: 'Never',
+    created: '1 day ago',
   }
 ];
 
@@ -1518,24 +1651,48 @@ export const LinkedInProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     info('Action postponed.', 'Paused');
   }, [info]);
 
-  // Legacy & Auxiliary Actions (preserved for existing views)
+  // Automation Rule Actions
   const createAutomationRule = useCallback((rule: Partial<LinkedInAutomationRule>) => {
     const newRule: LinkedInAutomationRule = {
-      id: `rule_${Date.now()}`,
+      id: rule.id || `rule_${Date.now()}`,
       name: rule.name || 'Custom LinkedIn Automation Rule',
-      trigger: rule.trigger || 'Prospect Added to Campaign',
+      trigger: rule.trigger || 'Lead Added to Campaign',
+      triggerConfig: rule.triggerConfig,
       action: rule.action || 'Visit Profile → Send Connection Request',
-      stepsCount: rule.stepsCount || 3,
-      steps: rule.steps || ['Visit Profile', 'Wait 2 Hours', 'Send Connection Request'],
-      delayHours: rule.delayHours || 2,
+      stepsCount: rule.steps?.length || rule.actionsList?.length || rule.stepsCount || 3,
+      steps: rule.steps || (rule.actionsList ? rule.actionsList.map(a => a.type.replace(/_/g, ' ')) : ['Visit Profile', 'Wait 2 Hours', 'Send Connection Request']),
+      delayHours: rule.delayHours !== undefined ? rule.delayHours : 2,
       condition: rule.condition || 'If 2nd or 3rd degree connection',
-      status: 'Active',
-      runsCount: 0,
-      successRate: 100,
-      lastRun: 'Just now',
+      conditions: rule.conditions || [],
+      conditionLogic: rule.conditionLogic || 'AND',
+      actionsList: rule.actionsList || [],
+      status: rule.status || 'Active',
+      runsCount: rule.runsCount || 0,
+      successRate: rule.successRate || 100,
+      lastRun: rule.lastRun || 'Just now',
+      created: rule.created || 'Just now',
     };
     setAutomationRules((prev) => [newRule, ...prev]);
-    success(`Automation rule "${newRule.name}" active.`, 'Rule Created');
+    const isDraft = newRule.status === 'Draft';
+    success(`Automation rule "${newRule.name}" ${isDraft ? 'saved as draft' : 'activated'}.`, isDraft ? 'Rule Saved' : 'Rule Activated');
+  }, [success]);
+
+  const updateAutomationRule = useCallback((id: string, updates: Partial<LinkedInAutomationRule>) => {
+    setAutomationRules((prev) =>
+      prev.map((r) => {
+        if (r.id === id) {
+          const updated: LinkedInAutomationRule = {
+            ...r,
+            ...updates,
+            stepsCount: updates.steps?.length || updates.actionsList?.length || r.stepsCount,
+            steps: updates.steps || (updates.actionsList ? updates.actionsList.map(a => a.type.replace(/_/g, ' ')) : r.steps),
+          };
+          return updated;
+        }
+        return r;
+      })
+    );
+    success(`Automation rule updated.`, 'Rule Updated');
   }, [success]);
 
   const toggleAutomationRule = useCallback((id: string) => {
@@ -1571,10 +1728,10 @@ export const LinkedInProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       dailyMessagesSent: 0,
       dailyMessagesLimit: 30,
       actionsUsedToday: 0,
-      dailyActionsLimit: 80,
-      proxyIp: '198.51.100.99 (Residential 4G)',
-      proxyLocation: 'London, UK',
-      connectionCount: 500,
+      dailyActionsLimit: acc.dailyActionsLimit || 80,
+      proxyIp: acc.proxyIp || '198.51.100.99 (Residential 4G)',
+      proxyLocation: acc.proxyLocation || 'New York, United States',
+      connectionCount: acc.connectionCount || 500,
       lastSync: 'Just now',
     };
     setAccounts((prev) => [newAcc, ...prev]);
@@ -1749,6 +1906,7 @@ export const LinkedInProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         pauseQueueAction,
 
         createAutomationRule,
+        updateAutomationRule,
         toggleAutomationRule,
         deleteAutomationRule,
         connectAccount,

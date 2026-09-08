@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   sanitizeInput, 
   validateEmail, 
@@ -27,6 +27,9 @@ export interface UserProfile {
   emailNotifications: boolean;
   securityAlerts: boolean;
   createdAt: string;
+  role?: string;
+  isWorkspaceOwner?: boolean;
+  permissions?: string[];
 }
 
 export interface Workspace {
@@ -123,9 +126,9 @@ interface AuthContextType {
 const DEFAULT_USER: UserProfile = {
   id: 'usr_sarah_jenkins',
   name: 'Sarah Jenkins',
-  email: 'sarah@cloudscale.ai',
+  email: 'sarah@redlumb.com',
   title: 'VP of Growth & Revenue',
-  company: 'CloudScale AI',
+  company: 'Redlumb',
   phone: '+1 (415) 892-4910',
   timezone: 'America/Los_Angeles (PST)',
   language: 'English (US)',
@@ -135,13 +138,16 @@ const DEFAULT_USER: UserProfile = {
   securityAlerts: true,
   createdAt: '2026-01-15T08:00:00.000Z',
   avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+  role: 'owner',
+  isWorkspaceOwner: true,
+  permissions: ['workspace:admin', 'admin:access'],
 };
 
 const DEFAULT_WORKSPACES: Workspace[] = [
   {
     id: 'ws_cloudscale',
-    name: 'CloudScale AI',
-    slug: 'cloudscale-ai',
+    name: 'Redlumb',
+    slug: 'redlumb',
     role: 'owner',
     plan: 'scale',
     credits: 42850,
@@ -150,7 +156,7 @@ const DEFAULT_WORKSPACES: Workspace[] = [
     maxInboxes: 50,
     verifiedLeadsCount: 14280,
     membersCount: 8,
-    customDomain: 'outbound.cloudscale.ai',
+    customDomain: 'outbound.redlumb.com',
     createdAt: '2026-01-15T08:00:00.000Z',
   },
   {
@@ -307,7 +313,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [workspaces, setWorkspaces] = useState<Workspace[]>(() => {
     const saved = localStorage.getItem('outtricks_workspaces');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((w: Workspace) => {
+            if (w.id === 'ws_cloudscale' && (w.name === 'CloudScale AI' || !w.name)) {
+              return { ...w, name: 'Redlumb', slug: 'redlumb' };
+            }
+            return w;
+          });
+        }
+      } catch (e) {}
     }
     return DEFAULT_WORKSPACES;
   });
@@ -703,10 +719,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsOnboardingOpen(false);
   }, [currentWorkspace, updateWorkspace]);
 
+  const effectiveUser = useMemo(() => {
+    if (!user) return null;
+    const role = currentWorkspace?.role || user.role || 'owner';
+    const isOwner = role === 'owner';
+    const isAdmin = role === 'admin' || isOwner || role === 'workspace_admin' || (user.role === 'super_admin' || user.role === 'super-admin');
+    return {
+      ...user,
+      role,
+      isWorkspaceOwner: isOwner,
+      permissions: isAdmin
+        ? Array.from(new Set([...(user.permissions || []), 'workspace:admin', 'admin:access']))
+        : (user.permissions || []),
+    };
+  }, [user, currentWorkspace]);
+
   return (
     <AuthContext.Provider
       value={{
-        user,
+        user: effectiveUser,
         isAuthenticated: !!user,
         isLoading,
         currentWorkspace,
@@ -751,3 +782,6 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
+export { formatWorkspaceName } from '../lib/workspaceUtils';
+

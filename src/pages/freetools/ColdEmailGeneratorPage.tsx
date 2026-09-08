@@ -1,8 +1,9 @@
-﻿import { SEOHead } from '../../components/seo/SEOHead';
+import { SEOHead } from '../../components/seo/SEOHead';
 import React, { useState } from 'react';
 import { PageHeader } from '../../components/PageHeader';
 import { CtaBanner } from '../../components/CtaBanner';
 import { Mail, Sparkles, Copy, Check, RefreshCw, Zap } from 'lucide-react';
+import { cleanAiSlop } from '../../utils/noAiSlop';
 
 export const ColdEmailGeneratorPage: React.FC = () => {
   const [recipientRole, setRecipientRole] = useState('VP of Sales');
@@ -29,8 +30,7 @@ Best,
 
   const handleGenerate = () => {
     setGeneratedSubject(`Quick idea for ${recipientRole} at {{company}}`);
-    setGeneratedBody(
-`Hi {{first_name}},
+    const rawBody = `Hi {{first_name}},
 
 Saw your focus on ${industry} expansion • wanted to reach out directly.
 
@@ -41,8 +41,9 @@ We help high-velocity sales teams solve this by ${offer.toLowerCase()}.
 Open to a brief 9-minute walkthrough this week?
 
 Best,
-{{my_name}}`
-    );
+{{my_name}}`;
+
+    setGeneratedBody(cleanAiSlop(rawBody));
   };
 
   const handleCopy = () => {
