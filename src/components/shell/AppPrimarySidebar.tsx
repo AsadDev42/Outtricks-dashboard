@@ -66,6 +66,7 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
   const { hasModuleAccess } = useAdmin();
   const location = useLocation();
 
+  const asideRef = useRef<HTMLElement | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const itemRefs = useRef<Record<string, HTMLElement | null>>({});
   const [, setTick] = useState(0);
@@ -75,9 +76,20 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
   }, []);
 
   useEffect(() => {
+    // Force measurement after initial mount when DOM refs are attached
+    const timer = setTimeout(() => {
+      updatePosition();
+    }, 50);
     window.addEventListener('resize', updatePosition);
-    return () => window.removeEventListener('resize', updatePosition);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updatePosition);
+    };
   }, [updatePosition]);
+
+  useEffect(() => {
+    updatePosition();
+  }, [location.pathname, activePrimaryId, updatePosition]);
 
   // Guarantee all items are visible, preserving Workspace and Settings
   const visibleNavItems = PRIMARY_NAV_ITEMS.filter((item) => {
@@ -143,11 +155,12 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
 
   return (
     <aside 
-      className="h-screen w-16 bg-white dark:bg-[#0B0B0C] border-r border-slate-200 dark:border-[#1F1F23] flex flex-col justify-between items-center z-40 select-none font-sans shrink-0 py-3 px-2 overflow-visible"
+      ref={asideRef}
+      className="h-screen w-16 bg-white dark:bg-[#0B0B0C] border-r border-slate-200 dark:border-[#1F1F23] flex flex-col justify-between items-center z-40 select-none font-sans shrink-0 py-3 px-0 overflow-visible relative"
       aria-label="Primary Navigation Rail"
     >
       {/* 1. Header / Logo (Permanent icon rail header) */}
-      <div className="shrink-0 flex flex-col items-center pb-3">
+      <div className="shrink-0 flex flex-col items-center pb-3 w-full">
         <Link
           to="/"
           onClick={() => onSelectPrimary('trixie')}
@@ -166,7 +179,7 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
       {/* 2. Navigation Rail (Centered Icon Stack with Exact Geometry) */}
       <nav 
         onScroll={updatePosition}
-        className="flex-1 w-full flex flex-col items-center space-y-1.5 py-1 overflow-y-auto no-scrollbar"
+        className="flex-1 w-full flex flex-col items-center space-y-2 py-1 overflow-y-auto no-scrollbar relative"
       >
         {visibleNavItems.map((item) => {
           const active = isItemActive(item);
@@ -175,25 +188,34 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
           const displayLabel = item.label || item.title;
 
           return (
-            <Link
-              key={item.id}
-              to={targetHref}
-              ref={(el) => {
-                itemRefs.current[item.id] = el;
-              }}
-              onClick={() => onSelectPrimary(item.id)}
-              onMouseEnter={() => setHoveredId(item.id)}
-              onMouseLeave={() => setHoveredId(null)}
-              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-150 relative group cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0B0B0C] ${
-                active
-                  ? 'bg-primary text-white shadow-md shadow-primary/25 font-bold'
-                  : 'text-slate-400 dark:text-[#8E8E93] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06]'
-              }`}
-              aria-label={displayLabel}
-              aria-current={active ? 'page' : undefined}
-            >
-              <Icon className={`w-5 h-5 shrink-0 transition-transform ${active ? 'text-white' : 'group-hover:scale-105'}`} />
-            </Link>
+            <div key={item.id} className="w-full relative flex items-center justify-center">
+              {/* Active Left Indicator Bar - attached directly to the left edge of primary rail */}
+              <span
+                className={`absolute left-0 top-1/2 -translate-y-1/2 w-[3.5px] rounded-r-full bg-primary transition-all duration-150 ${
+                  active ? 'h-7 opacity-100' : 'h-0 opacity-0 pointer-events-none'
+                }`}
+                aria-hidden="true"
+              />
+
+              <Link
+                to={targetHref}
+                ref={(el) => {
+                  itemRefs.current[item.id] = el;
+                }}
+                onClick={() => onSelectPrimary(item.id)}
+                onMouseEnter={() => setHoveredId(item.id)}
+                onMouseLeave={() => setHoveredId(null)}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150 relative group cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0B0B0C] ${
+                  active
+                    ? 'bg-primary text-white shadow-md shadow-primary/20 font-bold'
+                    : 'text-slate-400 dark:text-[#8E8E93] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06]'
+                }`}
+                aria-label={displayLabel}
+                aria-current={active ? 'page' : undefined}
+              >
+                <Icon className={`w-5 h-5 shrink-0 transition-transform ${active ? 'text-white' : 'group-hover:scale-105'}`} />
+              </Link>
+            </div>
           );
         })}
       </nav>
@@ -207,9 +229,9 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
       {targetRect && currentFloatingItem && createPortal(
         <div
           role="tooltip"
-          className="fixed z-[9999] pointer-events-none px-3 py-1.5 text-xs font-semibold text-white bg-[#0A0C14] border border-white/15 rounded-lg shadow-xl shadow-black/50 whitespace-nowrap transition-all duration-150 animate-in fade-in"
+          className="fixed z-[9999] pointer-events-none px-2.5 py-1 text-xs font-semibold text-white bg-[#0B0D14] border border-white/15 rounded-lg shadow-xl shadow-black/60 whitespace-nowrap transition-all duration-150 animate-in fade-in"
           style={{
-            left: `${targetRect.right + 10}px`,
+            left: `${(asideRef.current?.getBoundingClientRect().right ?? (targetRect.right + 12)) + 8}px`,
             top: `${targetRect.top + targetRect.height / 2}px`,
             transform: 'translateY(-50%)',
           }}
