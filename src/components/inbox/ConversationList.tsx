@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { 
-  Search, 
-  Mail, 
-  Linkedin, 
-  PhoneCall, 
-  Flame, 
-  Calendar, 
-  Tag, 
-  RotateCcw,
-  CheckCircle2,
+import {
+  Search,
+  Mail,
+  Linkedin,
+  PhoneCall,
+  BriefcaseBusiness,
+  Flame,
+  Calendar,
+  Tag,
   Inbox,
   Archive,
   Filter,
@@ -27,7 +26,6 @@ export interface ConversationListProps {
 export const ConversationList: React.FC<ConversationListProps> = ({
   onSelectThreadMobile,
   onOpenAddLabelModal,
-  onOpenShortcutsModal,
 }) => {
   const navigate = useNavigate();
   const {
@@ -45,88 +43,70 @@ export const ConversationList: React.FC<ConversationListProps> = ({
     filterChannel,
     setFilterChannel,
     filterAssignee,
-    setFilterAssignee,
     filterLabel,
     setFilterLabel,
     selectedAccountIds,
     markAsRead,
-    resetFilters
+    resetFilters,
   } = useMasterInbox();
 
   const [isFilterPopoverOpen, setIsFilterPopoverOpen] = useState(false);
 
-  const hasActiveFilters = 
-    selectedAccountIds.length > 0 ||
-    filterChannel !== 'all' ||
-    filterLabel !== 'all' ||
-    filterAssignee !== 'all';
+  const hasActiveFilters = selectedAccountIds.length > 0 || filterChannel !== 'all' || filterLabel !== 'all' || filterAssignee !== 'all';
+  const activeFiltersCount = selectedAccountIds.length + (filterChannel !== 'all' ? 1 : 0) + (filterLabel !== 'all' ? 1 : 0) + (filterAssignee !== 'all' ? 1 : 0);
 
-  const activeFiltersCount = 
-    selectedAccountIds.length + 
-    (filterChannel !== 'all' ? 1 : 0) + 
-    (filterLabel !== 'all' ? 1 : 0);
+  const channelLabel = (channel: string) => {
+    if (channel === 'email') return 'Email';
+    if (channel === 'linkedin') return 'LinkedIn';
+    if (channel === 'upwork') return 'Upwork';
+    if (channel === 'voice') return 'Voice';
+    return channel;
+  };
 
   const filterSummaryParts: string[] = [];
-  if (filterChannel !== 'all') {
-    filterSummaryParts.push(filterChannel === 'email' ? 'Email' : filterChannel === 'linkedin' ? 'LinkedIn' : 'Calls');
-  }
-  if (selectedAccountIds.length > 0) {
-    filterSummaryParts.push(`${selectedAccountIds.length} ${selectedAccountIds.length === 1 ? 'account' : 'accounts'}`);
-  }
-  if (filterLabel !== 'all') {
-    filterSummaryParts.push(filterLabel);
-  }
+  if (filterChannel !== 'all') filterSummaryParts.push(channelLabel(filterChannel));
+  if (selectedAccountIds.length > 0) filterSummaryParts.push(`${selectedAccountIds.length} ${selectedAccountIds.length === 1 ? 'account' : 'accounts'}`);
+  if (filterLabel !== 'all') filterSummaryParts.push(filterLabel);
+  if (filterAssignee !== 'all') filterSummaryParts.push(filterAssignee);
   const filterSummaryText = filterSummaryParts.join(' · ');
 
   const handleSelect = (thread: MasterInboxThread) => {
     setActiveConversationId(thread.id);
-    if (thread.unread) {
-      markAsRead(thread.id);
-    }
-    if (onSelectThreadMobile) {
-      onSelectThreadMobile();
-    }
+    if (thread.unread) markAsRead(thread.id);
+    onSelectThreadMobile?.();
   };
 
   const handleSelectFolder = (folderId: string) => {
     setActiveFolder(folderId);
-    if (folderId.startsWith('label:')) {
-      navigate('/inbox/labels');
-    } else {
-      navigate(`/inbox/${folderId}`);
-    }
+    navigate(folderId.startsWith('label:') ? '/inbox/labels' : `/inbox/${folderId}`);
   };
 
   const getChannelIcon = (channel: string) => {
     switch (channel) {
-      case 'email': return <Mail className="w-3.5 h-3.5 text-blue-500" />;
-      case 'linkedin': return <Linkedin className="w-3.5 h-3.5 text-sky-500" />;
-      case 'voice': return <PhoneCall className="w-3.5 h-3.5 text-blue-600" />;
-      default: return <Mail className="w-3.5 h-3.5 text-slate-400" />;
+      case 'email': return <Mail className="w-3.5 h-3.5 text-primary" />;
+      case 'linkedin': return <Linkedin className="w-3.5 h-3.5 text-primary" />;
+      case 'upwork': return <BriefcaseBusiness className="w-3.5 h-3.5 text-primary" />;
+      case 'voice': return <PhoneCall className="w-3.5 h-3.5 text-primary" />;
+      default: return <Inbox className="w-3.5 h-3.5 text-slate-400" />;
     }
   };
 
   const FOLDER_PILLS = [
     { id: 'all', label: 'All', icon: Inbox, badge: null },
-    { id: 'unread', label: 'Unread', icon: Mail, badge: unreadTotal > 0 ? unreadTotal : null, badgeColor: 'bg-blue-600 text-white' },
-    { id: 'interested', label: 'Hot', icon: Flame, badge: interestedTotal > 0 ? interestedTotal : null, badgeColor: 'bg-emerald-600 text-white' },
-    { id: 'meetings', label: 'Meetings', icon: Calendar, badge: meetingsTotal > 0 ? meetingsTotal : null, badgeColor: 'bg-blue-700 text-white' },
+    { id: 'unread', label: 'Unread', icon: Mail, badge: unreadTotal || null },
+    { id: 'interested', label: 'Hot', icon: Flame, badge: interestedTotal || null },
+    { id: 'meetings', label: 'Meetings', icon: Calendar, badge: meetingsTotal || null },
     { id: 'archived', label: 'Archived', icon: Archive, badge: null },
     { id: 'labels', label: 'Labels', icon: Tag, badge: null },
   ];
 
   return (
     <div className="w-full border-r border-slate-200/80 dark:border-[#2A2A2A] bg-white dark:bg-[#161616] flex flex-col h-full font-sans">
-      
-      {/* 1. Master Inbox Integrated Channel & Folder Filter Pills */}
       <div className="p-3 border-b border-slate-200/80 dark:border-[#2A2A2A] space-y-2.5">
-        
-        {/* Horizontal Quick Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
           {FOLDER_PILLS.map((pill) => {
             const active = activeFolder === pill.id;
             const Icon = pill.icon;
-
             return (
               <button
                 key={pill.id}
@@ -134,25 +114,20 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                 onClick={() => handleSelectFolder(pill.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
                   active
-                    ? 'bg-blue-600 text-white shadow-xs'
+                    ? 'bg-primary text-white shadow-xs'
                     : 'bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.08]'
                 }`}
               >
                 <Icon className={`w-3.5 h-3.5 shrink-0 ${active ? 'text-white' : 'text-slate-500'}`} />
                 <span>{pill.label}</span>
                 {pill.badge !== null && (
-                  <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-md ${
-                    active ? 'bg-white/20 text-white' : pill.badgeColor || 'bg-slate-200 dark:bg-[#181818] text-slate-700 dark:text-slate-300'
-                  }`}>
-                    {pill.badge}
-                  </span>
+                  <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md ${active ? 'bg-white/20 text-white' : 'bg-primary-muted text-primary'}`}>{pill.badge}</span>
                 )}
               </button>
             );
           })}
         </div>
 
-        {/* Search Input Bar */}
         <div className="relative">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -160,11 +135,10 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             placeholder="Search conversations, names, emails..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-xs text-slate-900 dark:text-white placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-xs text-slate-900 dark:text-white placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
-        {/* Channel & Dropdown Filters Strip */}
         <div className="flex items-center gap-1.5">
           <select
             value={filterChannel}
@@ -172,9 +146,10 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             className="flex-1 min-w-0 px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-[11px] font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer truncate"
           >
             <option value="all">All Channels</option>
-            <option value="email">Cold Email</option>
-            <option value="linkedin">LinkedIn Safe DMs</option>
-            <option value="voice">Voice AI Calls</option>
+            <option value="email">Email</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="upwork">Upwork</option>
+            <option value="voice">Voice & Calls</option>
           </select>
 
           <select
@@ -183,156 +158,112 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             className="flex-1 min-w-0 px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1C1C1C] border border-slate-200/80 dark:border-[#202020] text-[11px] font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer truncate"
           >
             <option value="all">All Labels</option>
-            {labelsList.map((lbl) => (
-              <option key={lbl.id} value={lbl.name}>{lbl.name}</option>
-            ))}
+            {labelsList.map((label) => <option key={label.id} value={label.name}>{label.name}</option>)}
           </select>
 
           {onOpenAddLabelModal && (
             <button
               type="button"
               onClick={onOpenAddLabelModal}
-              className="p-1.5 rounded-lg bg-slate-50 dark:bg-white/[0.04] text-blue-600 dark:text-blue-400 hover:bg-blue-50 cursor-pointer shrink-0 border border-slate-200/80 dark:border-[#202020]"
-              title="Add Label"
+              className="p-1.5 rounded-lg bg-slate-50 dark:bg-white/[0.04] text-primary hover:bg-primary-muted cursor-pointer shrink-0 border border-slate-200/80 dark:border-[#202020]"
+              aria-label="Add label"
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
           )}
 
-          {/* Filters Popover Anchor Button */}
           <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setIsFilterPopoverOpen((prev) => !prev)}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold transition-all cursor-pointer ${
                 hasActiveFilters
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                  ? 'bg-primary text-white border-primary shadow-xs'
                   : 'bg-slate-50 dark:bg-[#1C1C1C] border-slate-200/80 dark:border-[#202020] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.08]'
               }`}
-              title="Filter by connected accounts and channels"
+              aria-label="Filter connected accounts and channels"
               aria-expanded={isFilterPopoverOpen}
             >
               <Filter className={`w-3.5 h-3.5 shrink-0 ${hasActiveFilters ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
               <span>Filters</span>
-              {activeFiltersCount > 0 && (
-                <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-md ${
-                  hasActiveFilters ? 'bg-white/20 text-white' : 'bg-blue-600 text-white'
-                }`}>
-                  {activeFiltersCount}
-                </span>
-              )}
+              {activeFiltersCount > 0 && <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-white/20 text-white">{activeFiltersCount}</span>}
             </button>
 
-            <InboxFilterPopover
-              isOpen={isFilterPopoverOpen}
-              onClose={() => setIsFilterPopoverOpen(false)}
-            />
+            <InboxFilterPopover isOpen={isFilterPopoverOpen} onClose={() => setIsFilterPopoverOpen(false)} />
           </div>
         </div>
 
-        {/* Compact Active Filters Summary Strip */}
         {hasActiveFilters && (
-          <div className="flex items-center justify-between px-2.5 py-1 rounded-lg bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/40 text-[10px] text-blue-900 dark:text-blue-200 animate-in fade-in duration-100">
+          <div className="flex items-center justify-between px-2.5 py-1 rounded-lg bg-primary-muted border border-primary/20 text-[10px] text-primary animate-in fade-in duration-100">
             <div className="flex items-center gap-1.5 truncate">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
-              <span className="font-semibold truncate">{filterSummaryText || 'Active Filters'}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+              <span className="font-semibold truncate">{filterSummaryText || 'Active filters'}</span>
             </div>
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer shrink-0 ml-2"
-            >
-              Clear filters
-            </button>
+            <button type="button" onClick={resetFilters} className="font-bold hover:underline cursor-pointer shrink-0 ml-2">Clear filters</button>
           </div>
         )}
       </div>
 
-      {/* 2. Conversation Items Feed */}
       <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-white/[0.04]">
         {allFilteredConversations.length === 0 ? (
           <div className="p-8 text-center text-slate-400 text-xs space-y-2">
             <Inbox className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-700" />
             <p className="font-semibold text-slate-600 dark:text-slate-300">No conversations found</p>
-            <p className="text-[11px] text-slate-400">Try adjusting your channel filter or search term.</p>
+            <p className="text-[11px]">Try adjusting the channel, account or search filters.</p>
           </div>
         ) : (
           allFilteredConversations.map((thread) => {
             const isActive = activeConversationId === thread.id;
-
             return (
-              <div
+              <button
                 key={thread.id}
+                type="button"
                 onClick={() => handleSelect(thread)}
-                className={`p-3.5 transition-all cursor-pointer relative ${
+                className={`w-full text-left p-3.5 transition-all cursor-pointer relative ${
                   isActive
-                    ? 'bg-blue-50/70 dark:bg-[#131d35] border-l-4 border-l-blue-600'
-                    : 'hover:bg-slate-50/60 dark:hover:bg-white/[0.02]'
+                    ? 'bg-primary-muted/60 border-l-4 border-l-primary'
+                    : 'hover:bg-slate-50/60 dark:hover:bg-white/[0.02] border-l-4 border-l-transparent'
                 }`}
               >
-                {/* Header: Contact & Timestamp */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <img
-                      src={thread.avatar}
-                      alt={thread.contactName}
-                      className="w-7 h-7 rounded-full object-cover shrink-0 border border-slate-200 dark:border-[#2A2A2A]"
-                    />
+                    <img src={thread.avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-slate-200 dark:border-[#2A2A2A]" />
                     <div className="truncate">
                       <div className="flex items-center gap-1.5">
-                        <span className={`text-xs truncate ${thread.unread ? 'font-black text-slate-950 dark:text-white' : 'font-bold text-slate-800 dark:text-slate-200'}`}>
-                          {thread.contactName}
-                        </span>
-                        {thread.unread && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
-                        )}
+                        <span className={`text-xs truncate ${thread.unread ? 'font-black text-slate-950 dark:text-white' : 'font-bold text-slate-800 dark:text-slate-200'}`}>{thread.contactName}</span>
+                        {thread.unread && <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />}
                       </div>
-                      <div className="text-[11px] text-slate-400 truncate">
-                        {thread.companyName}
-                      </div>
+                      <div className="text-[11px] text-slate-400 truncate">{thread.companyName}</div>
                     </div>
                   </div>
-
-                  <span className="text-[10px] font-mono text-slate-400 shrink-0">
-                    {thread.timestamp}
-                  </span>
+                  <span className="text-[10px] font-mono text-slate-400 shrink-0">{thread.timestamp}</span>
                 </div>
 
-                {/* Last Message Snippet */}
-                <p className={`text-xs mt-1.5 line-clamp-1 ${thread.unread ? 'font-semibold text-slate-900 dark:text-slate-100' : 'text-slate-500 dark:text-slate-400'}`}>
-                  {thread.lastMessage}
-                </p>
+                <p className={`text-xs mt-1.5 line-clamp-1 ${thread.unread ? 'font-semibold text-slate-900 dark:text-slate-100' : 'text-slate-500 dark:text-slate-400'}`}>{thread.lastMessage}</p>
 
-                {/* Metadata Badges Strip */}
                 <div className="flex items-center justify-between gap-2 mt-2">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 min-w-0">
                     {getChannelIcon(thread.channel)}
+                    <span className="text-[10px] text-slate-500 font-semibold">{channelLabel(thread.channel)}</span>
                     {thread.interested && (
-                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
-                        <Flame className="w-2.5 h-2.5" />
-                        <span>Hot</span>
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
+                        <Flame className="w-2.5 h-2.5" /> Hot
                       </span>
                     )}
                     {thread.isMeeting && (
-                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-blue-50 dark:bg-white/[0.04] text-blue-600 dark:text-blue-400 text-[10px] font-bold">
-                        <Calendar className="w-2.5 h-2.5" />
-                        <span>Demo</span>
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-primary-muted text-primary text-[10px] font-bold">
+                        <Calendar className="w-2.5 h-2.5" /> Meeting
                       </span>
                     )}
                   </div>
 
-                  {thread.labels.length > 0 && (
-                    <span className="text-[10px] font-mono font-semibold text-slate-400 truncate max-w-[110px]">
-                      {thread.labels[0]}
-                    </span>
-                  )}
+                  {thread.accountName && <span className="text-[9px] font-mono text-slate-400 truncate max-w-[95px]">{thread.accountName}</span>}
                 </div>
-              </div>
+              </button>
             );
           })
         )}
       </div>
-
     </div>
   );
 };
