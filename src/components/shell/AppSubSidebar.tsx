@@ -637,7 +637,7 @@ export const AppSubSidebar: React.FC<AppSubSidebarProps> = ({
   const { currentWorkspace } = useAuth();
   const { orgData } = useSettings();
 
-  const storageKey = `outtricks_subsidebar_collapsed_${activePrimaryId}`;
+  const storageKey = 'outtricks_subsidebar_collapsed';
   const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
     try {
       return localStorage.getItem(storageKey) === 'true';
@@ -645,15 +645,6 @@ export const AppSubSidebar: React.FC<AppSubSidebarProps> = ({
       return false;
     }
   });
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      setIsCollapsed(saved === 'true');
-    } catch {
-      // ignore
-    }
-  }, [storageKey]);
 
   const toggleCollapse = () => {
     setIsCollapsed((prev) => {
@@ -750,134 +741,128 @@ export const AppSubSidebar: React.FC<AppSubSidebarProps> = ({
 
   return (
     <aside
-      className={`relative shrink-0 h-screen bg-slate-50 dark:bg-[#0F0F0F] border-r border-slate-200 dark:border-[#242424] flex flex-col justify-between font-sans select-none z-30 transition-all duration-200 ease-in-out ${
-        isCollapsed ? 'w-16 p-2' : 'w-56 p-3'
+      className={`relative shrink-0 h-screen bg-slate-50 dark:bg-[#0F0F0F] flex flex-col justify-between font-sans select-none z-30 transition-all duration-200 ease-in-out ${
+        isCollapsed 
+          ? 'w-0 p-0 border-r-0 overflow-visible' 
+          : 'w-56 p-3 border-r border-slate-200 dark:border-[#242424] overflow-visible'
       }`}
     >
       {/* Small Clean Collapse/Expand Button Centered on the Right Border */}
-      <button
-        type="button"
-        onClick={toggleCollapse}
-        aria-label={isCollapsed ? 'Expand navigation' : 'Collapse navigation'}
-        title={isCollapsed ? 'Expand navigation' : 'Collapse navigation'}
-        className="absolute -right-3 top-1/2 -translate-y-1/2 z-40 w-6 h-6 rounded-full bg-white dark:bg-[#161616] border border-slate-300 dark:border-[#2E2E2E] hover:border-primary text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-[#222222] shadow-md flex items-center justify-center transition-all duration-150 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
-      >
-        {isCollapsed ? (
-          <ChevronRight className="w-3.5 h-3.5 transition-transform" />
-        ) : (
-          <ChevronLeft className="w-3.5 h-3.5 transition-transform" />
-        )}
-      </button>
-
-      {/* Top Header & Navigation Items */}
-      <div className="flex-1 overflow-y-auto pr-0.5 no-scrollbar">
-        {/* Section Title (only when expanded) */}
-        {!isCollapsed && (
-          <div className="pt-2 px-2.5 flex items-center justify-between pb-1">
-            <span className="text-[13px] font-black text-slate-950 dark:text-white uppercase tracking-wider">
-              {config.sectionTitle}
-            </span>
-          </div>
-        )}
-
-        {/* Groups and Navigation Items */}
-        <div className={isCollapsed ? 'space-y-2 pt-2' : 'space-y-3 pt-1'}>
-          {(() => {
-            const allItems = config.groups.flatMap((group) => group.items);
-            const currentPath = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
-
-            // Resolve strictly ONE active item
-            const activeItem =
-              allItems.find((item) => {
-                const h = item.href.toLowerCase().replace(/\/$/, '') || '/';
-                return currentPath === h;
-              }) ||
-              allItems.find((item) => checkSubItemActive(item.href, location.pathname)) ||
-              allItems[0];
-
-            return config.groups.map((group, groupIdx) => (
-              <div key={groupIdx} className="space-y-1">
-                {/* Group Heading (only when expanded and heading is non-empty) */}
-                {!isCollapsed && group.heading ? (
-                  <div className="px-2.5 pt-2 pb-0.5 text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    {group.heading}
-                  </div>
-                ) : null}
-
-                {/* Items in this group */}
-                <div className={isCollapsed ? 'space-y-1.5 flex flex-col items-center' : 'space-y-[3px]'}>
-                  {group.items.map((item, itemIdx) => (
-                    <SubSidebarItem
-                      key={itemIdx}
-                      title={item.title}
-                      href={item.href}
-                      badge={item.badge}
-                      icon={item.icon}
-                      indented={item.indented}
-                      isCollapsed={isCollapsed}
-                      isActive={item === activeItem}
-                    />
-                  ))}
-                </div>
-              </div>
-            ));
-          })()}
-        </div>
+      <div className="absolute -right-3 top-1/2 -translate-y-1/2 z-40">
+        <Tooltip
+          content={isCollapsed ? 'Expand navigation' : 'Collapse navigation'}
+          placement="right"
+          delay={150}
+        >
+          <button
+            type="button"
+            onClick={toggleCollapse}
+            aria-label={isCollapsed ? 'Expand navigation' : 'Collapse navigation'}
+            title={isCollapsed ? 'Expand navigation' : 'Collapse navigation'}
+            className="w-6 h-6 rounded-full bg-white dark:bg-[#161616] border border-slate-300 dark:border-[#2E2E2E] hover:border-primary text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-[#222222] shadow-md flex items-center justify-center transition-all duration-150 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            {isCollapsed ? (
+              <ChevronRight className="w-3.5 h-3.5 transition-transform" />
+            ) : (
+              <ChevronLeft className="w-3.5 h-3.5 transition-transform" />
+            )}
+          </button>
+        </Tooltip>
       </div>
 
-      {/* Bottom Credits Component */}
-      {isCollapsed ? (
-        <div className="pt-3 border-t border-slate-200 dark:border-[#242424] flex justify-center">
-          <Tooltip content={`${credits.toLocaleString()} credits left`} placement="right">
-            <button
-              type="button"
-              onClick={() => {
-                const event = new CustomEvent('open-credit-topup');
-                window.dispatchEvent(event);
-              }}
-              className="w-10 h-10 rounded-xl bg-white dark:bg-[#151515] border border-slate-200 dark:border-[#2A2A2A] hover:border-primary text-primary flex items-center justify-center transition-all cursor-pointer group shadow-xs"
-              aria-label="Top up credits"
-            >
-              <Coins className="w-4 h-4 group-hover:scale-110 transition-transform" />
-            </button>
-          </Tooltip>
-        </div>
-      ) : (
-        <div className="pt-3 border-t border-slate-200 dark:border-[#242424]">
-          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#151515] border border-slate-200 dark:border-[#2A2A2A] shadow-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-base font-black text-slate-950 dark:text-white font-mono tracking-tight">
-                {credits.toLocaleString()}
-              </span>
-              <span className="text-[9px] font-extrabold text-slate-500 dark:text-[#B5B5B5] uppercase tracking-wider font-mono">
-                CREDITS LEFT
+      {!isCollapsed && (
+        <div className="flex-1 flex flex-col justify-between h-full overflow-hidden animate-in fade-in duration-150">
+          {/* Top Header & Navigation Items */}
+          <div className="flex-1 overflow-y-auto pr-0.5 no-scrollbar">
+            {/* Section Title */}
+            <div className="pt-2 px-2.5 flex items-center justify-between pb-1">
+              <span className="text-[13px] font-black text-slate-950 dark:text-white uppercase tracking-wider">
+                {config.sectionTitle}
               </span>
             </div>
 
-            {/* Progress Bar */}
-            <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-[#222222] overflow-hidden">
-              <div
-                className="h-full rounded-full bg-primary transition-all duration-300"
-                style={{ width: `${creditPercent}%` }}
-              />
+            {/* Groups and Navigation Items */}
+            <div className="space-y-3 pt-1">
+              {(() => {
+                const allItems = config.groups.flatMap((group) => group.items);
+                const currentPath = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+
+                // Resolve strictly ONE active item
+                const activeItem =
+                  allItems.find((item) => {
+                    const h = item.href.toLowerCase().replace(/\/$/, '') || '/';
+                    return currentPath === h;
+                  }) ||
+                  allItems.find((item) => checkSubItemActive(item.href, location.pathname)) ||
+                  allItems[0];
+
+                return config.groups.map((group, groupIdx) => (
+                  <div key={groupIdx} className="space-y-1">
+                    {/* Group Heading */}
+                    {group.heading ? (
+                      <div className="px-2.5 pt-2 pb-0.5 text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        {group.heading}
+                      </div>
+                    ) : null}
+
+                    {/* Items in this group */}
+                    <div className="space-y-[3px]">
+                      {group.items.map((item, itemIdx) => (
+                        <SubSidebarItem
+                          key={itemIdx}
+                          title={item.title}
+                          href={item.href}
+                          badge={item.badge}
+                          icon={item.icon}
+                          indented={item.indented}
+                          isCollapsed={false}
+                          isActive={item === activeItem}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ));
+              })()}
             </div>
+          </div>
 
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
-              1 credit = 1 contact search query
-            </p>
+          {/* Bottom Credits Component */}
+          <div className="pt-3 border-t border-slate-200 dark:border-[#242424]">
+            <div className="p-3.5 rounded-2xl bg-white dark:bg-[#151515] border border-slate-200 dark:border-[#2A2A2A] shadow-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-base font-black text-slate-950 dark:text-white font-mono tracking-tight">
+                  {credits.toLocaleString()}
+                </span>
+                <span className="text-[9px] font-extrabold text-slate-500 dark:text-[#B5B5B5] uppercase tracking-wider font-mono">
+                  CREDITS LEFT
+                </span>
+              </div>
 
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={() => {
-                  const event = new CustomEvent('open-credit-topup');
-                  window.dispatchEvent(event);
-                }}
-                className="w-full py-1.5 px-3 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-md shadow-primary/25 flex items-center justify-center gap-1 cursor-pointer"
-              >
-                <span>Top up</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
+              {/* Progress Bar */}
+              <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-[#222222] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-300"
+                  style={{ width: `${creditPercent}%` }}
+                />
+              </div>
+
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                1 credit = 1 contact search query
+              </p>
+
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const event = new CustomEvent('open-credit-topup');
+                    window.dispatchEvent(event);
+                  }}
+                  className="w-full py-1.5 px-3 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-md shadow-primary/25 flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <span>Top up</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
