@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   MousePointer, 
   Crosshair, 
@@ -12,13 +12,12 @@ import {
   Activity,
   Flame,
   Radio,
-  Check,
-  Eye
+  Check
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Switch } from '../ui/Switch';
-import { useCursor, CursorStyleId, CursorGlowIntensity, CursorSize, CursorMotion } from '../../context/CursorContext';
+import { useCursor, CursorStyleId, CursorGlowIntensity } from '../../context/CursorContext';
 import { useToast } from '../../context/ToastContext';
 
 export const SettingsMouseCursorView: React.FC = () => {
@@ -28,18 +27,12 @@ export const SettingsMouseCursorView: React.FC = () => {
     setGlowIntensity, 
     setGlowColor, 
     setCustomColorHex,
-    setSize, 
-    setMotion, 
     setEffectToggle, 
     resetToDefault,
     getComputedGlowColor
   } = useCursor();
 
   const { success, info } = useToast();
-
-  const [previewInputText, setPreviewInputText] = useState('');
-  const [previewToggle, setPreviewToggle] = useState(true);
-  const [previewClickCount, setPreviewClickCount] = useState(0);
 
   const CURSOR_STYLES: { id: CursorStyleId; title: string; desc: string; icon: any }[] = [
     { id: 'default', title: 'Platform Default', desc: 'Standard system cursor', icon: MousePointer },
@@ -267,91 +260,11 @@ export const SettingsMouseCursorView: React.FC = () => {
 
       </div>
 
-      {/* 4. Size & Motion Dynamics (Compact 2-Column) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        
-        {/* Scale Size */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-white/[0.06] shadow-xs space-y-3">
-          <div>
-            <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-              4. Cursor Scale
-            </h3>
-            <p className="text-[11px] text-slate-500">
-              Geometric dimensions of custom pointer graphics.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {[
-              { id: 'sm' as CursorSize, title: 'Small', desc: '16px' },
-              { id: 'md' as CursorSize, title: 'Medium', desc: '24px (Default)' },
-              { id: 'lg' as CursorSize, title: 'Large', desc: '32px' },
-              { id: 'xl' as CursorSize, title: 'Extra Large', desc: '40px' },
-            ].map((sz) => {
-              const isSelected = settings.size === sz.id;
-              return (
-                <button
-                  key={sz.id}
-                  type="button"
-                  onClick={() => setSize(sz.id)}
-                  className={`py-2 px-2 rounded-xl border text-center flex flex-col items-center justify-center transition-all cursor-pointer ${
-                    isSelected
-                      ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-500/[0.08] text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 font-bold'
-                      : 'border-slate-200/70 dark:border-white/[0.06] text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.02]'
-                  }`}
-                >
-                  <span className="text-xs font-semibold">{sz.title}</span>
-                  <span className="text-[10px] text-slate-400 font-mono mt-0.5">{sz.desc}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Motion Smoothness */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-white/[0.06] shadow-xs space-y-3">
-          <div>
-            <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-              5. Motion Dynamics
-            </h3>
-            <p className="text-[11px] text-slate-500">
-              Hardware sync and visual tracking interpolation.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {[
-              { id: 'standard' as CursorMotion, title: 'Standard', desc: '1:1 Instant (0ms Lag)' },
-              { id: 'smooth' as CursorMotion, title: 'Smooth', desc: 'Fluid Spring Lerp' },
-              { id: 'very-smooth' as CursorMotion, title: 'Very Smooth', desc: 'Aerodynamic Inertia' },
-            ].map((m) => {
-              const isSelected = settings.motion === m.id;
-              return (
-                <button
-                  key={m.id}
-                  type="button"
-                  onClick={() => setMotion(m.id)}
-                  className={`py-2 px-2.5 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
-                    isSelected
-                      ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-500/[0.08] text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 font-bold'
-                      : 'border-slate-200/70 dark:border-white/[0.06] text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.02]'
-                  }`}
-                >
-                  <span className="text-xs font-semibold">{m.title}</span>
-                  <span className="text-[10px] text-slate-400 mt-0.5">{m.desc}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-      </div>
-
-      {/* 5. Interaction Dynamics & Effect Toggles */}
+      {/* 4. Interaction Dynamics & Effect Toggles */}
       <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-white/[0.06] shadow-xs space-y-3">
         <div>
           <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-            6. Interactive Physics & Dynamics
+            4. Interactive Physics & Dynamics
           </h3>
           <p className="text-[11px] text-slate-500">
             Contextual micro-interactions and visual feedback across the platform.
@@ -421,83 +334,6 @@ export const SettingsMouseCursorView: React.FC = () => {
           </div>
 
         </div>
-      </div>
-
-      {/* 6. Live Interactive Playground Preview Zone */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-white/[0.06] shadow-xs space-y-3">
-        <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-white/[0.06]">
-          <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <div>
-              <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-                Interactive Playground
-              </h3>
-              <p className="text-[11px] text-slate-500">
-                Move your mouse, hover elements, test click ripples, and verify text input caret.
-              </p>
-            </div>
-          </div>
-
-          <Badge variant="slate" size="sm" className="font-mono">
-            Clicks: <strong className="text-emerald-600 dark:text-emerald-400 ml-1">{previewClickCount}</strong>
-          </Badge>
-        </div>
-
-        {/* Compact Playground Targets */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          
-          {/* Card 1: Buttons & Click Testing */}
-          <div className="p-3 rounded-xl bg-slate-50/60 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] space-y-2">
-            <div className="font-semibold text-slate-900 dark:text-white text-xs">Button Click Ripples</div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setPreviewClickCount((c) => c + 1)}
-                leftIcon={<Zap className="w-3.5 h-3.5" />}
-              >
-                Click Test
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setPreviewClickCount((c) => c + 1)}
-              >
-                Secondary
-              </Button>
-            </div>
-          </div>
-
-          {/* Card 2: Interactive Card & Hover States */}
-          <div className="p-3 rounded-xl bg-slate-50/60 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] hover:border-emerald-500/50 transition-all cursor-pointer group flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <div className="font-semibold text-slate-900 dark:text-white text-xs group-hover:text-emerald-500 transition-colors">
-                Magnetic Card Target
-              </div>
-              <Badge variant="emerald" size="sm">Hover Me</Badge>
-            </div>
-            <p className="text-[11px] text-slate-500 mt-1">
-              Tests hover scale and magnetic snapping.
-            </p>
-          </div>
-
-          {/* Card 3: Form Fields & Text Caret Verification */}
-          <div className="p-3 rounded-xl bg-slate-50/60 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="font-semibold text-slate-900 dark:text-white text-xs">Input Caret & Toggle</div>
-              <Switch checked={previewToggle} onChange={setPreviewToggle} />
-            </div>
-            <input
-              type="text"
-              placeholder="Hover here for natural text caret..."
-              value={previewInputText}
-              onChange={(e) => setPreviewInputText(e.target.value)}
-              className="w-full px-2.5 py-1 text-xs rounded-lg bg-white dark:bg-[#141414] border border-slate-200 dark:border-white/[0.1] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20"
-            />
-          </div>
-
-        </div>
-
       </div>
 
     </div>
