@@ -5,6 +5,7 @@ import { useEmail } from '../../context/EmailContext';
 import {
   EmailHeader,
   EmailOverview,
+  CampaignsList,
   EmailCampaignOperationsHub,
   EmailDeliverabilityHub,
   SequencesBuilder,
@@ -87,9 +88,8 @@ const AppColdEmailPageContent: React.FC = () => {
         )}
 
         {isCampaigns && (
-          <EmailCampaignOperationsHub
+          <CampaignsList
             onOpenCreateCampaign={() => setIsCreateCampaignOpen(true)}
-            onOpenCreateTemplate={() => setIsCreateTemplateOpen(true)}
           />
         )}
 
