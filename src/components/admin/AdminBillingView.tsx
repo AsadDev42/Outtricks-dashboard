@@ -25,9 +25,7 @@ export const AdminBillingView: React.FC<{ initialTab?: BillingTabType }> = ({ in
     if (p.includes('/workspace/subscriptions') || p.includes('/admin/subscriptions')) return 'subscriptions';
 
     const tabParam = searchParams.get('tab') as BillingTabType | null;
-    if (tabParam && ['subscriptions', 'payments', 'invoices', 'credits', 'coupons'].includes(tabParam)) {
-      return tabParam;
-    }
+    if (tabParam && ['subscriptions', 'payments', 'invoices', 'credits', 'coupons'].includes(tabParam)) return tabParam;
     return initialTab;
   };
 
@@ -43,9 +41,7 @@ export const AdminBillingView: React.FC<{ initialTab?: BillingTabType }> = ({ in
     else if (p.includes('/workspace/subscriptions') || p.includes('/admin/subscriptions')) nextTab = 'subscriptions';
     else {
       const tabParam = searchParams.get('tab') as BillingTabType | null;
-      if (tabParam && ['subscriptions', 'payments', 'invoices', 'credits', 'coupons'].includes(tabParam)) {
-        nextTab = tabParam;
-      }
+      if (tabParam && ['subscriptions', 'payments', 'invoices', 'credits', 'coupons'].includes(tabParam)) nextTab = tabParam;
     }
     setActiveTab(nextTab);
   }, [location.pathname, searchParams]);
@@ -70,8 +66,8 @@ export const AdminBillingView: React.FC<{ initialTab?: BillingTabType }> = ({ in
       icon={CreditCard}
       badges={[
         { label: `${subscriptions.length} Subscriptions`, variant: 'blue' },
-        { label: 'Auto-Renew Active', variant: 'emerald' },
-        { label: 'Stripe Verified', variant: 'slate' },
+        { label: 'Demo Billing Ledger', variant: 'slate' },
+        { label: 'Provider Connection Pending', variant: 'slate' },
       ]}
       tabs={tabs}
       activeTab={activeTab}

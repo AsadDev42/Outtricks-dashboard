@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
-import { 
-  EmailProvider, 
-  useEmail 
-} from '../../context/EmailContext';
-import { 
+import { useEmail } from '../../context/EmailContext';
+import {
   EmailHeader,
   EmailOverview,
-  CampaignsList,
+  EmailCampaignOperationsHub,
+  EmailDeliverabilityHub,
   SequencesBuilder,
   TemplatesLibrary,
   AbTestingView,
@@ -23,45 +21,53 @@ import {
   CreateCampaignModal,
   CreateSequenceModal,
   CreateTemplateModal,
-  ConnectMailboxModal
+  ConnectMailboxModal,
 } from '../../components/email';
 
 const AppColdEmailPageContent: React.FC = () => {
   const location = useLocation();
-  const { activeTab } = useEmail();
+  useEmail();
 
   const [isCreateCampaignOpen, setIsCreateCampaignOpen] = useState(false);
   const [isCreateSequenceOpen, setIsCreateSequenceOpen] = useState(false);
   const [isCreateTemplateOpen, setIsCreateTemplateOpen] = useState(false);
   const [isConnectMailboxOpen, setIsConnectMailboxOpen] = useState(false);
 
-  // Resolve active view from URL pathname
   const p = location.pathname.toLowerCase();
 
+  // Canonical six-destination Email IA.
+  const isMailboxes = p.includes('/mailboxes');
   const isSequences = p.includes('/sequences');
+  const isWarmup = p.includes('/warmup');
+  const isAnalytics = p.includes('/analytics');
+  const isDeliverabilityHub = p.endsWith('/deliverability');
+
+  // Legacy/deep routes remain supported so existing tabs and links do not break.
   const isTemplates = p.includes('/templates');
   const isLeads = p.includes('/leads');
   const isAbTesting = p.includes('/ab-testing');
-  const isMailboxes = p.includes('/mailboxes');
   const isInboxes = p.includes('/inboxes');
-  const isDomainsHealth = p.includes('/domains-health') || p.includes('/domains') || p.includes('/deliverability');
-  const isWarmup = p.includes('/warmup');
+  const isDomainsHealth = !isDeliverabilityHub && (p.includes('/domains-health') || p.includes('/domains'));
   const isInboxPlacement = p.includes('/inbox-placement') || p.includes('/placement');
   const isSuppression = p.includes('/suppression');
   const isSettings = p.includes('/settings');
-  const isAnalytics = p.includes('/analytics');
   const isOverview = p.includes('/overview');
-  const isCampaigns = !isSequences && !isTemplates && !isLeads && !isAbTesting && !isMailboxes && !isInboxes && !isDomainsHealth && !isWarmup && !isInboxPlacement && !isSuppression && !isSettings && !isAnalytics && !isOverview;
+
+  const isCampaigns =
+    p.endsWith('/campaigns') ||
+    p === '/email' ||
+    p === '/app/email' ||
+    (!isSequences && !isTemplates && !isLeads && !isAbTesting && !isMailboxes && !isInboxes && !isDomainsHealth && !isDeliverabilityHub && !isWarmup && !isInboxPlacement && !isSuppression && !isSettings && !isAnalytics && !isOverview);
 
   return (
     <div className="space-y-6 font-sans">
       <SEOHead
         title="Cold Email Outreach & Multi-Inbox Engine | Outtricks Platform"
-        description="Multi-inbox cold email rotation across 24+ Google Workspace & Microsoft 365 sender pools with deliverability health monitoring."
+        description="Multi-inbox cold email rotation, sequences, A/B tests, warmup, analytics and deliverability operations."
         noindex={true}
       />
 
-      {/* Top Header & Sub-Tab Bar - Rendered strictly on Campaigns */}
+      {/* Keep the Cold Email summary/header strictly on the Campaigns destination. */}
       {isCampaigns && (
         <EmailHeader
           onOpenCreateCampaign={() => setIsCreateCampaignOpen(true)}
@@ -70,7 +76,6 @@ const AppColdEmailPageContent: React.FC = () => {
         />
       )}
 
-      {/* Sub-Tab View Content */}
       <div className="animate-in fade-in duration-150">
         {isOverview && (
           <EmailOverview
@@ -82,89 +87,34 @@ const AppColdEmailPageContent: React.FC = () => {
         )}
 
         {isCampaigns && (
-          <CampaignsList
+          <EmailCampaignOperationsHub
             onOpenCreateCampaign={() => setIsCreateCampaignOpen(true)}
-          />
-        )}
-
-        {isSequences && (
-          <SequencesBuilder
-            onOpenCreateSequence={() => setIsCreateSequenceOpen(true)}
-          />
-        )}
-
-        {isTemplates && (
-          <TemplatesLibrary
             onOpenCreateTemplate={() => setIsCreateTemplateOpen(true)}
           />
         )}
 
-        {isLeads && (
-          <EmailLeadsView />
-        )}
-
-        {isAbTesting && (
-          <AbTestingView />
-        )}
-
-        {isMailboxes && (
-          <MailboxesManager
-            onOpenConnectMailbox={() => setIsConnectMailboxOpen(true)}
-          />
-        )}
-
-        {isInboxes && (
-          <EmailInboxesView />
-        )}
-
-        {isDomainsHealth && (
-          <DomainsHealthView />
-        )}
-
-        {isWarmup && (
-          <WarmupDashboard />
-        )}
-
-        {isInboxPlacement && (
-          <InboxPlacementView />
-        )}
-
-        {(isSuppression || isSettings) && (
-          <SuppressionManager />
-        )}
-
-        {isAnalytics && (
-          <EmailAnalyticsView />
-        )}
+        {isSequences && <SequencesBuilder onOpenCreateSequence={() => setIsCreateSequenceOpen(true)} />}
+        {isTemplates && <TemplatesLibrary onOpenCreateTemplate={() => setIsCreateTemplateOpen(true)} />}
+        {isLeads && <EmailLeadsView />}
+        {isAbTesting && <AbTestingView />}
+        {isMailboxes && <MailboxesManager onOpenConnectMailbox={() => setIsConnectMailboxOpen(true)} />}
+        {isInboxes && <EmailInboxesView />}
+        {isDeliverabilityHub && <EmailDeliverabilityHub />}
+        {isDomainsHealth && <DomainsHealthView />}
+        {isWarmup && <WarmupDashboard />}
+        {isInboxPlacement && <InboxPlacementView />}
+        {(isSuppression || isSettings) && <SuppressionManager />}
+        {isAnalytics && <EmailAnalyticsView />}
       </div>
 
-      {/* Modals */}
-      <CreateCampaignModal
-        isOpen={isCreateCampaignOpen}
-        onClose={() => setIsCreateCampaignOpen(false)}
-      />
-
-      <CreateSequenceModal
-        isOpen={isCreateSequenceOpen}
-        onClose={() => setIsCreateSequenceOpen(false)}
-      />
-
-      <CreateTemplateModal
-        isOpen={isCreateTemplateOpen}
-        onClose={() => setIsCreateTemplateOpen(false)}
-      />
-
-      <ConnectMailboxModal
-        isOpen={isConnectMailboxOpen}
-        onClose={() => setIsConnectMailboxOpen(false)}
-      />
-
+      <CreateCampaignModal isOpen={isCreateCampaignOpen} onClose={() => setIsCreateCampaignOpen(false)} />
+      <CreateSequenceModal isOpen={isCreateSequenceOpen} onClose={() => setIsCreateSequenceOpen(false)} />
+      <CreateTemplateModal isOpen={isCreateTemplateOpen} onClose={() => setIsCreateTemplateOpen(false)} />
+      <ConnectMailboxModal isOpen={isConnectMailboxOpen} onClose={() => setIsConnectMailboxOpen(false)} />
     </div>
   );
 };
 
-export const AppColdEmailPage: React.FC = () => {
-  return <AppColdEmailPageContent />;
-};
+export const AppColdEmailPage: React.FC = () => <AppColdEmailPageContent />;
 
 export default AppColdEmailPage;
