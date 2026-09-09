@@ -181,6 +181,23 @@ export interface LeadFilterState {
   includePastTitles: boolean;
   includePastCompanies: boolean;
   
+  // Extended Filter Builder Fields
+  educationSchools?: string[];
+  educationDegrees?: string[];
+  educationMajors?: string[];
+  graduationYearMin?: string;
+  graduationYearMax?: string;
+  headcountRangeType?: 'predefined' | 'custom' | 'unknown';
+  customHeadcountMin?: string;
+  customHeadcountMax?: string;
+  headcountGrowthMin?: string;
+  headcountGrowthMax?: string;
+  headcountGrowthTimeframe?: string;
+  headcountGrowthDepartment?: string[];
+  industryKeywords?: string[];
+  excludeIndustryKeywords?: string[];
+  keywordMatchMode?: 'any' | 'all';
+
   // Legacy compatibility props
   deliverability: 'all' | 'verified_only';
   hasPhone: boolean;
@@ -268,6 +285,22 @@ export const INITIAL_LEAD_FILTERS: LeadFilterState = {
   includeSimilarTitles: false,
   includePastTitles: false,
   includePastCompanies: false,
+
+  educationSchools: [],
+  educationDegrees: [],
+  educationMajors: [],
+  graduationYearMin: '',
+  graduationYearMax: '',
+  headcountRangeType: 'predefined',
+  customHeadcountMin: '',
+  customHeadcountMax: '',
+  headcountGrowthMin: '',
+  headcountGrowthMax: '',
+  headcountGrowthTimeframe: '12',
+  headcountGrowthDepartment: [],
+  industryKeywords: [],
+  excludeIndustryKeywords: [],
+  keywordMatchMode: 'any',
 
   deliverability: 'all',
   hasPhone: false,
@@ -1030,6 +1063,23 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           return leadInd.includes(cleanInd) || cleanInd.includes(leadInd);
         });
         if (matchesExcludeInd) return false;
+      }
+
+      // 5b. INDUSTRY KEYWORDS
+      if (filters.industryKeywords && filters.industryKeywords.length > 0) {
+        const text = `${lead.company} ${lead.industry} ${lead.title}`.toLowerCase();
+        if (filters.keywordMatchMode === 'all') {
+          const matchesAll = filters.industryKeywords.every((kw) => text.includes(kw.toLowerCase().trim()));
+          if (!matchesAll) return false;
+        } else {
+          const matchesAny = filters.industryKeywords.some((kw) => text.includes(kw.toLowerCase().trim()));
+          if (!matchesAny) return false;
+        }
+      }
+      if (filters.excludeIndustryKeywords && filters.excludeIndustryKeywords.length > 0) {
+        const text = `${lead.company} ${lead.industry} ${lead.title}`.toLowerCase();
+        const matchesExcludeKw = filters.excludeIndustryKeywords.some((kw) => text.includes(kw.toLowerCase().trim()));
+        if (matchesExcludeKw) return false;
       }
 
       // 6. COMPANY TYPE
