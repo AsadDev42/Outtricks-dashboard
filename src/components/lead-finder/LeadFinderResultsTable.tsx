@@ -34,8 +34,7 @@ import {
   RotateCcw,
   RefreshCw,
   Lock,
-  Sliders,
-  MapPin
+  Sliders
 } from 'lucide-react';
 
 import { useAuth } from '../../context/AuthContext';
@@ -43,37 +42,53 @@ import { useCrm } from '../../context/CrmContext';
 import { useToast } from '../../context/ToastContext';
 
 /**
- * Formats lead location following clean B2B hierarchy:
- * 1. City, State/Region (preferred when state/region exists, e.g. Seattle, Washington)
- * 2. City, Country (when state is not available, e.g. Hamburg, Germany)
- * 3. State/Region, Country (if city is not available, e.g. West Java, Indonesia)
- * 4. Country only (e.g. United States)
- * 5. Fallback from lead.location
- * 6. "—"
+ * Formats lead location following clean B2B priority hierarchy:
+ * 1. City / Metro + State/Region + Country (e.g. Boston, Massachusetts, United States)
+ * 2. City + Country (e.g. Paris, France)
+ * 3. Country (e.g. United States)
+ * 4. Fallback if location unknown: —
  */
 export function formatLeadLocation(lead: LeadDetailData): string {
-  if (lead.city && (lead.state || lead.region)) {
-    return `${lead.city}, ${lead.state || lead.region}`;
-  }
-  if (lead.city && lead.country) {
-    return `${lead.city}, ${lead.country}`;
-  }
-  if ((lead.state || lead.region) && lead.country) {
-    return `${lead.state || lead.region}, ${lead.country}`;
-  }
-  if (lead.city) return lead.city;
-  if (lead.state || lead.region) return (lead.state || lead.region)!;
-  if (lead.country) return lead.country;
+  const cityOrMetro = lead.metro || lead.city;
+  const stateOrRegion = lead.state || lead.region;
+  const country = lead.country;
 
+  // 1. City / Metro + State/Region + Country
+  if (cityOrMetro && stateOrRegion && country) {
+    return `${cityOrMetro}, ${stateOrRegion}, ${country}`;
+  }
+
+  // 2. City + Country
+  if (cityOrMetro && country) {
+    return `${cityOrMetro}, ${country}`;
+  }
+
+  // City / Metro + State/Region (if country not specified)
+  if (cityOrMetro && stateOrRegion) {
+    return `${cityOrMetro}, ${stateOrRegion}`;
+  }
+
+  // State/Region + Country
+  if (stateOrRegion && country) {
+    return `${stateOrRegion}, ${country}`;
+  }
+
+  // 3. Country
+  if (country) {
+    return country;
+  }
+
+  // City / Metro only
+  if (cityOrMetro) {
+    return cityOrMetro;
+  }
+
+  // If formatted directly in lead.location (e.g. "San Francisco Bay Area, United States", "Paris, France")
   if (lead.location && lead.location.trim()) {
-    const raw = lead.location.trim();
-    const parts = raw.split(',').map((p) => p.trim()).filter(Boolean);
-    if (parts.length >= 3) {
-      return `${parts[0]}, ${parts[1]}`;
-    }
-    return raw;
+    return lead.location.trim();
   }
 
+  // 4. Fallback if location unknown
   return '—';
 }
 
@@ -528,14 +543,11 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
 
                 {/* Location */}
                 <TableCell className="min-w-[130px] max-w-[180px] p-3 sm:p-4 align-middle">
-                  <div className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span
-                      className="truncate font-medium text-slate-800 dark:text-slate-200"
-                      title={displayLocation !== '—' ? (lead.location || displayLocation) : undefined}
-                    >
-                      {displayLocation}
-                    </span>
+                  <div
+                    className="text-xs text-slate-600 dark:text-slate-400 truncate leading-snug font-normal"
+                    title={displayLocation !== '—' ? displayLocation : undefined}
+                  >
+                    {displayLocation}
                   </div>
                 </TableCell>
 
