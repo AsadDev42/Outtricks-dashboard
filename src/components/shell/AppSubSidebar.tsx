@@ -230,14 +230,47 @@ export const SUB_SIDEBAR_CONFIGS: Record<string, SubSidebarConfig> = {
       {
         heading: '',
         items: [
-          { title: 'Overview', href: '/voice-ai/overview', icon: BarChart3 },
-          { title: 'Call Console & Live Center', href: '/voice-ai/call-center', icon: Headphones },
-          { title: 'Voice Agents & Prompts', href: '/voice-ai/ai-agents', icon: Bot },
-          { title: 'Voice Campaigns', href: '/voice-ai/campaigns', icon: PhoneForwarded },
-          { title: 'Call History & Recordings', href: '/voice-ai/history', icon: History },
-          { title: 'Phone Numbers', href: '/voice-ai/phone-numbers', icon: Hash },
-          { title: 'Analytics & Transcripts', href: '/voice-ai/analytics', icon: Activity },
-          { title: 'CRM Sync & Knowledge', href: '/voice-ai/crm-sync', icon: Database },
+          { title: 'Overview', href: '/calls', icon: BarChart3 },
+          { title: 'AI Agents', href: '/calls/ai-agents', icon: Bot },
+          { title: 'Phone Numbers', href: '/calls/phone-numbers', icon: Hash },
+          { title: 'Campaigns', href: '/calls/campaigns', icon: PhoneForwarded },
+          { title: 'Call History', href: '/calls/history', icon: History },
+          { title: 'Analytics', href: '/calls/analytics', icon: Activity },
+          { title: 'Settings', href: '/calls/settings', icon: Settings },
+        ],
+      },
+    ],
+  },
+  voice: {
+    sectionTitle: 'Calls',
+    groups: [
+      {
+        heading: '',
+        items: [
+          { title: 'Overview', href: '/calls', icon: BarChart3 },
+          { title: 'AI Agents', href: '/calls/ai-agents', icon: Bot },
+          { title: 'Phone Numbers', href: '/calls/phone-numbers', icon: Hash },
+          { title: 'Campaigns', href: '/calls/campaigns', icon: PhoneForwarded },
+          { title: 'Call History', href: '/calls/history', icon: History },
+          { title: 'Analytics', href: '/calls/analytics', icon: Activity },
+          { title: 'Settings', href: '/calls/settings', icon: Settings },
+        ],
+      },
+    ],
+  },
+  'voice-ai': {
+    sectionTitle: 'Calls',
+    groups: [
+      {
+        heading: '',
+        items: [
+          { title: 'Overview', href: '/calls', icon: BarChart3 },
+          { title: 'AI Agents', href: '/calls/ai-agents', icon: Bot },
+          { title: 'Phone Numbers', href: '/calls/phone-numbers', icon: Hash },
+          { title: 'Campaigns', href: '/calls/campaigns', icon: PhoneForwarded },
+          { title: 'Call History', href: '/calls/history', icon: History },
+          { title: 'Analytics', href: '/calls/analytics', icon: Activity },
+          { title: 'Settings', href: '/calls/settings', icon: Settings },
         ],
       },
     ],
@@ -563,24 +596,48 @@ export function checkSubItemActive(itemHref: string, currentPath: string): boole
   if (h === '/linkedin/analytics' && (p === '/linkedin/analytics' || p.startsWith('/linkedin/analytics/'))) return true;
   if (h === '/linkedin/settings' && (p === '/linkedin/settings' || p.startsWith('/linkedin/settings/'))) return true;
 
-  // 11. Calls / Voice AI
-  if (h === '/voice-ai/overview' && (
-    p === '/voice-ai' || p === '/calls' || p === '/voice-ai/overview' || p === '/calls/overview' ||
-    p === '/app/voice-ai' || p === '/app/calls' || p === '/app/voice-ai/overview' || p === '/app/calls/overview'
+  // 11. Calls
+  if ((h === '/calls' || h === '/calls/overview' || h === '/voice-ai' || h === '/voice-ai/overview') && (
+    p === '/calls' || p === '/calls/overview' || p === '/voice-ai' || p === '/voice-ai/overview' ||
+    p === '/voice' || p === '/voice/overview' ||
+    p === '/app/calls' || p === '/app/calls/overview' || p === '/app/voice-ai' || p === '/app/voice-ai/overview' || p === '/app/voice'
   )) return true;
-  if (h === '/voice-ai/call-center' && (
-    p === '/voice-ai/call-center' || p === '/calls/call-center' ||
-    p === '/app/voice-ai/call-center' || p === '/app/calls/call-center'
+  if ((h === '/calls/ai-agents' || h === '/voice-ai/ai-agents') && (
+    p === '/calls/ai-agents' || p.startsWith('/calls/ai-agents/') ||
+    p === '/voice-ai/ai-agents' || p.startsWith('/voice-ai/ai-agents/') ||
+    p === '/calls/agents' || p === '/voice-ai/agents' ||
+    p === '/app/calls/ai-agents' || p === '/app/voice-ai/ai-agents'
   )) return true;
-  if (h === '/voice-ai/ai-agents' && (p === '/voice-ai/ai-agents' || p === '/calls/ai-agents')) return true;
-  if (h === '/voice-ai/campaigns' && (p === '/voice-ai/campaigns' || p === '/calls/campaigns' || p === '/voice-ai/queue' || p === '/calls/queue')) return true;
-  if (h === '/voice-ai/history' && (p === '/voice-ai/history' || p === '/calls/history')) return true;
-  if (h === '/voice-ai/phone-numbers' && (p === '/voice-ai/phone-numbers' || p === '/calls/phone-numbers')) return true;
-  if (h === '/voice-ai/analytics' && (p === '/voice-ai/analytics' || p === '/calls/analytics')) return true;
-  if (h === '/voice-ai/crm-sync' && (
-    p === '/voice-ai/crm-sync' || p === '/calls/crm-sync' ||
-    p === '/voice-ai/knowledge' || p === '/calls/knowledge' ||
-    p === '/voice-ai/contacts' || p === '/calls/contacts'
+  if ((h === '/calls/phone-numbers' || h === '/voice-ai/phone-numbers') && (
+    p === '/calls/phone-numbers' || p.startsWith('/calls/phone-numbers/') ||
+    p === '/voice-ai/phone-numbers' || p.startsWith('/voice-ai/phone-numbers/') ||
+    p === '/calls/numbers' || p === '/voice-ai/numbers' ||
+    p === '/app/calls/phone-numbers' || p === '/app/voice-ai/phone-numbers'
+  )) return true;
+  if ((h === '/calls/campaigns' || h === '/voice-ai/campaigns') && (
+    p === '/calls/campaigns' || p.startsWith('/calls/campaigns/') ||
+    p === '/voice-ai/campaigns' || p.startsWith('/voice-ai/campaigns/') ||
+    p === '/calls/queue' || p === '/voice-ai/queue' ||
+    p === '/app/calls/campaigns' || p === '/app/voice-ai/campaigns'
+  )) return true;
+  if ((h === '/calls/history' || h === '/voice-ai/history') && (
+    p === '/calls/history' || p.startsWith('/calls/history/') ||
+    p === '/voice-ai/history' || p.startsWith('/voice-ai/history/') ||
+    p === '/calls/recordings' || p === '/voice-ai/recordings' ||
+    p === '/app/calls/history' || p === '/app/voice-ai/history'
+  )) return true;
+  if ((h === '/calls/analytics' || h === '/voice-ai/analytics') && (
+    p === '/calls/analytics' || p.startsWith('/calls/analytics/') ||
+    p === '/voice-ai/analytics' || p.startsWith('/voice-ai/analytics/') ||
+    p === '/calls/transcripts' || p === '/voice-ai/transcripts' ||
+    p === '/app/calls/analytics' || p === '/app/voice-ai/analytics'
+  )) return true;
+  if ((h === '/calls/settings' || h === '/voice-ai/settings') && (
+    p === '/calls/settings' || p.startsWith('/calls/settings/') ||
+    p === '/voice-ai/settings' || p.startsWith('/voice-ai/settings/') ||
+    p === '/calls/crm-sync' || p === '/voice-ai/crm-sync' ||
+    p === '/calls/knowledge' || p === '/voice-ai/knowledge' ||
+    p === '/app/calls/settings' || p === '/app/voice-ai/settings'
   )) return true;
 
   // 12. Analytics Hub & Revenue
@@ -781,7 +838,7 @@ export const AppSubSidebar: React.FC<AppSubSidebarProps> = ({
             </div>
 
             {/* Groups and Navigation Items */}
-            <div className="space-y-3 pt-1">
+            <nav aria-label={`${config.sectionTitle} Navigation`} className="space-y-3 pt-1">
               {(() => {
                 const allItems = config.groups.flatMap((group) => group.items);
                 const currentPath = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
@@ -822,7 +879,7 @@ export const AppSubSidebar: React.FC<AppSubSidebarProps> = ({
                   </div>
                 ));
               })()}
-            </div>
+            </nav>
           </div>
 
           {/* Bottom Credits Component */}

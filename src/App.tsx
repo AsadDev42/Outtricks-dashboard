@@ -183,14 +183,18 @@ export const App: React.FC = () => {
                                                   <Route path="/app/linkedin/*" element={<LinkedInPage />} />
 
                                                   {/* 8. Calls & Voice AI SDR */}
-                                                  <Route path="/voice-ai" element={<AppVoiceAiPage />} />
-                                                  <Route path="/voice-ai/*" element={<AppVoiceAiPage />} />
                                                   <Route path="/calls" element={<AppVoiceAiPage />} />
                                                   <Route path="/calls/*" element={<AppVoiceAiPage />} />
-                                                  <Route path="/app/voice-ai" element={<AppVoiceAiPage />} />
-                                                  <Route path="/app/voice-ai/*" element={<AppVoiceAiPage />} />
+                                                  <Route path="/voice-ai" element={<AppVoiceAiPage />} />
+                                                  <Route path="/voice-ai/*" element={<AppVoiceAiPage />} />
+                                                  <Route path="/voice" element={<AppVoiceAiPage />} />
+                                                  <Route path="/voice/*" element={<AppVoiceAiPage />} />
                                                   <Route path="/app/calls" element={<AppVoiceAiPage />} />
                                                   <Route path="/app/calls/*" element={<AppVoiceAiPage />} />
+                                                  <Route path="/app/voice-ai" element={<AppVoiceAiPage />} />
+                                                  <Route path="/app/voice-ai/*" element={<AppVoiceAiPage />} />
+                                                  <Route path="/app/voice" element={<AppVoiceAiPage />} />
+                                                  <Route path="/app/voice/*" element={<AppVoiceAiPage />} />
 
                                                    {/* 9. Upwork / Work Prospecting & Bidding Studio */}
                                                    <Route path="/upwork" element={<AppUpworkPage />} />

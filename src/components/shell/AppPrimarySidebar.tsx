@@ -8,6 +8,7 @@ import {
   Linkedin, 
   Briefcase, 
   Mail, 
+  PhoneCall,
   Workflow, 
   BarChart3, 
   Layers,
@@ -36,6 +37,7 @@ export const PRIMARY_NAV_ITEMS: PrimaryNavItem[] = [
   { id: 'linkedin', title: 'LinkedIn', label: 'LinkedIn', href: '/linkedin', path: '/linkedin', icon: Linkedin, matchPrefixes: ['/linkedin'], badge: null },
   { id: 'upwork', title: 'Upwork', label: 'Upwork', href: '/upwork/jobs', path: '/upwork/jobs', icon: Briefcase, matchPrefixes: ['/upwork', '/work', '/intelligence'], badge: null },
   { id: 'email', title: 'Email', label: 'Email', href: '/email', path: '/email', icon: Mail, matchPrefixes: ['/email', '/cold-email', '/deliverability', '/app/email', '/app/cold-email', '/app/deliverability'], badge: null },
+  { id: 'calls', title: 'Calls', label: 'Calls', href: '/calls', path: '/calls', icon: PhoneCall, matchPrefixes: ['/calls', '/voice', '/voice-ai', '/app/calls', '/app/voice-ai'], badge: null },
   { id: 'automation', title: 'Automation', label: 'Automation', href: '/flow-builder', path: '/flow-builder', icon: Workflow, matchPrefixes: ['/flow-builder', '/workflows', '/automation', '/integrations', '/api'], badge: null },
   { id: 'analytics', title: 'Analytics', label: 'Analytics', href: '/analytics', path: '/analytics', icon: BarChart3, matchPrefixes: ['/analytics', '/platform/analytics'], badge: null },
   { id: 'crm', title: 'CRM', label: 'CRM', href: '/crm', path: '/crm', icon: Layers, matchPrefixes: ['/crm', '/contacts', '/people', '/companies', '/accounts', '/pipeline', '/deals', '/leads', '/activities', '/reminders'], badge: null },
@@ -102,7 +104,7 @@ export const AppPrimarySidebar: React.FC<AppPrimarySidebarProps> = ({
 
   // Guarantee all items are visible, preserving Workspace and Settings
   const visibleNavItems = PRIMARY_NAV_ITEMS.filter((item) => {
-    if (item.id === 'workspace' || item.id === 'admin' || item.id === 'settings') {
+    if (item.id === 'workspace' || item.id === 'admin' || item.id === 'settings' || item.id === 'calls') {
       return true;
     }
     if (item.id === 'master-inbox' || item.id === 'master-box') {

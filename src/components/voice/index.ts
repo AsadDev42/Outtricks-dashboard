@@ -16,3 +16,4 @@ export * from './CreateVoiceCampaignModal';
 export * from './BuyNumberModal';
 export * from './VoiceAiQueueView';
 export * from './VoiceContactsView';
+export * from './VoiceSettingsView';

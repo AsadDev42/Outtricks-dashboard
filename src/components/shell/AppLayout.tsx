@@ -81,6 +81,21 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       return 'email';
     }
 
+    if (
+      p === '/calls' ||
+      p.startsWith('/calls/') ||
+      p === '/voice' ||
+      p.startsWith('/voice/') ||
+      p === '/voice-ai' ||
+      p.startsWith('/voice-ai/') ||
+      p === '/app/calls' ||
+      p.startsWith('/app/calls/') ||
+      p === '/app/voice-ai' ||
+      p.startsWith('/app/voice-ai/')
+    ) {
+      return 'calls';
+    }
+
     const sorted = [...PRIMARY_NAV_ITEMS].sort((a, b) => {
       const maxA = Math.max(...a.matchPrefixes.map((prefix) => prefix.length));
       const maxB = Math.max(...b.matchPrefixes.map((prefix) => prefix.length));

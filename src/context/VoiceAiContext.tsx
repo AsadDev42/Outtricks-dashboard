@@ -16,7 +16,8 @@ export type VoiceAiTabType =
   | 'knowledge' 
   | 'crm-sync'
   | 'queue'
-  | 'contacts';
+  | 'contacts'
+  | 'settings';
 
 export interface ActiveCallState {
   id: string;

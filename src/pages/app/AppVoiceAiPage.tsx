@@ -22,6 +22,7 @@ import {
   VoiceCrmSyncView,
   VoiceAiQueueView,
   VoiceContactsView,
+  VoiceSettingsView,
   CreateAiAgentModal,
   CreateVoiceCampaignModal,
   BuyNumberModal
@@ -41,21 +42,29 @@ const AppVoiceAiPageContent: React.FC = () => {
     const p = location.pathname.toLowerCase();
     let resolvedTab: VoiceAiTabType | null = null;
 
-    if (p.includes('/ai-agents')) resolvedTab = 'ai-agents';
+    if (p.includes('/ai-agents') || p.includes('/agents')) resolvedTab = 'ai-agents';
     else if (p.includes('/campaigns')) resolvedTab = 'campaigns';
     else if (p.includes('/queue')) resolvedTab = 'queue';
     else if (p.includes('/contacts')) resolvedTab = 'contacts';
     else if (p.includes('/flows')) resolvedTab = 'flows';
     else if (p.includes('/intent')) resolvedTab = 'intent';
     else if (p.includes('/objections')) resolvedTab = 'objections';
-    else if (p.includes('/history')) resolvedTab = 'history';
-    else if (p.includes('/analytics')) resolvedTab = 'analytics';
-    else if (p.includes('/phone-numbers') || p.includes('/numbers') || p.includes('/settings')) resolvedTab = 'phone-numbers';
+    else if (p.includes('/history') || p.includes('/recordings')) resolvedTab = 'history';
+    else if (p.includes('/analytics') || p.includes('/transcripts')) resolvedTab = 'analytics';
+    else if (p.includes('/phone-numbers') || p.includes('/numbers')) resolvedTab = 'phone-numbers';
+    else if (p.includes('/settings') || p.includes('/config')) resolvedTab = 'settings';
     else if (p.includes('/knowledge')) resolvedTab = 'knowledge';
     else if (p.includes('/crm-sync')) resolvedTab = 'crm-sync';
-    else if (p.includes('/call-center')) resolvedTab = 'call-center';
+    else if (p.includes('/call-center') || p.includes('/live')) resolvedTab = 'call-center';
     else if (p.includes('/overview')) resolvedTab = 'overview';
-    else if (p === '/voice-ai' || p === '/calls' || p === '/app/voice-ai' || p === '/app/calls') {
+    else if (
+      p === '/voice-ai' || 
+      p === '/calls' || 
+      p === '/voice' || 
+      p === '/app/voice-ai' || 
+      p === '/app/calls' || 
+      p === '/app/voice'
+    ) {
       const tabParam = searchParams.get('tab') as VoiceAiTabType | null;
       if (tabParam) {
         resolvedTab = tabParam;
@@ -150,6 +159,12 @@ const AppVoiceAiPageContent: React.FC = () => {
 
         {activeTab === 'contacts' && (
           <VoiceContactsView />
+        )}
+
+        {activeTab === 'settings' && (
+          <VoiceSettingsView
+            onOpenBuyNumber={() => setIsBuyNumberOpen(true)}
+          />
         )}
       </div>
 

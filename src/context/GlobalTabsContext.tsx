@@ -209,26 +209,31 @@ export function getRouteMetadata(pathname: string): { title: string; module: str
 
   // 8. Calls / Voice SDR
   if (
-    p === '/voice-ai' ||
-    p === '/voice-ai/call-center' ||
     p === '/calls' ||
+    p === '/calls/overview' ||
+    p === '/voice-ai' ||
+    p === '/voice-ai/overview' ||
+    p === '/voice' ||
+    p === '/voice/overview' ||
     p === '/calls/call-center' ||
+    p === '/voice-ai/call-center' ||
     p === '/app/voice-ai' ||
     p === '/app/calls'
   ) {
-    return { title: 'Voice SDR', module: 'calls' };
+    return { title: 'Calls Overview', module: 'calls' };
   }
-  if (p.includes('/ai-agents')) return { title: 'Voice AI Agents', module: 'calls' };
-  if (p.includes('/campaigns')) return { title: 'Voice Campaigns', module: 'calls' };
+  if (p.startsWith('/calls/ai-agents') || p.startsWith('/voice-ai/ai-agents')) return { title: 'AI Agents', module: 'calls' };
+  if (p.startsWith('/calls/phone-numbers') || p.startsWith('/voice-ai/phone-numbers')) return { title: 'Phone Numbers', module: 'calls' };
+  if (p.startsWith('/calls/campaigns') || p.startsWith('/voice-ai/campaigns')) return { title: 'Voice Campaigns', module: 'calls' };
+  if (p.startsWith('/calls/history') || p.startsWith('/voice-ai/history')) return { title: 'Call History', module: 'calls' };
+  if (p.startsWith('/calls/analytics') || p.startsWith('/voice-ai/analytics')) return { title: 'Voice Analytics', module: 'calls' };
+  if (p.startsWith('/calls/settings') || p.startsWith('/voice-ai/settings')) return { title: 'Calls Settings', module: 'calls' };
   if (p.includes('/intent')) return { title: 'Intent Detection', module: 'calls' };
   if (p.includes('/objections')) return { title: 'Objection Handling', module: 'calls' };
-  if (p.includes('/history')) return { title: 'Call History', module: 'calls' };
-  if (p.includes('/analytics')) return { title: 'Voice Analytics', module: 'calls' };
-  if (p.includes('/phone-numbers')) return { title: 'Phone Numbers', module: 'calls' };
   if (p.includes('/knowledge')) return { title: 'Voice Knowledge', module: 'calls' };
   if (p.includes('/crm-sync')) return { title: 'CRM Sync', module: 'calls' };
-  if (p.startsWith('/voice-ai') || p.startsWith('/calls') || p.startsWith('/app/voice-ai') || p.startsWith('/app/calls')) {
-    return { title: 'Voice SDR', module: 'calls' };
+  if (p.startsWith('/voice-ai') || p.startsWith('/calls') || p.startsWith('/voice') || p.startsWith('/app/voice-ai') || p.startsWith('/app/calls')) {
+    return { title: 'Calls', module: 'calls' };
   }
 
   // 9. Upwork Studio
