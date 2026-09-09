@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Search,
   Mail,
@@ -52,6 +52,75 @@ export const ConversationList: React.FC<ConversationListProps> = ({
 
   const [isFilterPopoverOpen, setIsFilterPopoverOpen] = useState(false);
 
+  // Quick-filter horizontal drag-to-scroll state & refs
+  const pillsContainerRef = useRef<HTMLDivElement>(null);
+  const isPointerDownRef = useRef(false);
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const startScrollLeftRef = useRef(0);
+  const [isDraggingState, setIsDraggingState] = useState(false);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Only primary mouse button or touch
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    const container = pillsContainerRef.current;
+    if (!container) return;
+
+    isPointerDownRef.current = true;
+    isDraggingRef.current = false;
+    startXRef.current = e.clientX;
+    startScrollLeftRef.current = container.scrollLeft;
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isPointerDownRef.current) return;
+    const container = pillsContainerRef.current;
+    if (!container) return;
+
+    const deltaX = e.clientX - startXRef.current;
+
+    // Movement exceeds threshold -> treat as drag-scroll
+    if (!isDraggingRef.current && Math.abs(deltaX) > 4) {
+      isDraggingRef.current = true;
+      setIsDraggingState(true);
+      try {
+        container.setPointerCapture(e.pointerId);
+      } catch {
+        // pointer capture fallback
+      }
+    }
+
+    if (isDraggingRef.current) {
+      e.preventDefault();
+      container.scrollLeft = startScrollLeftRef.current - deltaX;
+    }
+  };
+
+  const handlePointerUpOrCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isPointerDownRef.current) return;
+    isPointerDownRef.current = false;
+
+    const container = pillsContainerRef.current;
+    if (container && isDraggingRef.current) {
+      try {
+        if (container.hasPointerCapture(e.pointerId)) {
+          container.releasePointerCapture(e.pointerId);
+        }
+      } catch {
+        // pointer capture fallback
+      }
+    }
+
+    if (isDraggingRef.current) {
+      setTimeout(() => {
+        isDraggingRef.current = false;
+        setIsDraggingState(false);
+      }, 50);
+    } else {
+      setIsDraggingState(false);
+    }
+  };
+
   const hasActiveFilters = selectedAccountIds.length > 0 || filterChannel !== 'all' || filterLabel !== 'all' || filterAssignee !== 'all';
   const activeFiltersCount = selectedAccountIds.length + (filterChannel !== 'all' ? 1 : 0) + (filterLabel !== 'all' ? 1 : 0) + (filterAssignee !== 'all' ? 1 : 0);
 
@@ -103,7 +172,17 @@ export const ConversationList: React.FC<ConversationListProps> = ({
   return (
     <div className="w-full border-r border-slate-200/80 dark:border-[#2A2A2A] bg-white dark:bg-[#161616] flex flex-col h-full font-sans">
       <div className="p-3 border-b border-slate-200/80 dark:border-[#2A2A2A] space-y-2.5 bg-white dark:bg-[#161616] shrink-0">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+        <div
+          ref={pillsContainerRef}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUpOrCancel}
+          onPointerCancel={handlePointerUpOrCancel}
+          style={{ touchAction: 'pan-x' }}
+          className={`flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 select-none ${
+            isDraggingState ? 'cursor-grabbing' : 'cursor-grab'
+          }`}
+        >
           {FOLDER_PILLS.map((pill) => {
             const active = activeFolder === pill.id;
             const Icon = pill.icon;
@@ -111,8 +190,17 @@ export const ConversationList: React.FC<ConversationListProps> = ({
               <button
                 key={pill.id}
                 type="button"
-                onClick={() => handleSelectFolder(pill.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
+                onClick={(e) => {
+                  if (isDraggingRef.current) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  handleSelectFolder(pill.id);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 ${
+                  isDraggingState ? 'cursor-grabbing' : 'cursor-pointer'
+                } ${
                   active
                     ? 'bg-primary text-white shadow-xs'
                     : 'bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.08]'
