@@ -13,6 +13,7 @@ export interface IncludeExcludeFilterGroupProps {
   excludePlaceholder?: string;
   searchPlaceholder?: string;
   allowCustom?: boolean;
+  countNoun?: string;
   extraControls?: React.ReactNode;
   className?: string;
 }
@@ -29,6 +30,7 @@ export const IncludeExcludeFilterGroup: React.FC<IncludeExcludeFilterGroupProps>
   excludePlaceholder = 'Search to exclude...',
   searchPlaceholder,
   allowCustom = true,
+  countNoun,
   extraControls,
   className = '',
 }) => {
@@ -107,6 +109,7 @@ export const IncludeExcludeFilterGroup: React.FC<IncludeExcludeFilterGroupProps>
           placeholder={includePlaceholder}
           searchPlaceholder={searchPlaceholder || includePlaceholder}
           allowCustom={allowCustom}
+          countNoun={countNoun}
           maxDisplayPills={2}
         />
       </div>
@@ -132,6 +135,7 @@ export const IncludeExcludeFilterGroup: React.FC<IncludeExcludeFilterGroupProps>
           placeholder={excludePlaceholder}
           searchPlaceholder={searchPlaceholder || excludePlaceholder}
           allowCustom={allowCustom}
+          countNoun={countNoun}
           maxDisplayPills={2}
         />
       </div>

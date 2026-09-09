@@ -31,6 +31,7 @@ import { useLeadSearch, LeadFilterState, CustomFilterRule, INITIAL_LEAD_FILTERS 
 import { Button } from '../ui/Button';
 import { SearchableMultiSelect } from '../ui/SearchableMultiSelect';
 import { IncludeExcludeFilterGroup } from '../ui/IncludeExcludeFilterGroup';
+import { LeadFinderLocationFilter } from './LeadFinderLocationFilter';
 import { LeadFinderCompanyDomainFilter } from './LeadFinderCompanyDomainFilter';
 import { leadFilterOptions } from '../../data/leadFilterOptions';
 
@@ -108,10 +109,13 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
     if (draft.departments.length > 0) count += draft.departments.length;
     if (draft.excludeDepartments && draft.excludeDepartments.length > 0) count += draft.excludeDepartments.length;
     if (draft.seniority.length > 0) count += draft.seniority.length;
-    if (draft.locations.length > 0) count += draft.locations.length;
-    if (draft.excludeLocations && draft.excludeLocations.length > 0) count += draft.excludeLocations.length;
-    if (draft.statesRegions && draft.statesRegions.length > 0) count += draft.statesRegions.length;
-    if (draft.cities && draft.cities.length > 0) count += draft.cities.length;
+    const contactLocs = (draft.contactLocations && draft.contactLocations.length > 0) ? draft.contactLocations : draft.locations;
+    const excludeContactLocs = (draft.excludeContactLocations && draft.excludeContactLocations.length > 0) ? draft.excludeContactLocations : (draft.excludeLocations || []);
+    if (contactLocs.length > 0) count += contactLocs.length;
+    if (excludeContactLocs.length > 0) count += excludeContactLocs.length;
+    if (draft.accountLocations && draft.accountLocations.length > 0) count += draft.accountLocations.length;
+    if (draft.excludeAccountLocations && draft.excludeAccountLocations.length > 0) count += draft.excludeAccountLocations.length;
+    if (draft.zipPostalRadius?.enabled && draft.zipPostalRadius.zip.trim()) count += 1;
     if (draft.workplaceType.length > 0) count += draft.workplaceType.length;
     if (draft.timeZones.length > 0) count += draft.timeZones.length;
     if (draft.intentSignals.length > 0) count += draft.intentSignals.length;
@@ -565,7 +569,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
             )}
 
             {/* SECTION 4: LOCATION */}
-            {(matchesSearch('location') || matchesSearch('country') || matchesSearch('remote') || matchesSearch('city') || matchesSearch('state') || matchesSearch('region') || matchesSearch('timezone')) && (
+            {(matchesSearch('location') || matchesSearch('country') || matchesSearch('remote') || matchesSearch('city') || matchesSearch('state') || matchesSearch('region') || matchesSearch('timezone') || matchesSearch('postal') || matchesSearch('zip') || matchesSearch('hq') || matchesSearch('contact')) && (
               <div className="space-y-3 pt-3">
                 <button
                   type="button"
@@ -581,48 +585,22 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
 
                 {!collapsed['location'] && (
                   <div className="space-y-3.5 pl-6">
-                    {/* Country & Region */}
-                    <div className="space-y-1.5">
-                      <IncludeExcludeFilterGroup
-                        label="Country & Region"
-                        options={leadFilterOptions.countries}
-                        include={draft.locations}
-                        exclude={draft.excludeLocations || []}
-                        onIncludeChange={(locs) => setDraft((p) => ({ ...p, locations: locs }))}
-                        onExcludeChange={(newExclude) => setDraft((p) => ({ ...p, excludeLocations: newExclude }))}
-                        includePlaceholder="Search countries to include..."
-                        excludePlaceholder="Search countries to exclude..."
-                        searchPlaceholder="Search countries / regions (e.g. United States, Germany)..."
-                        allowCustom={true}
-                      />
-                    </div>
-
-                    {/* State / Province */}
-                    <div className="space-y-1.5">
-                      <SearchableMultiSelect
-                        options={leadFilterOptions.statesRegions}
-                        selected={draft.statesRegions || []}
-                        onChange={(states) => setDraft((p) => ({ ...p, statesRegions: states }))}
-                        placeholder="Search states / provinces (e.g. California, Ontario, New York)..."
-                        searchPlaceholder="Search states / provinces..."
-                        label="State / Province"
-                      />
-                    </div>
-
-                    {/* City / Metro */}
-                    <div className="space-y-1.5">
-                      <SearchableMultiSelect
-                        options={leadFilterOptions.cities}
-                        selected={draft.cities || []}
-                        onChange={(cities) => setDraft((p) => ({ ...p, cities: cities }))}
-                        placeholder="Search cities / metros (e.g. San Francisco, New York, London)..."
-                        searchPlaceholder="Search cities / metros..."
-                        label="City / Metro Area"
-                      />
-                    </div>
+                    {/* Unified Searchable Location Filter with Contact vs Account HQ */}
+                    <LeadFinderLocationFilter
+                      contactInclude={(draft.contactLocations && draft.contactLocations.length > 0) ? draft.contactLocations : draft.locations}
+                      contactExclude={(draft.excludeContactLocations && draft.excludeContactLocations.length > 0) ? draft.excludeContactLocations : (draft.excludeLocations || [])}
+                      onContactIncludeChange={(val) => setDraft((p) => ({ ...p, contactLocations: val, locations: val }))}
+                      onContactExcludeChange={(val) => setDraft((p) => ({ ...p, excludeContactLocations: val, excludeLocations: val }))}
+                      accountInclude={draft.accountLocations || []}
+                      accountExclude={draft.excludeAccountLocations || []}
+                      onAccountIncludeChange={(val) => setDraft((p) => ({ ...p, accountLocations: val }))}
+                      onAccountExcludeChange={(val) => setDraft((p) => ({ ...p, excludeAccountLocations: val }))}
+                      zipPostalRadius={draft.zipPostalRadius}
+                      onZipPostalRadiusChange={(val) => setDraft((p) => ({ ...p, zipPostalRadius: val }))}
+                    />
 
                     {/* Workplace Type */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-white/5">
                       <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Workplace Model</label>
                       <div className="flex gap-2">
                         {['Remote', 'Hybrid', 'On-Site'].map((type) => {

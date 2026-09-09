@@ -5,6 +5,7 @@ import { filterMatches } from '../../data/leadFilterOptions';
 export interface SearchableMultiSelectOption {
   value: string;
   label: string;
+  category?: string;
   count?: number;
 }
 
@@ -20,6 +21,7 @@ export interface SearchableMultiSelectProps {
   allowCustom?: boolean;
   maxDisplayPills?: number;
   className?: string;
+  countNoun?: string;
   disabled?: boolean;
 }
 
@@ -35,6 +37,7 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
   allowCustom = true,
   maxDisplayPills = 2,
   className = '',
+  countNoun,
   disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +62,9 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
   const filteredOptions = useMemo(() => {
     if (!searchQuery.trim()) return normalizedOptions;
     return normalizedOptions.filter((opt) =>
-      filterMatches(opt.label, searchQuery) || filterMatches(opt.value, searchQuery)
+      filterMatches(opt.label, searchQuery) ||
+      filterMatches(opt.value, searchQuery) ||
+      (opt.category ? filterMatches(opt.category, searchQuery) : false)
     );
   }, [normalizedOptions, searchQuery]);
 
@@ -246,6 +251,14 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
                 </span>
               );
             })
+          ) : countNoun ? (
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold truncate ${
+              isExclude
+                ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+                : 'bg-primary/10 text-primary border border-primary/20'
+            }`}>
+              {selected.length} {countNoun} {isExclude ? 'excluded' : 'selected'}
+            </span>
           ) : (
             // Compact summary when many items are selected
             <div className="flex items-center gap-1.5 min-w-0 truncate">
@@ -374,6 +387,11 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
                     </div>
 
                     <span className="truncate">{opt.label}</span>
+                    {opt.category && (
+                      <span className="text-[9.5px] font-medium px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/[0.08] text-slate-500 dark:text-slate-400 shrink-0 ml-auto">
+                        {opt.category}
+                      </span>
+                    )}
                   </div>
 
                   {opt.count !== undefined && (

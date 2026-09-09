@@ -26,6 +26,7 @@ import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { SearchableMultiSelect } from '../ui/SearchableMultiSelect';
 import { IncludeExcludeFilterGroup } from '../ui/IncludeExcludeFilterGroup';
+import { LeadFinderLocationFilter } from './LeadFinderLocationFilter';
 import { leadFilterOptions } from '../../data/leadFilterOptions';
 import { useLeadSearch, LeadFilterState } from '../../context/LeadSearchContext';
 
@@ -70,10 +71,11 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
     (filters.excludeHeadcount?.length || 0) +
     filters.revenue.length +
     (filters.excludeRevenue?.length || 0) +
-    filters.locations.length +
-    (filters.excludeLocations?.length || 0) +
-    (filters.statesRegions?.length || 0) +
-    (filters.cities?.length || 0) +
+    ((filters.contactLocations && filters.contactLocations.length > 0) ? filters.contactLocations.length : filters.locations.length) +
+    ((filters.excludeContactLocations && filters.excludeContactLocations.length > 0) ? filters.excludeContactLocations.length : (filters.excludeLocations?.length || 0)) +
+    (filters.accountLocations?.length || 0) +
+    (filters.excludeAccountLocations?.length || 0) +
+    (filters.zipPostalRadius?.enabled && filters.zipPostalRadius.zip.trim() ? 1 : 0) +
     filters.technologies.length +
     (filters.excludeTechnologies?.length || 0) +
     filters.intentSignals.length +
@@ -299,7 +301,7 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
         )}
       </div>
 
-      {/* 4. Geography */}
+      {/* 4. Geography / Location */}
       <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-[#202020]">
         <button
           type="button"
@@ -308,37 +310,47 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
         >
           <div className="flex items-center gap-2 text-left min-w-0">
             <MapPin className="w-4 h-4 text-primary shrink-0" />
-            <span className="text-left text-xs font-bold truncate">Geography</span>
-            {(filters.locations.length > 0 || (filters.excludeLocations?.length || 0) > 0) && (
-              <div className="flex items-center gap-1 font-mono text-[10px]">
-                {filters.locations.length > 0 && (
-                  <span className="px-1.5 py-0.2 rounded-full font-bold bg-primary/10 text-primary">
-                    +{filters.locations.length}
-                  </span>
-                )}
-                {(filters.excludeLocations?.length || 0) > 0 && (
-                  <span className="px-1.5 py-0.2 rounded-full font-bold bg-rose-500/10 text-rose-500">
-                    -{filters.excludeLocations.length}
-                  </span>
-                )}
-              </div>
-            )}
+            <span className="text-left text-xs font-bold truncate">Location</span>
+            {(() => {
+              const cInc = (filters.contactLocations && filters.contactLocations.length > 0) ? filters.contactLocations : filters.locations;
+              const cExc = (filters.excludeContactLocations && filters.excludeContactLocations.length > 0) ? filters.excludeContactLocations : (filters.excludeLocations || []);
+              const aInc = filters.accountLocations || [];
+              const aExc = filters.excludeAccountLocations || [];
+              const totalInc = cInc.length + aInc.length;
+              const totalExc = cExc.length + aExc.length;
+              if (totalInc === 0 && totalExc === 0) return null;
+              return (
+                <div className="flex items-center gap-1 font-mono text-[10px]">
+                  {totalInc > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full font-bold bg-primary/10 text-primary">
+                      +{totalInc}
+                    </span>
+                  )}
+                  {totalExc > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full font-bold bg-rose-500/10 text-rose-500">
+                      -{totalExc}
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
           </div>
           {collapsedSections['locations'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
 
         {!collapsedSections['locations'] && (
           <div className="pt-1">
-            <IncludeExcludeFilterGroup
-              options={leadFilterOptions.countries}
-              include={filters.locations}
-              exclude={filters.excludeLocations || []}
-              onIncludeChange={(newLocs) => updateFilters({ locations: newLocs })}
-              onExcludeChange={(newExclude) => updateFilters({ excludeLocations: newExclude })}
-              includePlaceholder="Search country, region, city to include..."
-              excludePlaceholder="Search location to exclude..."
-              searchPlaceholder="Type location (e.g. United States, Germany)..."
-              allowCustom={true}
+            <LeadFinderLocationFilter
+              contactInclude={(filters.contactLocations && filters.contactLocations.length > 0) ? filters.contactLocations : filters.locations}
+              contactExclude={(filters.excludeContactLocations && filters.excludeContactLocations.length > 0) ? filters.excludeContactLocations : (filters.excludeLocations || [])}
+              onContactIncludeChange={(val) => updateFilters({ contactLocations: val, locations: val })}
+              onContactExcludeChange={(val) => updateFilters({ excludeContactLocations: val, excludeLocations: val })}
+              accountInclude={filters.accountLocations || []}
+              accountExclude={filters.excludeAccountLocations || []}
+              onAccountIncludeChange={(val) => updateFilters({ accountLocations: val })}
+              onAccountExcludeChange={(val) => updateFilters({ excludeAccountLocations: val })}
+              zipPostalRadius={filters.zipPostalRadius}
+              onZipPostalRadiusChange={(val) => updateFilters({ zipPostalRadius: val })}
             />
           </div>
         )}

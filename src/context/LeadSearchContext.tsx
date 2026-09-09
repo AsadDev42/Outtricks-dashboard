@@ -39,6 +39,7 @@ export interface LeadDetailData {
   region?: string;
   metro?: string;
   country?: string;
+  accountHqLocation?: string;
   
   // Advanced Filter Attributes
   department?: string;
@@ -101,6 +102,16 @@ export interface LeadFilterState {
   cities: string[];
   workplaceType: string[];
   timeZones: string[];
+  contactLocations: string[];
+  excludeContactLocations: string[];
+  accountLocations: string[];
+  excludeAccountLocations: string[];
+  zipPostalRadius: {
+    enabled: boolean;
+    zip: string;
+    radius: number;
+    unit: 'miles' | 'km';
+  };
   
   // 5. INTENT
   intentSignals: string[];
@@ -203,6 +214,16 @@ export const INITIAL_LEAD_FILTERS: LeadFilterState = {
   cities: [],
   workplaceType: [],
   timeZones: [],
+  contactLocations: [],
+  excludeContactLocations: [],
+  accountLocations: [],
+  excludeAccountLocations: [],
+  zipPostalRadius: {
+    enabled: false,
+    zip: '',
+    radius: 25,
+    unit: 'miles',
+  },
   intentSignals: [],
   intentTopics: [],
   activityRecency: [],
@@ -320,6 +341,90 @@ interface LeadSearchContextType {
 // Master Raw Dataset (Enriched with 15 dimensions)
 const MASTER_DATABASE: LeadDetailData[] = [
   {
+    id: 'lead_tariq',
+    name: 'Tariq Khan',
+    title: 'VP of Growth & Revenue',
+    company: 'DevNexus Global',
+    industry: 'Enterprise B2B SaaS',
+    headcount: '51-200',
+    revenue: '$10M-$50M',
+    location: 'Lahore, Punjab, Pakistan',
+    accountHqLocation: 'New York, New York, United States',
+    email: 'tariq.khan@devnexus.io',
+    phone: '+92 42 3588 1200',
+    tech: ['Salesforce', 'HubSpot', 'Stripe', 'AWS'],
+    intentSignal: 'Hiring +6 SDRs & Scaling Outbound',
+    icpScore: 98,
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+    profileStatus: 'Complete',
+    deliverabilityScore: 100,
+    phoneStatus: 'Verified Mobile',
+    fundingStage: 'Series B',
+    domain: 'devnexus.io',
+    department: 'Sales',
+    seniorityLevel: 'VP',
+    yearsInRole: '3-5 Years',
+    companyType: 'Private',
+    totalFunding: '$10M - $50M',
+    foundedYear: 2021,
+    operatingStatus: 'Active / Operating',
+    employeeGrowth: 'High (>20%)',
+    hiringActivity: 'Active Hiring (>5 jobs)',
+    workplaceType: 'Remote',
+    timeZone: 'Asia/Karachi (PKT)',
+    intentTopics: ['Pricing Page Visit', 'Hiring Intent', 'Expansion Intent'],
+    activityRecency: 'Recently Active',
+    contactQuality: ['Verified Email', 'Verified Mobile', 'High Confidence', 'Complete Profile'],
+    techCategories: ['CRM', 'Cloud', 'Payments'],
+    companySignals: ['Hiring', 'Funding'],
+    buyingSignals: ['Visiting Pricing Pages', 'Hiring for Relevant Roles'],
+    leadSource: 'LinkedIn',
+    dataFreshness: 'Updated Today',
+    engagement: 'Visited Website'
+  },
+  {
+    id: 'lead_asad',
+    name: 'Asad Malik',
+    title: 'Director of Enterprise Sales',
+    company: 'CloudByte Systems',
+    industry: 'DevOps & Cloud Infrastructure',
+    headcount: '201-500',
+    revenue: '$50M-$100M',
+    location: 'Islamabad, Pakistan',
+    accountHqLocation: 'San Francisco, California, United States',
+    email: 'asad.m@cloudbyte.io',
+    phone: '+92 51 2288 900',
+    tech: ['AWS', 'PostgreSQL', 'Datadog', 'React'],
+    intentSignal: 'AI Model Infrastructure Upgrade',
+    icpScore: 94,
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
+    profileStatus: 'Complete',
+    deliverabilityScore: 98,
+    phoneStatus: 'Direct Dial',
+    fundingStage: 'Series C',
+    domain: 'cloudbyte.io',
+    department: 'Sales',
+    seniorityLevel: 'Director',
+    yearsInRole: '1-3 Years',
+    companyType: 'Private',
+    totalFunding: '$50M+',
+    foundedYear: 2019,
+    operatingStatus: 'Active / Operating',
+    employeeGrowth: 'Positive (>0%)',
+    hiringActivity: 'Active Hiring',
+    workplaceType: 'Hybrid',
+    timeZone: 'Asia/Karachi (PKT)',
+    intentTopics: ['Technology Change', 'Expansion Intent'],
+    activityRecency: 'Recently Promoted',
+    contactQuality: ['Verified Email', 'Direct Dial', 'High Confidence'],
+    techCategories: ['Cloud', 'DevOps'],
+    companySignals: ['Technology Change'],
+    buyingSignals: ['Evaluating Solutions'],
+    leadSource: 'Direct Database',
+    dataFreshness: 'Updated This Week',
+    engagement: 'Opened Email'
+  },
+  {
     id: 'lead_1',
     name: 'Sarah Jenkins',
     title: 'VP of Growth & Revenue',
@@ -328,6 +433,7 @@ const MASTER_DATABASE: LeadDetailData[] = [
     headcount: '51-200',
     revenue: '$10M-$50M',
     location: 'San Francisco Bay Area, United States',
+    accountHqLocation: 'San Francisco, California, United States',
     email: 'sarah.j@cloudscale.ai',
     phone: '+1 (415) 892-4910',
     tech: ['Salesforce', 'Stripe', 'PostgreSQL', 'AWS', 'HubSpot'],
@@ -369,6 +475,7 @@ const MASTER_DATABASE: LeadDetailData[] = [
     headcount: '51-200',
     revenue: '$10M-$50M',
     location: 'New York Metro Area, United States',
+    accountHqLocation: 'New York, New York, United States',
     email: 'marcus@apexdata.io',
     phone: '+1 (212) 749-1120',
     tech: ['HubSpot', 'Snowflake', 'React', 'GCP'],
@@ -410,6 +517,7 @@ const MASTER_DATABASE: LeadDetailData[] = [
     headcount: '201-500',
     revenue: '$50M-$100M',
     location: 'London, United Kingdom',
+    accountHqLocation: 'London, England, United Kingdom',
     email: 'elena@fintechstack.com',
     phone: '+44 20 7946 0912',
     tech: ['Salesforce', 'Segment', 'Stripe', 'Datadog'],
@@ -982,36 +1090,70 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         if (filters.excludeSeniority.includes(lead.seniorityLevel)) return false;
       }
 
-      // 12. LOCATIONS (Country/Region, State/Province, City/Metro)
-      if (filters.locations.length > 0) {
-        const matchesLoc = filters.locations.some((loc) => {
-          const cleanLoc = loc.toLowerCase().split(' (')[0].trim();
-          return lead.location.toLowerCase().includes(cleanLoc);
+      // 12. LOCATIONS (Contact Location vs Account HQ Location & ZIP Radius)
+      // Contact Location (Person)
+      const activeContactLocs = (filters.contactLocations && filters.contactLocations.length > 0)
+        ? filters.contactLocations
+        : filters.locations;
+
+      const activeExcludeContactLocs = (filters.excludeContactLocations && filters.excludeContactLocations.length > 0)
+        ? filters.excludeContactLocations
+        : (filters.excludeLocations || []);
+
+      if (activeContactLocs && activeContactLocs.length > 0) {
+        const matchesContact = activeContactLocs.some((loc) => {
+          const clean = loc.toLowerCase().split(' (')[0].trim();
+          if (!clean) return false;
+          const leadLoc = lead.location.toLowerCase();
+          if (leadLoc.includes(clean)) return true;
+          return clean.split(',').map(s => s.trim()).some(part => part.length > 2 && leadLoc.includes(part));
         });
-        if (!matchesLoc) return false;
-      }
-      if (filters.excludeLocations && filters.excludeLocations.length > 0) {
-        const matchesExcludeLoc = filters.excludeLocations.some((loc) => {
-          const cleanLoc = loc.toLowerCase().split(' (')[0].split(',')[0].trim();
-          return lead.location.toLowerCase().includes(cleanLoc);
-        });
-        if (matchesExcludeLoc) return false;
+        if (!matchesContact) return false;
       }
 
-      if (filters.statesRegions && filters.statesRegions.length > 0) {
-        const matchesState = filters.statesRegions.some((st) => {
-          const cleanState = st.toLowerCase().split(' (')[0].trim();
-          return lead.location.toLowerCase().includes(cleanState);
+      if (activeExcludeContactLocs && activeExcludeContactLocs.length > 0) {
+        const matchesExcludeContact = activeExcludeContactLocs.some((loc) => {
+          const clean = loc.toLowerCase().split(' (')[0].trim();
+          if (!clean) return false;
+          const leadLoc = lead.location.toLowerCase();
+          if (leadLoc.includes(clean)) return true;
+          return clean.split(',').map(s => s.trim()).some(part => part.length > 2 && leadLoc.includes(part));
         });
-        if (!matchesState) return false;
+        if (matchesExcludeContact) return false;
       }
 
-      if (filters.cities && filters.cities.length > 0) {
-        const matchesCity = filters.cities.some((c) => {
-          const cleanCity = c.toLowerCase().split(',')[0].replace(' Metro Area', '').replace(' Bay Area', '').trim();
-          return lead.location.toLowerCase().includes(cleanCity);
+      // Account HQ Location (Company)
+      const activeAccountLocs = filters.accountLocations || [];
+      const activeExcludeAccountLocs = filters.excludeAccountLocations || [];
+
+      if (activeAccountLocs.length > 0) {
+        const matchesAccount = activeAccountLocs.some((loc) => {
+          const clean = loc.toLowerCase().split(' (')[0].trim();
+          if (!clean) return false;
+          const hqLoc = (lead.accountHqLocation || lead.location).toLowerCase();
+          if (hqLoc.includes(clean)) return true;
+          return clean.split(',').map(s => s.trim()).some(part => part.length > 2 && hqLoc.includes(part));
         });
-        if (!matchesCity) return false;
+        if (!matchesAccount) return false;
+      }
+
+      if (activeExcludeAccountLocs.length > 0) {
+        const matchesExcludeAccount = activeExcludeAccountLocs.some((loc) => {
+          const clean = loc.toLowerCase().split(' (')[0].trim();
+          if (!clean) return false;
+          const hqLoc = (lead.accountHqLocation || lead.location).toLowerCase();
+          if (hqLoc.includes(clean)) return true;
+          return clean.split(',').map(s => s.trim()).some(part => part.length > 2 && hqLoc.includes(part));
+        });
+        if (matchesExcludeAccount) return false;
+      }
+
+      // Optional ZIP / Postal Code Radius Filter
+      if (filters.zipPostalRadius?.enabled && filters.zipPostalRadius.zip.trim()) {
+        const targetZip = filters.zipPostalRadius.zip.trim().toLowerCase();
+        const matchesZip = lead.location.toLowerCase().includes(targetZip) ||
+          (lead.accountHqLocation && lead.accountHqLocation.toLowerCase().includes(targetZip));
+        if (!matchesZip) return false;
       }
 
       // 13. WORKPLACE TYPE
