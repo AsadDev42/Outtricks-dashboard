@@ -83,11 +83,11 @@ export const ConversationList: React.FC<ConversationListProps> = ({
 
   const getChannelIcon = (channel: string) => {
     switch (channel) {
-      case 'email': return <Mail className="w-3.5 h-3.5 text-primary" />;
-      case 'linkedin': return <Linkedin className="w-3.5 h-3.5 text-primary" />;
-      case 'upwork': return <BriefcaseBusiness className="w-3.5 h-3.5 text-primary" />;
-      case 'voice': return <PhoneCall className="w-3.5 h-3.5 text-primary" />;
-      default: return <Inbox className="w-3.5 h-3.5 text-slate-400" />;
+      case 'email': return <Mail className="w-3 h-3 text-primary shrink-0" />;
+      case 'linkedin': return <Linkedin className="w-3 h-3 text-primary shrink-0" />;
+      case 'upwork': return <BriefcaseBusiness className="w-3 h-3 text-primary shrink-0" />;
+      case 'voice': return <PhoneCall className="w-3 h-3 text-primary shrink-0" />;
+      default: return <Inbox className="w-3 h-3 text-slate-400 shrink-0" />;
     }
   };
 
@@ -102,7 +102,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
 
   return (
     <div className="w-full border-r border-slate-200/80 dark:border-[#2A2A2A] bg-white dark:bg-[#161616] flex flex-col h-full font-sans">
-      <div className="p-3 border-b border-slate-200/80 dark:border-[#2A2A2A] space-y-2.5">
+      <div className="p-3 border-b border-slate-200/80 dark:border-[#2A2A2A] space-y-2.5 bg-white dark:bg-[#161616] shrink-0">
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
           {FOLDER_PILLS.map((pill) => {
             const active = activeFolder === pill.id;
@@ -214,10 +214,26 @@ export const ConversationList: React.FC<ConversationListProps> = ({
         ) : (
           allFilteredConversations.map((thread) => {
             const isActive = activeConversationId === thread.id;
+
+            // Resolve tertiary Owner / Connected Account display
+            const ownerOrAccount =
+              thread.assignedTo && thread.assignedTo !== 'Unassigned'
+                ? thread.assignedTo
+                : (thread.accountName || thread.accountEmail || 'Unassigned');
+
+            const fullMetaTooltip = [
+              thread.assignedTo && thread.assignedTo !== 'Unassigned' ? `Owner: ${thread.assignedTo}` : null,
+              thread.accountName ? `Account: ${thread.accountName}` : null,
+              thread.labels && thread.labels.length > 0 ? `Labels: ${thread.labels.join(', ')}` : null,
+            ].filter(Boolean).join(' · ');
+
             return (
               <div
                 key={thread.id}
+                role="button"
                 tabIndex={0}
+                aria-pressed={isActive}
+                aria-label={`Conversation with ${thread.contactName}`}
                 onClick={() => handleSelect(thread)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -225,21 +241,24 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                     handleSelect(thread);
                   }
                 }}
-                className={`block w-full text-left py-3 px-3.5 transition-all cursor-pointer relative select-none focus:outline-none ${
+                className={`block w-full text-left py-3 px-3.5 transition-colors cursor-pointer relative select-none focus:outline-none ${
                   isActive
-                    ? 'bg-primary-muted/50 border-l-[3px] border-l-primary'
-                    : 'hover:bg-slate-50/70 dark:hover:bg-white/[0.02] border-l-[3px] border-l-transparent'
+                    ? 'bg-primary-muted/50 dark:bg-primary-muted/30 border-l-[3px] border-l-primary'
+                    : 'hover:bg-slate-50/80 dark:hover:bg-white/[0.025] border-l-[3px] border-l-transparent'
                 }`}
               >
-                {/* TOP ROW & SECOND LINE: Avatar + Name/Timestamp + Company */}
                 <div className="flex items-start gap-2.5">
+                  {/* AVATAR */}
                   <img
                     src={thread.avatar}
                     alt={thread.contactName}
-                    className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 dark:border-[#2A2A2A] mt-0.5"
+                    className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200/80 dark:border-[#2A2A2A] mt-0.5"
                   />
+
+                  {/* 3-LEVEL CLEAN HIERARCHY */}
                   <div className="flex-1 min-w-0">
-                    {/* TOP ROW: Contact Name + Unread indicator + Timestamp */}
+                    
+                    {/* ROW 1: IDENTITY — Contact Name, Unread Dot, Timestamp */}
                     <div className="flex items-center justify-between gap-1.5">
                       <div className="flex items-center gap-1.5 min-w-0">
                         <span
@@ -252,61 +271,70 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                           {thread.contactName}
                         </span>
                         {thread.unread && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          <span
+                            className="w-1.5 h-1.5 rounded-full bg-primary shrink-0"
+                            title="Unread"
+                            aria-label="Unread"
+                          />
                         )}
                       </div>
-                      <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 shrink-0 ml-1">
+                      <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 shrink-0 ml-1.5">
                         {thread.timestamp}
                       </span>
                     </div>
 
-                    {/* SECOND LINE: Company Name */}
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                    {/* ROW 2: CONTEXT — Company Name + Last Message Preview */}
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5 leading-tight">
                       {thread.companyName}
                     </div>
-                  </div>
-                </div>
 
-                {/* THIRD LINE: Last message preview */}
-                <p
-                  className={`text-[12px] mt-2 line-clamp-1 leading-snug ${
-                    thread.unread
-                      ? 'font-medium text-slate-800 dark:text-slate-100'
-                      : 'font-normal text-slate-500 dark:text-slate-400'
-                  }`}
-                >
-                  {thread.lastMessage}
-                </p>
+                    <p
+                      className={`text-[11.5px] mt-1.5 line-clamp-2 leading-snug ${
+                        thread.unread
+                          ? 'font-medium text-slate-700 dark:text-slate-200'
+                          : 'font-normal text-slate-500 dark:text-slate-400'
+                      }`}
+                    >
+                      {thread.lastMessage}
+                    </p>
 
-                {/* BOTTOM METADATA ROW: Channel identity, Hot / Meeting, Primary label */}
-                <div className="flex items-center justify-between gap-2 mt-2.5 pt-0.5">
-                  <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <div className="flex items-center gap-1 text-[10.5px] font-medium text-slate-500 dark:text-slate-400">
-                      {getChannelIcon(thread.channel)}
-                      <span>{channelLabel(thread.channel)}</span>
+                    {/* ROW 3: METADATA — Left: Channel + Hot + Meeting; Right: Owner / Connected Account */}
+                    <div className="flex items-center justify-between gap-2 mt-2 pt-0.5">
+                      {/* Left: Channel and Status Badges */}
+                      <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                        {/* Compact Channel */}
+                        <div className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-600 dark:text-slate-400 shrink-0">
+                          {getChannelIcon(thread.channel)}
+                          <span>{channelLabel(thread.channel)}</span>
+                        </div>
+
+                        {/* Quiet Hot Badge */}
+                        {thread.interested && (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[9.5px] font-bold shrink-0">
+                            <Flame className="w-2.5 h-2.5 text-emerald-500" />
+                            <span>Hot</span>
+                          </span>
+                        )}
+
+                        {/* Quiet Meeting Badge */}
+                        {thread.isMeeting && (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-primary-muted text-primary text-[9.5px] font-bold shrink-0">
+                            <Calendar className="w-2.5 h-2.5 text-primary" />
+                            <span>Meeting</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Right: Owner / Connected Account */}
+                      <span
+                        title={fullMetaTooltip || ownerOrAccount}
+                        className="text-[9.5px] text-slate-400 dark:text-slate-500 truncate max-w-[110px] sm:max-w-[130px] shrink-0 text-right ml-auto"
+                      >
+                        {ownerOrAccount}
+                      </span>
                     </div>
 
-                    {thread.interested && (
-                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
-                        <Flame className="w-2.5 h-2.5" />
-                        <span>Hot</span>
-                      </span>
-                    )}
-
-                    {thread.isMeeting && (
-                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-primary-muted text-primary text-[10px] font-bold">
-                        <Calendar className="w-2.5 h-2.5" />
-                        <span>Meeting</span>
-                      </span>
-                    )}
                   </div>
-
-                  {/* Primary label on the right */}
-                  {thread.labels && thread.labels.length > 0 ? (
-                    <span className="text-[10px] font-mono font-semibold text-slate-400 dark:text-slate-500 truncate max-w-[120px] shrink-0 text-right">
-                      {thread.labels[0]}
-                    </span>
-                  ) : null}
                 </div>
               </div>
             );
