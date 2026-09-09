@@ -184,6 +184,7 @@ const AppInboxPageContent: React.FC = () => {
         <ContactCrmSidebar
           isOpen={isContactSidebarOpen}
           onClose={() => setIsContactSidebarOpen(false)}
+          onOpenAddLabelModal={() => setIsAddLabelModalOpen(true)}
         />
 
       </div>
