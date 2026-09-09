@@ -215,51 +215,100 @@ export const ConversationList: React.FC<ConversationListProps> = ({
           allFilteredConversations.map((thread) => {
             const isActive = activeConversationId === thread.id;
             return (
-              <button
+              <div
                 key={thread.id}
-                type="button"
+                tabIndex={0}
                 onClick={() => handleSelect(thread)}
-                className={`w-full text-left p-3.5 transition-all cursor-pointer relative ${
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSelect(thread);
+                  }
+                }}
+                className={`block w-full text-left py-3 px-3.5 transition-all cursor-pointer relative select-none focus:outline-none ${
                   isActive
-                    ? 'bg-primary-muted/60 border-l-4 border-l-primary'
-                    : 'hover:bg-slate-50/60 dark:hover:bg-white/[0.02] border-l-4 border-l-transparent'
+                    ? 'bg-primary-muted/50 border-l-[3px] border-l-primary'
+                    : 'hover:bg-slate-50/70 dark:hover:bg-white/[0.02] border-l-[3px] border-l-transparent'
                 }`}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <img src={thread.avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-slate-200 dark:border-[#2A2A2A]" />
-                    <div className="truncate">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`text-xs truncate ${thread.unread ? 'font-black text-slate-950 dark:text-white' : 'font-bold text-slate-800 dark:text-slate-200'}`}>{thread.contactName}</span>
-                        {thread.unread && <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />}
+                {/* TOP ROW & SECOND LINE: Avatar + Name/Timestamp + Company */}
+                <div className="flex items-start gap-2.5">
+                  <img
+                    src={thread.avatar}
+                    alt={thread.contactName}
+                    className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 dark:border-[#2A2A2A] mt-0.5"
+                  />
+                  <div className="flex-1 min-w-0">
+                    {/* TOP ROW: Contact Name + Unread indicator + Timestamp */}
+                    <div className="flex items-center justify-between gap-1.5">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span
+                          className={`text-[12.5px] truncate ${
+                            thread.unread
+                              ? 'font-bold text-slate-950 dark:text-white'
+                              : 'font-semibold text-slate-800 dark:text-slate-200'
+                          }`}
+                        >
+                          {thread.contactName}
+                        </span>
+                        {thread.unread && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                        )}
                       </div>
-                      <div className="text-[11px] text-slate-400 truncate">{thread.companyName}</div>
+                      <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 shrink-0 ml-1">
+                        {thread.timestamp}
+                      </span>
+                    </div>
+
+                    {/* SECOND LINE: Company Name */}
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                      {thread.companyName}
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400 shrink-0">{thread.timestamp}</span>
                 </div>
 
-                <p className={`text-xs mt-1.5 line-clamp-1 ${thread.unread ? 'font-semibold text-slate-900 dark:text-slate-100' : 'text-slate-500 dark:text-slate-400'}`}>{thread.lastMessage}</p>
+                {/* THIRD LINE: Last message preview */}
+                <p
+                  className={`text-[12px] mt-2 line-clamp-1 leading-snug ${
+                    thread.unread
+                      ? 'font-medium text-slate-800 dark:text-slate-100'
+                      : 'font-normal text-slate-500 dark:text-slate-400'
+                  }`}
+                >
+                  {thread.lastMessage}
+                </p>
 
-                <div className="flex items-center justify-between gap-2 mt-2">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    {getChannelIcon(thread.channel)}
-                    <span className="text-[10px] text-slate-500 font-semibold">{channelLabel(thread.channel)}</span>
+                {/* BOTTOM METADATA ROW: Channel identity, Hot / Meeting, Primary label */}
+                <div className="flex items-center justify-between gap-2 mt-2.5 pt-0.5">
+                  <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                    <div className="flex items-center gap-1 text-[10.5px] font-medium text-slate-500 dark:text-slate-400">
+                      {getChannelIcon(thread.channel)}
+                      <span>{channelLabel(thread.channel)}</span>
+                    </div>
+
                     {thread.interested && (
                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
-                        <Flame className="w-2.5 h-2.5" /> Hot
+                        <Flame className="w-2.5 h-2.5" />
+                        <span>Hot</span>
                       </span>
                     )}
+
                     {thread.isMeeting && (
                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-primary-muted text-primary text-[10px] font-bold">
-                        <Calendar className="w-2.5 h-2.5" /> Meeting
+                        <Calendar className="w-2.5 h-2.5" />
+                        <span>Meeting</span>
                       </span>
                     )}
                   </div>
 
-                  {thread.accountName && <span className="text-[9px] font-mono text-slate-400 truncate max-w-[95px]">{thread.accountName}</span>}
+                  {/* Primary label on the right */}
+                  {thread.labels && thread.labels.length > 0 ? (
+                    <span className="text-[10px] font-mono font-semibold text-slate-400 dark:text-slate-500 truncate max-w-[120px] shrink-0 text-right">
+                      {thread.labels[0]}
+                    </span>
+                  ) : null}
                 </div>
-              </button>
+              </div>
             );
           })
         )}
