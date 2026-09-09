@@ -823,7 +823,12 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       // 5. INDUSTRIES
       if (filters.industries.length > 0) {
-        if (!filters.industries.includes(lead.industry)) return false;
+        const matchesInd = filters.industries.some((ind) => {
+          const cleanInd = ind.toLowerCase().split(' & ')[0].split(' / ')[0].trim();
+          const leadInd = lead.industry.toLowerCase();
+          return leadInd.includes(cleanInd) || cleanInd.includes(leadInd);
+        });
+        if (!matchesInd) return false;
       }
 
       // 6. COMPANY TYPE
@@ -843,15 +848,20 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       // 9. ROLES / TITLES
       if (filters.roles.length > 0) {
-        const matchesRole = filters.roles.some((r) => 
-          lead.title.toLowerCase().includes(r.toLowerCase().split(' / ')[0])
-        );
+        const matchesRole = filters.roles.some((r) => {
+          const cleanRole = r.toLowerCase().split(' / ')[0].split(' of ')[0].trim();
+          return lead.title.toLowerCase().includes(cleanRole);
+        });
         if (!matchesRole) return false;
       }
 
       // 10. DEPARTMENTS
       if (filters.departments.length > 0 && lead.department) {
-        if (!filters.departments.includes(lead.department)) return false;
+        const matchesDept = filters.departments.some((dept) => {
+          const cleanDept = dept.toLowerCase().split(' & ')[0].split(' (')[0].trim();
+          return lead.department!.toLowerCase().includes(cleanDept);
+        });
+        if (!matchesDept) return false;
       }
 
       // 11. SENIORITY
@@ -859,10 +869,29 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         if (!filters.seniority.includes(lead.seniorityLevel)) return false;
       }
 
-      // 12. LOCATIONS
+      // 12. LOCATIONS (Country/Region, State/Province, City/Metro)
       if (filters.locations.length > 0) {
-        const matchesLoc = filters.locations.some((loc) => lead.location.toLowerCase().includes(loc.toLowerCase()));
+        const matchesLoc = filters.locations.some((loc) => {
+          const cleanLoc = loc.toLowerCase().split(' (')[0].trim();
+          return lead.location.toLowerCase().includes(cleanLoc);
+        });
         if (!matchesLoc) return false;
+      }
+
+      if (filters.statesRegions && filters.statesRegions.length > 0) {
+        const matchesState = filters.statesRegions.some((st) => {
+          const cleanState = st.toLowerCase().split(' (')[0].trim();
+          return lead.location.toLowerCase().includes(cleanState);
+        });
+        if (!matchesState) return false;
+      }
+
+      if (filters.cities && filters.cities.length > 0) {
+        const matchesCity = filters.cities.some((c) => {
+          const cleanCity = c.toLowerCase().split(',')[0].replace(' Metro Area', '').replace(' Bay Area', '').trim();
+          return lead.location.toLowerCase().includes(cleanCity);
+        });
+        if (!matchesCity) return false;
       }
 
       // 13. WORKPLACE TYPE
@@ -877,12 +906,21 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       // 15. INTENT TOPICS & SIGNALS
       if (filters.intentSignals.length > 0) {
-        const matchesSig = filters.intentSignals.some((sig) => lead.intentSignal.toLowerCase().includes(sig.toLowerCase().split(' (')[0]));
+        const matchesSig = filters.intentSignals.some((sig) => {
+          const cleanSig = sig.toLowerCase().split(' (')[0].split(' & ')[0].trim();
+          return lead.intentSignal.toLowerCase().includes(cleanSig);
+        });
         if (!matchesSig) return false;
       }
 
-      if (filters.intentTopics.length > 0 && lead.intentTopics) {
-        const matchesTopic = filters.intentTopics.some((t) => lead.intentTopics!.includes(t));
+      if (filters.intentTopics.length > 0) {
+        const matchesTopic = filters.intentTopics.some((t) => {
+          const cleanT = t.toLowerCase().split(' & ')[0].split(' / ')[0].split(' +')[0].trim();
+          return (
+            (lead.intentTopics && lead.intentTopics.some((it) => it.toLowerCase().includes(cleanT))) ||
+            lead.intentSignal.toLowerCase().includes(cleanT)
+          );
+        });
         if (!matchesTopic) return false;
       }
 
@@ -903,7 +941,10 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       // 18. TECHNOLOGIES & CATEGORIES
       if (filters.technologies.length > 0) {
-        const matchesTech = filters.technologies.some((t) => lead.tech.includes(t));
+        const matchesTech = filters.technologies.some((t) => {
+          const cleanT = t.toLowerCase().split(' (')[0].trim();
+          return lead.tech.some((lt) => lt.toLowerCase().includes(cleanT) || cleanT.includes(lt.toLowerCase()));
+        });
         if (!matchesTech) return false;
       }
 

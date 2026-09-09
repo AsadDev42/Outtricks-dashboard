@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
+import { SearchableMultiSelect } from '../ui/SearchableMultiSelect';
+import { leadFilterOptions } from '../../data/leadFilterOptions';
 import { useLeadSearch, LeadFilterState } from '../../context/LeadSearchContext';
 
 export interface LeadFinderFilterPanelProps {
@@ -43,6 +45,7 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
     roles: false,
     industries: false,
     headcount: false,
+    locations: false,
     technologies: false,
     intent: false,
   });
@@ -59,8 +62,11 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
     filters.headcount.length +
     filters.revenue.length +
     filters.locations.length +
+    (filters.statesRegions?.length || 0) +
+    (filters.cities?.length || 0) +
     filters.technologies.length +
     filters.intentSignals.length +
+    filters.intentTopics.length +
     (filters.deliverability !== 'all' ? 1 : 0) +
     (filters.hasPhone ? 1 : 0);
 
@@ -70,14 +76,14 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
       {/* Header with Active Filter Count & Reset */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#202020]">
         <div className="flex items-center gap-2">
-          <Sliders className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <Sliders className="w-4 h-4 text-primary" />
           <span className="font-extrabold text-sm text-slate-950 dark:text-white">
             8D Filter Matrix
           </span>
           {activeFiltersCount > 0 && (
-            <Badge variant="blue" size="sm">
+            <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-primary/10 text-primary border border-primary/20">
               {activeFiltersCount}
-            </Badge>
+            </span>
           )}
         </div>
 
@@ -86,7 +92,7 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
             <button
               type="button"
               onClick={resetFilters}
-              className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset</span>
@@ -111,22 +117,21 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
       <button
         type="button"
         onClick={() => setIsAdvancedFiltersDrawerOpen(true)}
-        className="w-full py-2.5 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-between text-left hover:bg-emerald-500/15 transition-colors cursor-pointer group"
+        className="w-full py-2.5 px-3 rounded-xl bg-primary/10 border border-primary/25 text-primary font-bold text-xs flex items-center justify-between text-left hover:bg-primary/15 transition-colors cursor-pointer group"
       >
         <div className="flex items-center gap-2 text-left min-w-0">
-          <Sparkles className="w-4 h-4 shrink-0 text-emerald-500" />
+          <Sparkles className="w-4 h-4 shrink-0 text-primary" />
           <div className="flex flex-col text-left min-w-0">
             <span className="text-left truncate font-bold">Advanced Filters (15 Dimensions)</span>
             {filters.companyDomains && filters.companyDomains.length > 0 && (
-              <span className="text-[10px] text-emerald-600/90 dark:text-emerald-400/90 font-medium truncate">
+              <span className="text-[10px] text-primary/80 font-medium truncate">
                 {filters.companyDomains.length} target {filters.companyDomains.length === 1 ? 'domain/company' : 'domains/companies'} active
               </span>
             )}
           </div>
         </div>
-        <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded font-mono shrink-0 ml-1">Open</span>
+        <span className="text-[10px] bg-primary text-white px-1.5 py-0.5 rounded font-mono shrink-0 ml-1">Open</span>
       </button>
-
       {/* 1. Job Titles & Decision Makers */}
       <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-[#202020]">
         <button
@@ -135,39 +140,28 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           className="w-full flex items-center justify-between text-left font-bold text-slate-900 dark:text-white cursor-pointer py-1"
         >
           <div className="flex items-center gap-2 text-left min-w-0">
-            <Users className="w-4 h-4 text-emerald-500 shrink-0" />
+            <Users className="w-4 h-4 text-primary shrink-0" />
             <span className="text-left text-xs font-bold truncate">Decision Maker Roles</span>
+            {filters.roles.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary">
+                {filters.roles.length}
+              </span>
+            )}
           </div>
           {collapsedSections['roles'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
 
         {!collapsedSections['roles'] && (
-          <div className="space-y-1.5 pl-6">
-            {[
-              'VP of Sales / CRO',
-              'Founder / CEO / Co-Founder',
-              'Head of Revenue Operations',
-              'Head of Demand Generation',
-              'VP of Marketing / CMO',
-              'Director of Business Development',
-              'Talent Acquisition Lead',
-            ].map((role) => {
-              const isChecked = filters.roles.includes(role);
-              return (
-                <label
-                  key={role}
-                  className="flex items-center justify-start text-left gap-2 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white"
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => toggleFilterValue('roles', role)}
-                    className="w-3.5 h-3.5 shrink-0 rounded text-emerald-600 border-slate-300 dark:border-[#2A2A2A] focus:ring-emerald-500"
-                  />
-                  <span className="truncate text-left text-xs">{role}</span>
-                </label>
-              );
-            })}
+          <div className="pt-1">
+            <SearchableMultiSelect
+              options={leadFilterOptions.jobTitles}
+              selected={filters.roles}
+              onChange={(newRoles) => updateFilters({ roles: newRoles })}
+              placeholder="Search decision maker roles..."
+              searchPlaceholder="Type role (e.g. VP Sales, CRO, Founder)..."
+              allowCustom={true}
+              maxDisplayPills={2}
+            />
           </div>
         )}
       </div>
@@ -180,39 +174,28 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           className="w-full flex items-center justify-between text-left font-bold text-slate-900 dark:text-white cursor-pointer py-1"
         >
           <div className="flex items-center gap-2 text-left min-w-0">
-            <Briefcase className="w-4 h-4 text-emerald-500 shrink-0" />
+            <Briefcase className="w-4 h-4 text-primary shrink-0" />
             <span className="text-left text-xs font-bold truncate">Industry & Vertical</span>
+            {filters.industries.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary">
+                {filters.industries.length}
+              </span>
+            )}
           </div>
           {collapsedSections['industries'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
 
         {!collapsedSections['industries'] && (
-          <div className="space-y-1.5 pl-6">
-            {[
-              'Enterprise B2B SaaS',
-              'FinTech & B2B Payments',
-              'Healthcare & MedTech',
-              'Cybersecurity & DevOps',
-              'E-Commerce & Supply Chain',
-              'Marketing & Growth Agencies',
-              'Artificial Intelligence & ML',
-            ].map((ind) => {
-              const isChecked = filters.industries.includes(ind);
-              return (
-                <label
-                  key={ind}
-                  className="flex items-center justify-start text-left gap-2 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white"
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => toggleFilterValue('industries', ind)}
-                    className="w-3.5 h-3.5 shrink-0 rounded text-emerald-600 border-slate-300 dark:border-[#2A2A2A] focus:ring-emerald-500"
-                  />
-                  <span className="truncate text-left text-xs">{ind}</span>
-                </label>
-              );
-            })}
+          <div className="pt-1">
+            <SearchableMultiSelect
+              options={leadFilterOptions.industries}
+              selected={filters.industries}
+              onChange={(newInds) => updateFilters({ industries: newInds })}
+              placeholder="Search industries & verticals..."
+              searchPlaceholder="Type industry (e.g. SaaS, FinTech, AI)..."
+              allowCustom={true}
+              maxDisplayPills={2}
+            />
           </div>
         )}
       </div>
@@ -225,36 +208,34 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           className="w-full flex items-center justify-between text-left font-bold text-slate-900 dark:text-white cursor-pointer py-1"
         >
           <div className="flex items-center gap-2 text-left min-w-0">
-            <Building2 className="w-4 h-4 text-emerald-500 shrink-0" />
+            <Building2 className="w-4 h-4 text-primary shrink-0" />
             <span className="text-left text-xs font-bold truncate">Company Headcount</span>
+            {filters.headcount.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary">
+                {filters.headcount.length}
+              </span>
+            )}
           </div>
           {collapsedSections['headcount'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
 
         {!collapsedSections['headcount'] && (
-          <div className="grid grid-cols-2 gap-1.5 pl-6">
-            {[
-              '1-10',
-              '11-50',
-              '51-200',
-              '201-500',
-              '501-1000',
-              '1000+',
-            ].map((size) => {
+          <div className="grid grid-cols-2 gap-1.5 pt-1">
+            {leadFilterOptions.headcountRanges.map((size) => {
               const isChecked = filters.headcount.includes(size);
               return (
-                <label
+                <button
                   key={size}
-                  className="flex items-center justify-start text-left gap-1.5 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white"
+                  type="button"
+                  onClick={() => toggleFilterValue('headcount', size)}
+                  className={`px-2 py-1.5 rounded-xl text-xs font-semibold border transition-all text-left truncate cursor-pointer ${
+                    isChecked
+                      ? 'bg-primary text-white border-primary shadow-xs'
+                      : 'bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#2A2A2A] hover:border-slate-300'
+                  }`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => toggleFilterValue('headcount', size)}
-                    className="w-3.5 h-3.5 shrink-0 rounded text-emerald-600 border-slate-300 dark:border-[#2A2A2A] focus:ring-emerald-500"
-                  />
-                  <span className="text-left text-xs">{size}</span>
-                </label>
+                  {size}
+                </button>
               );
             })}
           </div>
@@ -269,39 +250,28 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           className="w-full flex items-center justify-between text-left font-bold text-slate-900 dark:text-white cursor-pointer py-1"
         >
           <div className="flex items-center gap-2 text-left min-w-0">
-            <MapPin className="w-4 h-4 text-emerald-500 shrink-0" />
+            <MapPin className="w-4 h-4 text-primary shrink-0" />
             <span className="text-left text-xs font-bold truncate">Geography</span>
+            {filters.locations.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary">
+                {filters.locations.length}
+              </span>
+            )}
           </div>
           {collapsedSections['locations'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
 
         {!collapsedSections['locations'] && (
-          <div className="space-y-1.5 pl-6">
-            {[
-              'United States',
-              'San Francisco Bay Area',
-              'New York Metro Area',
-              'Austin, Texas',
-              'Canada',
-              'United Kingdom',
-              'Europe (EU)',
-            ].map((loc) => {
-              const isChecked = filters.locations.includes(loc);
-              return (
-                <label
-                  key={loc}
-                  className="flex items-center justify-start text-left gap-2 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white"
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => toggleFilterValue('locations', loc)}
-                    className="w-3.5 h-3.5 shrink-0 rounded text-emerald-600 border-slate-300 dark:border-[#2A2A2A] focus:ring-emerald-500"
-                  />
-                  <span className="truncate text-left text-xs">{loc}</span>
-                </label>
-              );
-            })}
+          <div className="pt-1">
+            <SearchableMultiSelect
+              options={leadFilterOptions.countries}
+              selected={filters.locations}
+              onChange={(newLocs) => updateFilters({ locations: newLocs })}
+              placeholder="Search countries & regions..."
+              searchPlaceholder="Type location (e.g. United States, Germany)..."
+              allowCustom={true}
+              maxDisplayPills={2}
+            />
           </div>
         )}
       </div>
@@ -314,40 +284,28 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           className="w-full flex items-center justify-between text-left font-bold text-slate-900 dark:text-white cursor-pointer py-1"
         >
           <div className="flex items-center gap-2 text-left min-w-0">
-            <Cpu className="w-4 h-4 text-emerald-500 shrink-0" />
+            <Cpu className="w-4 h-4 text-primary shrink-0" />
             <span className="text-left text-xs font-bold truncate">Technographic Stack</span>
+            {filters.technologies.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary">
+                {filters.technologies.length}
+              </span>
+            )}
           </div>
           {collapsedSections['technologies'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
 
         {!collapsedSections['technologies'] && (
-          <div className="grid grid-cols-2 gap-1.5 pl-6">
-            {[
-              'Salesforce',
-              'HubSpot',
-              'Stripe',
-              'PostgreSQL',
-              'React',
-              'AWS',
-              'Snowflake',
-              'Datadog',
-            ].map((tech) => {
-              const isChecked = filters.technologies.includes(tech);
-              return (
-                <label
-                  key={tech}
-                  className="flex items-center justify-start text-left gap-1.5 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white"
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => toggleFilterValue('technologies', tech)}
-                    className="w-3.5 h-3.5 shrink-0 rounded text-emerald-600 border-slate-300 dark:border-[#2A2A2A] focus:ring-emerald-500"
-                  />
-                  <span className="truncate text-left text-xs">{tech}</span>
-                </label>
-              );
-            })}
+          <div className="pt-1">
+            <SearchableMultiSelect
+              options={leadFilterOptions.technologies}
+              selected={filters.technologies}
+              onChange={(newTechs) => updateFilters({ technologies: newTechs })}
+              placeholder="Search tech stack..."
+              searchPlaceholder="Type technology (e.g. Salesforce, AWS)..."
+              allowCustom={true}
+              maxDisplayPills={2}
+            />
           </div>
         )}
       </div>
@@ -360,36 +318,28 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           className="w-full flex items-center justify-between text-left font-bold text-slate-900 dark:text-white cursor-pointer py-1"
         >
           <div className="flex items-center gap-2 text-left min-w-0">
-            <TrendingUp className="w-4 h-4 text-emerald-500 shrink-0" />
+            <TrendingUp className="w-4 h-4 text-primary shrink-0" />
             <span className="text-left text-xs font-bold truncate">Buying Intent Signals</span>
+            {(filters.intentSignals.length + filters.intentTopics.length) > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary">
+                {filters.intentSignals.length + filters.intentTopics.length}
+              </span>
+            )}
           </div>
           {collapsedSections['intent'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
 
         {!collapsedSections['intent'] && (
-          <div className="space-y-1.5 pl-6">
-            {[
-              'Hiring +5 Sales Reps / SDRs',
-              'Recent Venture Funding (Series B $32M)',
-              'Tool Migration / Tech Shift',
-              'Leadership Change / Promotion',
-            ].map((sig) => {
-              const isChecked = filters.intentSignals.includes(sig);
-              return (
-                <label
-                  key={sig}
-                  className="flex items-center justify-start text-left gap-2 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white"
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => toggleFilterValue('intentSignals', sig)}
-                    className="w-3.5 h-3.5 shrink-0 rounded text-emerald-600 border-slate-300 dark:border-[#2A2A2A] focus:ring-emerald-500"
-                  />
-                  <span className="truncate text-left text-xs">{sig}</span>
-                </label>
-              );
-            })}
+          <div className="pt-1">
+            <SearchableMultiSelect
+              options={leadFilterOptions.intentTopics}
+              selected={filters.intentSignals.length > 0 ? filters.intentSignals : filters.intentTopics}
+              onChange={(newSignals) => updateFilters({ intentSignals: newSignals, intentTopics: newSignals })}
+              placeholder="Search buying signals & intent..."
+              searchPlaceholder="Type intent (e.g. Hiring, Funding, Stack Shift)..."
+              allowCustom={true}
+              maxDisplayPills={2}
+            />
           </div>
         )}
       </div>
@@ -397,7 +347,7 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
       {/* 7. Contact Verification & Phone Status */}
       <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-[#202020]">
         <div className="font-bold text-slate-900 dark:text-white flex items-center justify-start text-left gap-2">
-          <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+          <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
           <span className="text-left text-xs font-bold">Contact Verification</span>
         </div>
 
@@ -411,7 +361,7 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
                   deliverability: e.target.checked ? 'verified_only' : 'all',
                 })
               }
-              className="w-3.5 h-3.5 shrink-0 rounded text-emerald-600 border-slate-300 dark:border-[#2A2A2A] focus:ring-emerald-500"
+              className="w-3.5 h-3.5 shrink-0 rounded text-primary border-slate-300 dark:border-[#2A2A2A] focus:ring-primary"
             />
             <span className="text-left text-xs">100% Deliverable Work Emails Only</span>
           </label>
@@ -425,7 +375,7 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
                   hasPhone: e.target.checked,
                 })
               }
-              className="w-3.5 h-3.5 shrink-0 rounded text-emerald-600 border-slate-300 dark:border-[#2A2A2A] focus:ring-emerald-500"
+              className="w-3.5 h-3.5 shrink-0 rounded text-primary border-slate-300 dark:border-[#2A2A2A] focus:ring-primary"
             />
             <span className="text-left text-xs">Direct Mobile Phone Available</span>
           </label>

@@ -29,7 +29,9 @@ import {
 } from 'lucide-react';
 import { useLeadSearch, LeadFilterState, CustomFilterRule, INITIAL_LEAD_FILTERS } from '../../context/LeadSearchContext';
 import { Button } from '../ui/Button';
+import { SearchableMultiSelect } from '../ui/SearchableMultiSelect';
 import { LeadFinderCompanyDomainFilter } from './LeadFinderCompanyDomainFilter';
+import { leadFilterOptions } from '../../data/leadFilterOptions';
 
 export interface LeadFinderAdvancedFiltersDrawerProps {
   isOpen: boolean;
@@ -100,6 +102,8 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
     if (draft.departments.length > 0) count += draft.departments.length;
     if (draft.seniority.length > 0) count += draft.seniority.length;
     if (draft.locations.length > 0) count += draft.locations.length;
+    if (draft.statesRegions && draft.statesRegions.length > 0) count += draft.statesRegions.length;
+    if (draft.cities && draft.cities.length > 0) count += draft.cities.length;
     if (draft.workplaceType.length > 0) count += draft.workplaceType.length;
     if (draft.timeZones.length > 0) count += draft.timeZones.length;
     if (draft.intentSignals.length > 0) count += draft.intentSignals.length;
@@ -176,12 +180,12 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
           {/* 1. Header Toolbar */}
           <div className="p-4 sm:p-5 border-b border-slate-200/80 dark:border-[#2A2A2A] flex items-center justify-between gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
             <div className="flex items-center gap-2">
-              <Sliders className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <Sliders className="w-5 h-5 text-primary" />
               <h2 className="text-base sm:text-lg font-black text-slate-950 dark:text-white tracking-tight uppercase">
                 Advanced Filters
               </h2>
               {activeCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-blue-50 dark:bg-[#1A1A1A] text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/60">
+                <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-primary/10 text-primary border border-primary/20">
                   {activeCount}
                 </span>
               )}
@@ -330,7 +334,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Company Size</label>
                       <div className="flex flex-wrap gap-1.5">
-                        {['1-10', '11-50', '51-200', '201-500', '501-1,000', '1,001-5,000', '5,001-10,000', '10,001+'].map((size) => {
+                        {leadFilterOptions.headcountRanges.map((size) => {
                           const isSel = draft.headcount.includes(size);
                           return (
                             <button
@@ -339,7 +343,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                               onClick={() => toggleDraftArray('headcount', size)}
                               className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
                                 isSel
-                                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                                  ? 'bg-primary text-white border-primary shadow-xs'
                                   : 'bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#2A2A2A] hover:border-slate-300'
                               }`}
                             >
@@ -354,7 +358,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Annual Revenue Range</label>
                       <div className="flex flex-wrap gap-1.5">
-                        {['$0-$1M', '$1M-$10M', '$10M-$50M', '$50M-$100M', '$100M-$500M', '$500M+'].map((rev) => {
+                        {leadFilterOptions.revenueRanges.map((rev) => {
                           const isSel = draft.revenue.includes(rev);
                           return (
                             <button
@@ -363,7 +367,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                               onClick={() => toggleDraftArray('revenue', rev)}
                               className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
                                 isSel
-                                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                                  ? 'bg-primary text-white border-primary shadow-xs'
                                   : 'bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#2A2A2A] hover:border-slate-300'
                               }`}
                             >
@@ -374,39 +378,23 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                       </div>
                     </div>
 
-                    {/* Industry */}
+                    {/* Industry / Vertical */}
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Industry Sector</label>
-                      <div className="space-y-1">
-                        {[
-                          'Enterprise B2B SaaS',
-                          'Cybersecurity & DevOps',
-                          'FinTech & B2B Payments',
-                          'Healthcare & Life Sciences',
-                          'E-Commerce & Supply Chain',
-                          'Marketing & Growth Agencies',
-                        ].map((ind) => (
-                          <label
-                            key={ind}
-                            className="flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white cursor-pointer"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={draft.industries.includes(ind)}
-                              onChange={() => toggleDraftArray('industries', ind)}
-                              className="w-3.5 h-3.5 rounded border-slate-300 dark:border-white/20 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-[11px] font-medium">{ind}</span>
-                          </label>
-                        ))}
-                      </div>
+                      <SearchableMultiSelect
+                        options={leadFilterOptions.industries}
+                        selected={draft.industries}
+                        onChange={(newInds) => setDraft((p) => ({ ...p, industries: newInds }))}
+                        placeholder="Search industries or verticals..."
+                        searchPlaceholder="Search industry e.g. SaaS, FinTech, Healthcare..."
+                        label="Industry / Vertical"
+                      />
                     </div>
 
                     {/* Funding Stage */}
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Funding Stage</label>
                       <div className="flex flex-wrap gap-1.5">
-                        {['Bootstrapped', 'Seed', 'Series A', 'Series B', 'Series C', 'Series D', 'Pre-IPO'].map((stage) => {
+                        {leadFilterOptions.fundingStages.map((stage) => {
                           const isSel = draft.fundingStage.includes(stage);
                           return (
                             <button
@@ -415,8 +403,8 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                               onClick={() => toggleDraftArray('fundingStage', stage)}
                               className={`px-2 py-1 rounded-xl text-[10px] font-bold border transition-all cursor-pointer ${
                                 isSel
-                                  ? 'bg-blue-600 text-white border-blue-600'
-                                  : 'bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#2A2A2A]'
+                                  ? 'bg-primary text-white border-primary shadow-xs'
+                                  : 'bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#2A2A2A] hover:border-slate-300'
                               }`}
                             >
                               {stage}
@@ -447,11 +435,23 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
 
                 {!collapsed['person'] && (
                   <div className="space-y-3.5 pl-6">
-                    {/* Seniority */}
+                    {/* Job Title / Roles */}
+                    <div className="space-y-1.5">
+                      <SearchableMultiSelect
+                        options={leadFilterOptions.jobTitles}
+                        selected={draft.roles}
+                        onChange={(newRoles) => setDraft((p) => ({ ...p, roles: newRoles }))}
+                        placeholder="Search job titles e.g. VP Sales, CRO, Head of RevOps..."
+                        searchPlaceholder="Search job titles e.g. Chief Revenue Officer, Founder..."
+                        label="Job Title / Decision Maker Roles"
+                      />
+                    </div>
+
+                    {/* Seniority Level */}
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Seniority Level</label>
                       <div className="flex flex-wrap gap-1.5">
-                        {['Owner', 'Founder', 'C-Level', 'VP', 'Director', 'Head', 'Manager', 'Senior', 'Mid-Level', 'Entry-Level'].map((sen) => {
+                        {leadFilterOptions.seniorities.map((sen) => {
                           const isSel = draft.seniority.includes(sen);
                           return (
                             <button
@@ -460,8 +460,8 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                               onClick={() => toggleDraftArray('seniority', sen)}
                               className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
                                 isSel
-                                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
-                                  : 'bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#2A2A2A]'
+                                  ? 'bg-primary text-white border-primary shadow-xs'
+                                  : 'bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#2A2A2A] hover:border-slate-300'
                               }`}
                             >
                               {sen}
@@ -471,28 +471,16 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                       </div>
                     </div>
 
-                    {/* Department */}
+                    {/* Department / Function */}
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Department / Function</label>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {[
-                          'Sales', 'Marketing', 'Engineering', 'Product', 'Finance', 
-                          'HR', 'Operations', 'IT', 'Procurement', 'Legal', 'Customer Success'
-                        ].map((dept) => (
-                          <label
-                            key={dept}
-                            className="flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white cursor-pointer"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={draft.departments.includes(dept)}
-                              onChange={() => toggleDraftArray('departments', dept)}
-                              className="w-3.5 h-3.5 rounded border-slate-300 dark:border-white/20 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-[11px] font-medium">{dept}</span>
-                          </label>
-                        ))}
-                      </div>
+                      <SearchableMultiSelect
+                        options={leadFilterOptions.departments}
+                        selected={draft.departments}
+                        onChange={(newDepts) => setDraft((p) => ({ ...p, departments: newDepts }))}
+                        placeholder="Search departments e.g. Sales, Marketing, RevOps..."
+                        searchPlaceholder="Search departments e.g. Engineering, Finance..."
+                        label="Department / Function"
+                      />
                     </div>
                   </div>
                 )}
@@ -500,7 +488,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
             )}
 
             {/* SECTION 4: LOCATION */}
-            {(matchesSearch('location') || matchesSearch('country') || matchesSearch('remote') || matchesSearch('city') || matchesSearch('timezone')) && (
+            {(matchesSearch('location') || matchesSearch('country') || matchesSearch('remote') || matchesSearch('city') || matchesSearch('state') || matchesSearch('region') || matchesSearch('timezone')) && (
               <div className="space-y-3 pt-3">
                 <button
                   type="button"
@@ -508,7 +496,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                   className="w-full flex items-center justify-between font-bold text-sm text-slate-900 dark:text-white cursor-pointer py-1"
                 >
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-blue-500" />
+                    <MapPin className="w-4 h-4 text-primary" />
                     <span>4. Geography & Location</span>
                   </div>
                   {collapsed['location'] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronUp className="w-4 h-4 text-slate-400" />}
@@ -516,32 +504,40 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
 
                 {!collapsed['location'] && (
                   <div className="space-y-3.5 pl-6">
+                    {/* Country & Region */}
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Country & Region</label>
-                      <div className="space-y-1">
-                        {[
-                          'United States',
-                          'United Kingdom',
-                          'Canada',
-                          'France',
-                          'Germany',
-                          'Australia',
-                          'European Union',
-                        ].map((loc) => (
-                          <label
-                            key={loc}
-                            className="flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white cursor-pointer"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={draft.locations.includes(loc)}
-                              onChange={() => toggleDraftArray('locations', loc)}
-                              className="w-3.5 h-3.5 rounded border-slate-300 dark:border-white/20 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-[11px] font-medium">{loc}</span>
-                          </label>
-                        ))}
-                      </div>
+                      <SearchableMultiSelect
+                        options={leadFilterOptions.countries}
+                        selected={draft.locations}
+                        onChange={(locs) => setDraft((p) => ({ ...p, locations: locs }))}
+                        placeholder="Search countries / regions (e.g. United States, Germany)..."
+                        searchPlaceholder="Search countries / regions..."
+                        label="Country & Region"
+                      />
+                    </div>
+
+                    {/* State / Province */}
+                    <div className="space-y-1.5">
+                      <SearchableMultiSelect
+                        options={leadFilterOptions.statesRegions}
+                        selected={draft.statesRegions || []}
+                        onChange={(states) => setDraft((p) => ({ ...p, statesRegions: states }))}
+                        placeholder="Search states / provinces (e.g. California, Ontario, New York)..."
+                        searchPlaceholder="Search states / provinces..."
+                        label="State / Province"
+                      />
+                    </div>
+
+                    {/* City / Metro */}
+                    <div className="space-y-1.5">
+                      <SearchableMultiSelect
+                        options={leadFilterOptions.cities}
+                        selected={draft.cities || []}
+                        onChange={(cities) => setDraft((p) => ({ ...p, cities: cities }))}
+                        placeholder="Search cities / metros (e.g. San Francisco, New York, London)..."
+                        searchPlaceholder="Search cities / metros..."
+                        label="City / Metro Area"
+                      />
                     </div>
 
                     {/* Workplace Type */}
@@ -557,8 +553,8 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                               onClick={() => toggleDraftArray('workplaceType', type)}
                               className={`px-3 py-1 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                                 isSel
-                                  ? 'bg-blue-600 text-white border-blue-600'
-                                  : 'bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#2A2A2A]'
+                                  ? 'bg-primary text-white border-primary shadow-xs'
+                                  : 'bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#2A2A2A] hover:border-slate-300'
                               }`}
                             >
                               {type}
@@ -581,7 +577,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                   className="w-full flex items-center justify-between font-bold text-sm text-slate-900 dark:text-white cursor-pointer py-1"
                 >
                   <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-blue-500" />
+                    <Zap className="w-4 h-4 text-primary" />
                     <span>5. Intent Topics & Buying Signals</span>
                   </div>
                   {collapsed['intent'] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronUp className="w-4 h-4 text-slate-400" />}
@@ -589,33 +585,14 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
 
                 {!collapsed['intent'] && (
                   <div className="space-y-3.5 pl-6">
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {[
-                        'Product Interest',
-                        'Category Interest',
-                        'Website Visit',
-                        'Pricing Page Visit',
-                        'Competitor Research',
-                        'Hiring Intent',
-                        'Expansion Intent',
-                        'Technology Change',
-                        'Funding Event',
-                        'Leadership Change',
-                      ].map((topic) => (
-                        <label
-                          key={topic}
-                          className="flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={draft.intentTopics.includes(topic)}
-                            onChange={() => toggleDraftArray('intentTopics', topic)}
-                            className="w-3.5 h-3.5 rounded border-slate-300 dark:border-white/20 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-[11px] font-medium">{topic}</span>
-                        </label>
-                      ))}
-                    </div>
+                    <SearchableMultiSelect
+                      options={leadFilterOptions.intentTopics}
+                      selected={draft.intentTopics}
+                      onChange={(topics) => setDraft((p) => ({ ...p, intentTopics: topics }))}
+                      placeholder="Search buying signals & intent topics..."
+                      searchPlaceholder="Search intent topics e.g. Hiring, Funding, Tech Change..."
+                      label="Buying Signals & Intent Topics"
+                    />
                   </div>
                 )}
               </div>
@@ -630,7 +607,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                   className="w-full flex items-center justify-between font-bold text-sm text-slate-900 dark:text-white cursor-pointer py-1"
                 >
                   <div className="flex items-center gap-2">
-                    <Cpu className="w-4 h-4 text-blue-500" />
+                    <Cpu className="w-4 h-4 text-primary" />
                     <span>6. Installed Tech Stack</span>
                   </div>
                   {collapsed['tech'] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronUp className="w-4 h-4 text-slate-400" />}
@@ -638,28 +615,15 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
 
                 {!collapsed['tech'] && (
                   <div className="space-y-3.5 pl-6">
-                    <div className="flex flex-wrap gap-1.5">
-                      {[
-                        'Salesforce', 'HubSpot', 'Stripe', 'AWS', 'PostgreSQL', 
-                        'React', 'Snowflake', 'Segment', 'Datadog', 'GCP'
-                      ].map((t) => {
-                        const isSel = draft.technologies.includes(t);
-                        return (
-                          <button
-                            key={t}
-                            type="button"
-                            onClick={() => toggleDraftArray('technologies', t)}
-                            className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
-                              isSel
-                                ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
-                                : 'bg-slate-50 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#2A2A2A]'
-                            }`}
-                          >
-                            {t}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <SearchableMultiSelect
+                      options={leadFilterOptions.technologies}
+                      selected={draft.technologies}
+                      onChange={(techs) => setDraft((p) => ({ ...p, technologies: techs }))}
+                      placeholder="Search installed technologies (e.g. Salesforce, AWS, React, Segment)..."
+                      searchPlaceholder="Search technologies..."
+                      label="Installed Technologies"
+                      allowCustom={true}
+                    />
                   </div>
                 )}
               </div>
@@ -674,7 +638,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                   className="w-full flex items-center justify-between font-bold text-sm text-slate-900 dark:text-white cursor-pointer py-1"
                 >
                   <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-blue-500" />
+                    <ShieldCheck className="w-4 h-4 text-primary" />
                     <span>7. Contact Quality & Match Score</span>
                   </div>
                   {collapsed['quality'] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronUp className="w-4 h-4 text-slate-400" />}
@@ -685,7 +649,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase">
                         <span>ICP Score Range</span>
-                        <span className="font-mono text-blue-600 dark:text-blue-400">{draft.qualityScoreMin} - {draft.qualityScoreMax}</span>
+                        <span className="font-mono text-primary">{draft.qualityScoreMin} - {draft.qualityScoreMax}</span>
                       </div>
                       <input
                         type="range"
@@ -693,7 +657,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                         max="100"
                         value={draft.qualityScoreMin}
                         onChange={(e) => setDraft((p) => ({ ...p, qualityScoreMin: parseInt(e.target.value) }))}
-                        className="w-full accent-blue-600 cursor-pointer"
+                        className="w-full accent-primary cursor-pointer"
                       />
                     </div>
                   </div>
@@ -710,7 +674,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                   className="w-full flex items-center justify-between font-bold text-sm text-slate-900 dark:text-white cursor-pointer py-1"
                 >
                   <div className="flex items-center gap-2">
-                    <UserX className="w-4 h-4 text-blue-500" />
+                    <UserX className="w-4 h-4 text-primary" />
                     <span>8. Exclusions & Duplicate Protection</span>
                   </div>
                   {collapsed['duplicates'] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronUp className="w-4 h-4 text-slate-400" />}
@@ -731,7 +695,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                           type="checkbox"
                           checked={Boolean((draft as any)[item.key])}
                           onChange={(e) => setDraft((p) => ({ ...p, [item.key]: e.target.checked }))}
-                          className="w-3.5 h-3.5 rounded border-slate-300 dark:border-white/20 text-blue-600 focus:ring-blue-500"
+                          className="w-3.5 h-3.5 rounded border-slate-300 dark:border-white/20 text-primary focus:ring-primary"
                         />
                         <span className="text-[11px] font-medium">{item.label}</span>
                       </label>
@@ -750,7 +714,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                   className="w-full flex items-center justify-between font-bold text-sm text-slate-900 dark:text-white cursor-pointer py-1"
                 >
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-blue-500" />
+                    <Sparkles className="w-4 h-4 text-primary" />
                     <span>9. Custom Query Rules (AND / OR)</span>
                   </div>
                   {collapsed['custom'] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronUp className="w-4 h-4 text-slate-400" />}
@@ -764,14 +728,14 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                         <button
                           type="button"
                           onClick={() => setDraft((p) => ({ ...p, customLogic: 'AND' }))}
-                          className={`px-2.5 py-1 ${draft.customLogic === 'AND' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400'}`}
+                          className={`px-2.5 py-1 ${draft.customLogic === 'AND' ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400'}`}
                         >
                           AND
                         </button>
                         <button
                           type="button"
                           onClick={() => setDraft((p) => ({ ...p, customLogic: 'OR' }))}
-                          className={`px-2.5 py-1 ${draft.customLogic === 'OR' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400'}`}
+                          className={`px-2.5 py-1 ${draft.customLogic === 'OR' ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400'}`}
                         >
                           OR
                         </button>
@@ -854,7 +818,7 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
               variant="primary"
               size="sm"
               onClick={handleApply}
-              className="text-xs font-bold px-6 shadow-sm shadow-blue-500/20"
+              className="text-xs font-bold px-6 shadow-sm shadow-primary/20"
             >
               Apply Filters ({activeCount})
             </Button>

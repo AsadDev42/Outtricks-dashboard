@@ -29,3 +29,4 @@ export * from './AnimatedNumber';
 export * from './GsapStagger';
 export * from './GsapPageTransition';
 export * from './MotionFade';
+export * from './SearchableMultiSelect';
