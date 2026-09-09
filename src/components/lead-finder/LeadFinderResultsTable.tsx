@@ -34,12 +34,48 @@ import {
   RotateCcw,
   RefreshCw,
   Lock,
-  Sliders
+  Sliders,
+  MapPin
 } from 'lucide-react';
 
 import { useAuth } from '../../context/AuthContext';
 import { useCrm } from '../../context/CrmContext';
 import { useToast } from '../../context/ToastContext';
+
+/**
+ * Formats lead location following clean B2B hierarchy:
+ * 1. City, State/Region (preferred when state/region exists, e.g. Seattle, Washington)
+ * 2. City, Country (when state is not available, e.g. Hamburg, Germany)
+ * 3. State/Region, Country (if city is not available, e.g. West Java, Indonesia)
+ * 4. Country only (e.g. United States)
+ * 5. Fallback from lead.location
+ * 6. "—"
+ */
+export function formatLeadLocation(lead: LeadDetailData): string {
+  if (lead.city && (lead.state || lead.region)) {
+    return `${lead.city}, ${lead.state || lead.region}`;
+  }
+  if (lead.city && lead.country) {
+    return `${lead.city}, ${lead.country}`;
+  }
+  if ((lead.state || lead.region) && lead.country) {
+    return `${lead.state || lead.region}, ${lead.country}`;
+  }
+  if (lead.city) return lead.city;
+  if (lead.state || lead.region) return (lead.state || lead.region)!;
+  if (lead.country) return lead.country;
+
+  if (lead.location && lead.location.trim()) {
+    const raw = lead.location.trim();
+    const parts = raw.split(',').map((p) => p.trim()).filter(Boolean);
+    if (parts.length >= 3) {
+      return `${parts[0]}, ${parts[1]}`;
+    }
+    return raw;
+  }
+
+  return '—';
+}
 
 export interface LeadFinderResultsTableProps {
   onOpenLeadDetail: (lead: LeadDetailData) => void;
@@ -351,7 +387,7 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
               />
             </th>
             <TableHead
-              className="min-w-[190px]"
+              className="min-w-[170px]"
               sortable
               sortDirection={sorting.field === 'name' ? sorting.order : null}
               onSort={() => setSorting('name')}
@@ -359,7 +395,7 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
               Decision Maker
             </TableHead>
             <TableHead
-              className="min-w-[150px]"
+              className="min-w-[130px]"
               sortable
               sortDirection={sorting.field === 'company' ? sorting.order : null}
               onSort={() => setSorting('company')}
@@ -367,15 +403,22 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
               Company & Headcount
             </TableHead>
             <TableHead
-              className="min-w-[170px]"
+              className="min-w-[150px]"
               sortable
               sortDirection={sorting.field === 'deliverability' ? sorting.order : null}
               onSort={() => setSorting('deliverability')}
             >
               Verified Contact Channels
             </TableHead>
-            <TableHead className="min-w-[160px]">Buying Intent & Tech</TableHead>
-            <th className="p-3 sm:p-4 w-[215px] min-w-[215px] text-right sticky right-0 bg-slate-50 dark:bg-[#111111] z-20 border-l border-slate-200/80 dark:border-[#222222] shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.15)] dark:shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.6)]">
+            <TableHead
+              className="min-w-[130px] max-w-[180px]"
+              sortable
+              sortDirection={sorting.field === 'location' ? sorting.order : null}
+              onSort={() => setSorting('location')}
+            >
+              LOCATION
+            </TableHead>
+            <th className="p-3 sm:p-4 w-[185px] min-w-[185px] text-right sticky right-0 bg-slate-50 dark:bg-[#111111] z-20 border-l border-slate-200/80 dark:border-[#222222] shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.15)] dark:shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.6)]">
               Actions
             </th>
           </tr>
@@ -386,6 +429,7 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
             const isSelected = selectedIds.includes(lead.id);
             const isEmailUnlocked = unlockedEmails.has(lead.id);
             const isPhoneUnlocked = unlockedPhones.has(lead.id);
+            const displayLocation = formatLeadLocation(lead);
 
             return (
               <TableRow key={lead.id} selected={isSelected}>
@@ -400,7 +444,7 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
                 </TableCell>
 
                 {/* Prospect Name & Title */}
-                <TableCell className="min-w-[190px] p-3 sm:p-4">
+                <TableCell className="min-w-[170px] p-3 sm:p-4">
                   <div
                     onClick={() => onOpenLeadDetail(lead)}
                     className="flex items-center gap-3 cursor-pointer group"
@@ -422,7 +466,7 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
                 </TableCell>
 
                 {/* Company & Headcount */}
-                <TableCell className="min-w-[150px] p-3 sm:p-4">
+                <TableCell className="min-w-[130px] p-3 sm:p-4">
                   <div className="space-y-0.5">
                     <div className="font-bold text-xs text-slate-900 dark:text-white">
                       {lead.company}
@@ -434,7 +478,7 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
                 </TableCell>
 
                 {/* Contact Channels */}
-                <TableCell className="min-w-[170px] p-3 sm:p-4">
+                <TableCell className="min-w-[150px] p-3 sm:p-4">
                   <div className="flex flex-col gap-1.5 text-xs">
                     {/* Email Contact State */}
                     {isEmailUnlocked ? (
@@ -482,37 +526,22 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
                   </div>
                 </TableCell>
 
-                {/* Buying Intent & Tech Stack */}
-                <TableCell className="min-w-[160px] p-3 sm:p-4">
-                  <div className="space-y-1">
-                    {lead.intentSignal ? (
-                      <div className="text-[11px] font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3 text-amber-500 shrink-0" />
-                        <span className="truncate">{lead.intentSignal}</span>
-                      </div>
-                    ) : (
-                      <span className="text-[11px] text-slate-400">No active signal</span>
-                    )}
-
-                    <div className="flex flex-wrap gap-1">
-                      {lead.tech.slice(0, 3).map((t, i) => (
-                        <span
-                          key={i}
-                          className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-[#181818] text-[10px] text-slate-600 dark:text-slate-400 font-mono"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                      {lead.tech.length > 3 && (
-                        <span className="text-[10px] text-slate-400">+{lead.tech.length - 3}</span>
-                      )}
-                    </div>
+                {/* Location */}
+                <TableCell className="min-w-[130px] max-w-[180px] p-3 sm:p-4 align-middle">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span
+                      className="truncate font-medium text-slate-800 dark:text-slate-200"
+                      title={displayLocation !== '—' ? (lead.location || displayLocation) : undefined}
+                    >
+                      {displayLocation}
+                    </span>
                   </div>
                 </TableCell>
 
                 {/* Inline Actions (Sticky Column) */}
-                <TableCell className="w-[215px] min-w-[215px] p-3 sm:p-4 text-right sticky right-0 bg-white dark:bg-[#161616] group-hover:bg-slate-50 dark:group-hover:bg-[#1E1E1E] z-20 border-l border-slate-200/80 dark:border-[#222222] shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.15)] dark:shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.6)]">
-                  <div className="flex items-center justify-end gap-2.5 sm:gap-3">
+                <TableCell className="w-[185px] min-w-[185px] p-3 sm:p-4 text-right sticky right-0 bg-white dark:bg-[#161616] group-hover:bg-slate-50 dark:group-hover:bg-[#1E1E1E] z-20 border-l border-slate-200/80 dark:border-[#222222] shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.15)] dark:shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.6)]">
+                  <div className="flex items-center justify-end gap-1.5 sm:gap-2">
                     <button
                       type="button"
                       onClick={() => onOpenLeadDetail(lead)}

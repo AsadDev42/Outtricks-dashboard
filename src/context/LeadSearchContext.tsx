@@ -33,6 +33,13 @@ export interface LeadDetailData {
   phoneStatus: 'Verified Mobile' | 'Direct Dial' | 'HQ Only';
   fundingStage?: string;
   
+  // Location discrete breakdown
+  city?: string;
+  state?: string;
+  region?: string;
+  metro?: string;
+  country?: string;
+  
   // Advanced Filter Attributes
   department?: string;
   seniorityLevel?: string;
@@ -220,7 +227,7 @@ export interface SearchHistoryItem {
   resultsCount: number;
 }
 
-export type SortField = 'icpScore' | 'name' | 'company' | 'deliverability';
+export type SortField = 'icpScore' | 'name' | 'company' | 'deliverability' | 'location';
 export type SortOrder = 'asc' | 'desc';
 
 interface LeadSearchContextType {
@@ -1028,6 +1035,10 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         comparison = a.company.localeCompare(b.company);
       } else if (sorting.field === 'deliverability') {
         comparison = b.deliverabilityScore - a.deliverabilityScore;
+      } else if (sorting.field === 'location') {
+        const locA = a.location || '';
+        const locB = b.location || '';
+        comparison = locA.localeCompare(locB);
       }
       return sorting.order === 'asc' ? -comparison : comparison;
     });
