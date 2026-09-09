@@ -25,6 +25,7 @@ import {
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { SearchableMultiSelect } from '../ui/SearchableMultiSelect';
+import { IncludeExcludeFilterGroup } from '../ui/IncludeExcludeFilterGroup';
 import { leadFilterOptions } from '../../data/leadFilterOptions';
 import { useLeadSearch, LeadFilterState } from '../../context/LeadSearchContext';
 
@@ -56,17 +57,29 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
 
   const activeFiltersCount = 
     (filters.companyDomains?.length || 0) +
+    (filters.excludeCompanyDomains?.length || 0) +
+    (filters.companies?.length || 0) +
+    (filters.excludeCompanies?.length || 0) +
     filters.roles.length +
+    (filters.excludeRoles?.length || 0) +
     filters.seniority.length +
+    (filters.excludeSeniority?.length || 0) +
     filters.industries.length +
+    (filters.excludeIndustries?.length || 0) +
     filters.headcount.length +
+    (filters.excludeHeadcount?.length || 0) +
     filters.revenue.length +
+    (filters.excludeRevenue?.length || 0) +
     filters.locations.length +
+    (filters.excludeLocations?.length || 0) +
     (filters.statesRegions?.length || 0) +
     (filters.cities?.length || 0) +
     filters.technologies.length +
+    (filters.excludeTechnologies?.length || 0) +
     filters.intentSignals.length +
+    (filters.excludeIntentSignals?.length || 0) +
     filters.intentTopics.length +
+    (filters.excludeIntentTopics?.length || 0) +
     (filters.deliverability !== 'all' ? 1 : 0) +
     (filters.hasPhone ? 1 : 0);
 
@@ -142,10 +155,19 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           <div className="flex items-center gap-2 text-left min-w-0">
             <Users className="w-4 h-4 text-primary shrink-0" />
             <span className="text-left text-xs font-bold truncate">Decision Maker Roles</span>
-            {filters.roles.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary">
-                {filters.roles.length}
-              </span>
+            {(filters.roles.length > 0 || (filters.excludeRoles?.length || 0) > 0) && (
+              <div className="flex items-center gap-1 font-mono text-[10px]">
+                {filters.roles.length > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full font-bold bg-primary/10 text-primary">
+                    +{filters.roles.length}
+                  </span>
+                )}
+                {(filters.excludeRoles?.length || 0) > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full font-bold bg-rose-500/10 text-rose-500">
+                    -{filters.excludeRoles.length}
+                  </span>
+                )}
+              </div>
             )}
           </div>
           {collapsedSections['roles'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
@@ -153,14 +175,38 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
 
         {!collapsedSections['roles'] && (
           <div className="pt-1">
-            <SearchableMultiSelect
+            <IncludeExcludeFilterGroup
               options={leadFilterOptions.jobTitles}
-              selected={filters.roles}
-              onChange={(newRoles) => updateFilters({ roles: newRoles })}
-              placeholder="Search decision maker roles..."
+              include={filters.roles}
+              exclude={filters.excludeRoles || []}
+              onIncludeChange={(newRoles) => updateFilters({ roles: newRoles })}
+              onExcludeChange={(newExclude) => updateFilters({ excludeRoles: newExclude })}
+              includePlaceholder="Search job titles to include..."
+              excludePlaceholder="Search job titles to exclude..."
               searchPlaceholder="Type role (e.g. VP Sales, CRO, Founder)..."
               allowCustom={true}
-              maxDisplayPills={2}
+              extraControls={
+                <div className="flex flex-col gap-1 pt-1.5 border-t border-slate-100 dark:border-[#222]">
+                  <label className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-400 cursor-pointer hover:text-slate-900 dark:hover:text-white">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(filters.includeSimilarTitles)}
+                      onChange={(e) => updateFilters({ includeSimilarTitles: e.target.checked })}
+                      className="w-3.5 h-3.5 rounded text-primary focus:ring-primary border-slate-300 dark:border-white/20"
+                    />
+                    <span>Include similar titles</span>
+                  </label>
+                  <label className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-400 cursor-pointer hover:text-slate-900 dark:hover:text-white">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(filters.includePastTitles)}
+                      onChange={(e) => updateFilters({ includePastTitles: e.target.checked })}
+                      className="w-3.5 h-3.5 rounded text-primary focus:ring-primary border-slate-300 dark:border-white/20"
+                    />
+                    <span>Include past titles</span>
+                  </label>
+                </div>
+              }
             />
           </div>
         )}
@@ -176,10 +222,19 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           <div className="flex items-center gap-2 text-left min-w-0">
             <Briefcase className="w-4 h-4 text-primary shrink-0" />
             <span className="text-left text-xs font-bold truncate">Industry & Vertical</span>
-            {filters.industries.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary">
-                {filters.industries.length}
-              </span>
+            {(filters.industries.length > 0 || (filters.excludeIndustries?.length || 0) > 0) && (
+              <div className="flex items-center gap-1 font-mono text-[10px]">
+                {filters.industries.length > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full font-bold bg-primary/10 text-primary">
+                    +{filters.industries.length}
+                  </span>
+                )}
+                {(filters.excludeIndustries?.length || 0) > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full font-bold bg-rose-500/10 text-rose-500">
+                    -{filters.excludeIndustries.length}
+                  </span>
+                )}
+              </div>
             )}
           </div>
           {collapsedSections['industries'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
@@ -187,14 +242,16 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
 
         {!collapsedSections['industries'] && (
           <div className="pt-1">
-            <SearchableMultiSelect
+            <IncludeExcludeFilterGroup
               options={leadFilterOptions.industries}
-              selected={filters.industries}
-              onChange={(newInds) => updateFilters({ industries: newInds })}
-              placeholder="Search industries & verticals..."
+              include={filters.industries}
+              exclude={filters.excludeIndustries || []}
+              onIncludeChange={(newInds) => updateFilters({ industries: newInds })}
+              onExcludeChange={(newExclude) => updateFilters({ excludeIndustries: newExclude })}
+              includePlaceholder="Search industries to include..."
+              excludePlaceholder="Search industries to exclude..."
               searchPlaceholder="Type industry (e.g. SaaS, FinTech, AI)..."
               allowCustom={true}
-              maxDisplayPills={2}
             />
           </div>
         )}
@@ -252,10 +309,19 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           <div className="flex items-center gap-2 text-left min-w-0">
             <MapPin className="w-4 h-4 text-primary shrink-0" />
             <span className="text-left text-xs font-bold truncate">Geography</span>
-            {filters.locations.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary">
-                {filters.locations.length}
-              </span>
+            {(filters.locations.length > 0 || (filters.excludeLocations?.length || 0) > 0) && (
+              <div className="flex items-center gap-1 font-mono text-[10px]">
+                {filters.locations.length > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full font-bold bg-primary/10 text-primary">
+                    +{filters.locations.length}
+                  </span>
+                )}
+                {(filters.excludeLocations?.length || 0) > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full font-bold bg-rose-500/10 text-rose-500">
+                    -{filters.excludeLocations.length}
+                  </span>
+                )}
+              </div>
             )}
           </div>
           {collapsedSections['locations'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
@@ -263,14 +329,16 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
 
         {!collapsedSections['locations'] && (
           <div className="pt-1">
-            <SearchableMultiSelect
+            <IncludeExcludeFilterGroup
               options={leadFilterOptions.countries}
-              selected={filters.locations}
-              onChange={(newLocs) => updateFilters({ locations: newLocs })}
-              placeholder="Search countries & regions..."
+              include={filters.locations}
+              exclude={filters.excludeLocations || []}
+              onIncludeChange={(newLocs) => updateFilters({ locations: newLocs })}
+              onExcludeChange={(newExclude) => updateFilters({ excludeLocations: newExclude })}
+              includePlaceholder="Search country, region, city to include..."
+              excludePlaceholder="Search location to exclude..."
               searchPlaceholder="Type location (e.g. United States, Germany)..."
               allowCustom={true}
-              maxDisplayPills={2}
             />
           </div>
         )}
@@ -286,10 +354,19 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           <div className="flex items-center gap-2 text-left min-w-0">
             <Cpu className="w-4 h-4 text-primary shrink-0" />
             <span className="text-left text-xs font-bold truncate">Technographic Stack</span>
-            {filters.technologies.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary">
-                {filters.technologies.length}
-              </span>
+            {(filters.technologies.length > 0 || (filters.excludeTechnologies?.length || 0) > 0) && (
+              <div className="flex items-center gap-1 font-mono text-[10px]">
+                {filters.technologies.length > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full font-bold bg-primary/10 text-primary">
+                    +{filters.technologies.length}
+                  </span>
+                )}
+                {(filters.excludeTechnologies?.length || 0) > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full font-bold bg-rose-500/10 text-rose-500">
+                    -{filters.excludeTechnologies.length}
+                  </span>
+                )}
+              </div>
             )}
           </div>
           {collapsedSections['technologies'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
@@ -297,14 +374,16 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
 
         {!collapsedSections['technologies'] && (
           <div className="pt-1">
-            <SearchableMultiSelect
+            <IncludeExcludeFilterGroup
               options={leadFilterOptions.technologies}
-              selected={filters.technologies}
-              onChange={(newTechs) => updateFilters({ technologies: newTechs })}
-              placeholder="Search tech stack..."
-              searchPlaceholder="Type technology (e.g. Salesforce, AWS)..."
+              include={filters.technologies}
+              exclude={filters.excludeTechnologies || []}
+              onIncludeChange={(newTechs) => updateFilters({ technologies: newTechs })}
+              onExcludeChange={(newExclude) => updateFilters({ excludeTechnologies: newExclude })}
+              includePlaceholder="Search technology to include..."
+              excludePlaceholder="Search technology to exclude..."
+              searchPlaceholder="Type tech (e.g. Salesforce, AWS)..."
               allowCustom={true}
-              maxDisplayPills={2}
             />
           </div>
         )}
@@ -320,10 +399,19 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           <div className="flex items-center gap-2 text-left min-w-0">
             <TrendingUp className="w-4 h-4 text-primary shrink-0" />
             <span className="text-left text-xs font-bold truncate">Buying Intent Signals</span>
-            {(filters.intentSignals.length + filters.intentTopics.length) > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary">
-                {filters.intentSignals.length + filters.intentTopics.length}
-              </span>
+            {(filters.intentSignals.length + filters.intentTopics.length + (filters.excludeIntentSignals?.length || 0) + (filters.excludeIntentTopics?.length || 0)) > 0 && (
+              <div className="flex items-center gap-1 font-mono text-[10px]">
+                {(filters.intentSignals.length + filters.intentTopics.length) > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full font-bold bg-primary/10 text-primary">
+                    +{filters.intentSignals.length + filters.intentTopics.length}
+                  </span>
+                )}
+                {((filters.excludeIntentSignals?.length || 0) + (filters.excludeIntentTopics?.length || 0)) > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full font-bold bg-rose-500/10 text-rose-500">
+                    -{(filters.excludeIntentSignals?.length || 0) + (filters.excludeIntentTopics?.length || 0)}
+                  </span>
+                )}
+              </div>
             )}
           </div>
           {collapsedSections['intent'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
@@ -331,14 +419,16 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
 
         {!collapsedSections['intent'] && (
           <div className="pt-1">
-            <SearchableMultiSelect
+            <IncludeExcludeFilterGroup
               options={leadFilterOptions.intentTopics}
-              selected={filters.intentSignals.length > 0 ? filters.intentSignals : filters.intentTopics}
-              onChange={(newSignals) => updateFilters({ intentSignals: newSignals, intentTopics: newSignals })}
-              placeholder="Search buying signals & intent..."
+              include={filters.intentSignals.length > 0 ? filters.intentSignals : filters.intentTopics}
+              exclude={filters.excludeIntentSignals?.length ? filters.excludeIntentSignals : (filters.excludeIntentTopics || [])}
+              onIncludeChange={(newSignals) => updateFilters({ intentSignals: newSignals, intentTopics: newSignals })}
+              onExcludeChange={(newExclude) => updateFilters({ excludeIntentSignals: newExclude, excludeIntentTopics: newExclude })}
+              includePlaceholder="Search intent signals to include..."
+              excludePlaceholder="Search intent signals to exclude..."
               searchPlaceholder="Type intent (e.g. Hiring, Funding, Stack Shift)..."
               allowCustom={true}
-              maxDisplayPills={2}
             />
           </div>
         )}

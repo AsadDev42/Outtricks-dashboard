@@ -12,6 +12,7 @@ export interface SearchableMultiSelectProps {
   options: (string | SearchableMultiSelectOption)[];
   selected: string[];
   onChange: (newSelected: string[]) => void;
+  variant?: 'include' | 'exclude';
   placeholder?: string;
   searchPlaceholder?: string;
   label?: string;
@@ -26,6 +27,7 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
   options,
   selected,
   onChange,
+  variant = 'include',
   placeholder = 'Select options...',
   searchPlaceholder = 'Search...',
   label,
@@ -185,6 +187,8 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
     }
   }, [highlightedIndex, isOpen]);
 
+  const isExclude = variant === 'exclude';
+
   return (
     <div className={`relative w-full text-left font-sans ${className}`} ref={containerRef}>
       {label && (
@@ -203,8 +207,12 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
         aria-expanded={isOpen}
         className={`w-full min-h-[36px] px-2.5 py-1.5 rounded-xl border text-xs flex items-center justify-between gap-2 transition-all cursor-pointer select-none outline-none ${
           isOpen
-            ? 'border-primary ring-2 ring-primary/20 bg-white dark:bg-[#1A1A1A]'
-            : 'border-slate-200 dark:border-[#2A2A2A] bg-slate-50/70 dark:bg-white/[0.03] hover:border-slate-300 dark:hover:border-white/20'
+            ? isExclude
+              ? 'border-rose-500 ring-2 ring-rose-500/20 bg-white dark:bg-[#1A1A1A]'
+              : 'border-primary ring-2 ring-primary/20 bg-white dark:bg-[#1A1A1A]'
+            : isExclude
+              ? 'border-rose-300/70 dark:border-rose-900/50 bg-rose-500/[0.03] hover:border-rose-400 dark:hover:border-rose-800'
+              : 'border-slate-200 dark:border-[#2A2A2A] bg-slate-50/70 dark:bg-white/[0.03] hover:border-slate-300 dark:hover:border-white/20'
         } ${disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
       >
         <div className="flex items-center gap-1.5 min-w-0 flex-1 flex-wrap">
@@ -220,7 +228,11 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
               return (
                 <span
                   key={val}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-primary/10 text-primary text-[11px] font-semibold truncate max-w-[170px]"
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold truncate max-w-[170px] ${
+                    isExclude
+                      ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+                      : 'bg-primary/10 text-primary border border-primary/20'
+                  }`}
                 >
                   <span className="truncate">{displayLabel}</span>
                   <button
@@ -241,7 +253,9 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
                 {selected[0]}
                 {selected.length > 1 && `, ${selected[1]}`}
               </span>
-              <span className="px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-primary text-white shrink-0">
+              <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold text-white shrink-0 ${
+                isExclude ? 'bg-rose-500' : 'bg-primary'
+              }`}>
                 +{selected.length - 2}
               </span>
             </div>
@@ -260,7 +274,9 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
             </button>
           )}
           <ChevronDown
-            className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180 text-primary' : ''}`}
+            className={`w-3.5 h-3.5 transition-transform duration-200 ${
+              isOpen ? (isExclude ? 'rotate-180 text-rose-500' : 'rotate-180 text-primary') : ''
+            }`}
           />
         </div>
       </div>
@@ -300,8 +316,8 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
           {/* Quick Info / Clear Header */}
           {selected.length > 0 && (
             <div className="px-3 py-1.5 bg-slate-50/80 dark:bg-white/[0.03] border-b border-slate-100 dark:border-white/[0.04] flex items-center justify-between text-[10.5px]">
-              <span className="font-semibold text-primary">
-                {selected.length} {selected.length === 1 ? 'option selected' : 'options selected'}
+              <span className={`font-semibold ${isExclude ? 'text-rose-600 dark:text-rose-400' : 'text-primary'}`}>
+                {selected.length} {isExclude ? (selected.length === 1 ? 'excluded' : 'excluded') : (selected.length === 1 ? 'included' : 'included')}
               </span>
               <button
                 type="button"
@@ -348,7 +364,9 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
                     <div
                       className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 border transition-all ${
                         isSelected
-                          ? 'bg-primary border-primary text-white shadow-xs'
+                          ? isExclude
+                            ? 'bg-rose-500 border-rose-500 text-white shadow-xs'
+                            : 'bg-primary border-primary text-white shadow-xs'
                           : 'border-slate-300 dark:border-white/20 bg-white dark:bg-transparent'
                       }`}
                     >
@@ -373,10 +391,14 @@ export const SearchableMultiSelect: React.FC<SearchableMultiSelectProps> = ({
                 data-option-index={filteredOptions.length}
                 onClick={handleAddCustom}
                 onMouseEnter={() => setHighlightedIndex(filteredOptions.length)}
-                className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer text-primary ${
-                  highlightedIndex === filteredOptions.length
-                    ? 'bg-primary/10'
-                    : 'hover:bg-primary/5'
+                className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                  isExclude
+                    ? highlightedIndex === filteredOptions.length
+                      ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                      : 'text-rose-600 dark:text-rose-400 hover:bg-rose-500/5'
+                    : highlightedIndex === filteredOptions.length
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-primary hover:bg-primary/5'
                 }`}
               >
                 <Plus className="w-3.5 h-3.5 shrink-0" />

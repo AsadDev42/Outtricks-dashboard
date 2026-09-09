@@ -148,6 +148,27 @@ export interface LeadFilterState {
   // 15. CUSTOM FILTERS
   customRules: CustomFilterRule[];
   customLogic: 'AND' | 'OR';
+
+  // Include / Exclude Filter Extensions
+  excludeRoles: string[];
+  companies: string[];
+  excludeCompanies: string[];
+  excludeCompanyDomains: string[];
+  excludeIndustries: string[];
+  excludeLocations: string[];
+  excludeTechnologies: string[];
+  excludeDepartments: string[];
+  excludeIntentSignals: string[];
+  excludeIntentTopics: string[];
+  excludeSeniority: string[];
+  excludeHeadcount: string[];
+  excludeRevenue: string[];
+  excludeFundingStage: string[];
+
+  // Optional toggles
+  includeSimilarTitles: boolean;
+  includePastTitles: boolean;
+  includePastCompanies: boolean;
   
   // Legacy compatibility props
   deliverability: 'all' | 'verified_only';
@@ -207,6 +228,26 @@ export const INITIAL_LEAD_FILTERS: LeadFilterState = {
   engagementDateRange: 'all',
   customRules: [],
   customLogic: 'AND',
+  
+  // Include / Exclude Filter Extensions
+  excludeRoles: [],
+  companies: [],
+  excludeCompanies: [],
+  excludeCompanyDomains: [],
+  excludeIndustries: [],
+  excludeLocations: [],
+  excludeTechnologies: [],
+  excludeDepartments: [],
+  excludeIntentSignals: [],
+  excludeIntentTopics: [],
+  excludeSeniority: [],
+  excludeHeadcount: [],
+  excludeRevenue: [],
+  excludeFundingStage: [],
+  includeSimilarTitles: false,
+  includePastTitles: false,
+  includePastCompanies: false,
+
   deliverability: 'all',
   hasPhone: false,
 };
@@ -804,6 +845,37 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         if (!matchesCompanyOrDomain) return false;
       }
 
+      // 1c. Company / Domain Exclude Targets
+      if (filters.excludeCompanyDomains && filters.excludeCompanyDomains.length > 0) {
+        const matchesExcludeDomain = filters.excludeCompanyDomains.some((entry) => {
+          const clean = entry.toLowerCase().trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+          if (!clean) return false;
+          return (
+            lead.company.toLowerCase().includes(clean) ||
+            (lead.domain && lead.domain.toLowerCase().includes(clean))
+          );
+        });
+        if (matchesExcludeDomain) return false;
+      }
+
+      // 1d. Named Companies (Include)
+      if (filters.companies && filters.companies.length > 0) {
+        const matchesCompany = filters.companies.some((comp) => {
+          const clean = comp.toLowerCase().trim();
+          return lead.company.toLowerCase().includes(clean);
+        });
+        if (!matchesCompany) return false;
+      }
+
+      // 1e. Named Companies (Exclude)
+      if (filters.excludeCompanies && filters.excludeCompanies.length > 0) {
+        const matchesExcludeComp = filters.excludeCompanies.some((comp) => {
+          const clean = comp.toLowerCase().trim();
+          return lead.company.toLowerCase().includes(clean);
+        });
+        if (matchesExcludeComp) return false;
+      }
+
       // 2. CONTACT FILTERS
       if (filters.contactTypes.length > 0) {
         const matchesContact = filters.contactTypes.some((type) => {
@@ -822,10 +894,16 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       if (filters.headcount.length > 0) {
         if (!filters.headcount.includes(lead.headcount)) return false;
       }
+      if (filters.excludeHeadcount && filters.excludeHeadcount.length > 0) {
+        if (filters.excludeHeadcount.includes(lead.headcount)) return false;
+      }
 
       // 4. REVENUE
       if (filters.revenue.length > 0) {
         if (!filters.revenue.includes(lead.revenue)) return false;
+      }
+      if (filters.excludeRevenue && filters.excludeRevenue.length > 0) {
+        if (filters.excludeRevenue.includes(lead.revenue)) return false;
       }
 
       // 5. INDUSTRIES
@@ -837,6 +915,14 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         });
         if (!matchesInd) return false;
       }
+      if (filters.excludeIndustries && filters.excludeIndustries.length > 0) {
+        const matchesExcludeInd = filters.excludeIndustries.some((ind) => {
+          const cleanInd = ind.toLowerCase().split(' & ')[0].split(' / ')[0].trim();
+          const leadInd = lead.industry.toLowerCase();
+          return leadInd.includes(cleanInd) || cleanInd.includes(leadInd);
+        });
+        if (matchesExcludeInd) return false;
+      }
 
       // 6. COMPANY TYPE
       if (filters.companyTypes.length > 0 && lead.companyType) {
@@ -846,6 +932,9 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       // 7. FUNDING STAGE
       if (filters.fundingStage.length > 0 && lead.fundingStage) {
         if (!filters.fundingStage.includes(lead.fundingStage)) return false;
+      }
+      if (filters.excludeFundingStage && filters.excludeFundingStage.length > 0 && lead.fundingStage) {
+        if (filters.excludeFundingStage.includes(lead.fundingStage)) return false;
       }
 
       // 8. TOTAL FUNDING
@@ -861,6 +950,13 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         });
         if (!matchesRole) return false;
       }
+      if (filters.excludeRoles && filters.excludeRoles.length > 0) {
+        const matchesExcludeRole = filters.excludeRoles.some((r) => {
+          const cleanRole = r.toLowerCase().split(' / ')[0].split(' of ')[0].trim();
+          return lead.title.toLowerCase().includes(cleanRole);
+        });
+        if (matchesExcludeRole) return false;
+      }
 
       // 10. DEPARTMENTS
       if (filters.departments.length > 0 && lead.department) {
@@ -870,10 +966,20 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         });
         if (!matchesDept) return false;
       }
+      if (filters.excludeDepartments && filters.excludeDepartments.length > 0 && lead.department) {
+        const matchesExcludeDept = filters.excludeDepartments.some((dept) => {
+          const cleanDept = dept.toLowerCase().split(' & ')[0].split(' (')[0].trim();
+          return lead.department!.toLowerCase().includes(cleanDept);
+        });
+        if (matchesExcludeDept) return false;
+      }
 
       // 11. SENIORITY
       if (filters.seniority.length > 0 && lead.seniorityLevel) {
         if (!filters.seniority.includes(lead.seniorityLevel)) return false;
+      }
+      if (filters.excludeSeniority && filters.excludeSeniority.length > 0 && lead.seniorityLevel) {
+        if (filters.excludeSeniority.includes(lead.seniorityLevel)) return false;
       }
 
       // 12. LOCATIONS (Country/Region, State/Province, City/Metro)
@@ -883,6 +989,13 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           return lead.location.toLowerCase().includes(cleanLoc);
         });
         if (!matchesLoc) return false;
+      }
+      if (filters.excludeLocations && filters.excludeLocations.length > 0) {
+        const matchesExcludeLoc = filters.excludeLocations.some((loc) => {
+          const cleanLoc = loc.toLowerCase().split(' (')[0].split(',')[0].trim();
+          return lead.location.toLowerCase().includes(cleanLoc);
+        });
+        if (matchesExcludeLoc) return false;
       }
 
       if (filters.statesRegions && filters.statesRegions.length > 0) {
@@ -931,6 +1044,25 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         if (!matchesTopic) return false;
       }
 
+      if (filters.excludeIntentSignals && filters.excludeIntentSignals.length > 0) {
+        const matchesExcludeSig = filters.excludeIntentSignals.some((sig) => {
+          const cleanSig = sig.toLowerCase().split(' (')[0].split(' & ')[0].trim();
+          return lead.intentSignal.toLowerCase().includes(cleanSig);
+        });
+        if (matchesExcludeSig) return false;
+      }
+
+      if (filters.excludeIntentTopics && filters.excludeIntentTopics.length > 0) {
+        const matchesExcludeTopic = filters.excludeIntentTopics.some((t) => {
+          const cleanT = t.toLowerCase().split(' & ')[0].split(' / ')[0].split(' +')[0].trim();
+          return (
+            (lead.intentTopics && lead.intentTopics.some((it) => it.toLowerCase().includes(cleanT))) ||
+            lead.intentSignal.toLowerCase().includes(cleanT)
+          );
+        });
+        if (matchesExcludeTopic) return false;
+      }
+
       // 16. ACTIVITY RECENCY
       if (filters.activityRecency.length > 0 && lead.activityRecency) {
         if (!filters.activityRecency.includes(lead.activityRecency)) return false;
@@ -953,6 +1085,14 @@ export const LeadSearchProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           return lead.tech.some((lt) => lt.toLowerCase().includes(cleanT) || cleanT.includes(lt.toLowerCase()));
         });
         if (!matchesTech) return false;
+      }
+
+      if (filters.excludeTechnologies && filters.excludeTechnologies.length > 0) {
+        const matchesExcludeTech = filters.excludeTechnologies.some((t) => {
+          const cleanT = t.toLowerCase().split(' (')[0].trim();
+          return lead.tech.some((lt) => lt.toLowerCase().includes(cleanT) || cleanT.includes(lt.toLowerCase()));
+        });
+        if (matchesExcludeTech) return false;
       }
 
       if (filters.techCategories.length > 0 && lead.techCategories) {

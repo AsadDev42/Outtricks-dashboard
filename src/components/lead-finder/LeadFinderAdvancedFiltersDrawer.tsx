@@ -30,6 +30,7 @@ import {
 import { useLeadSearch, LeadFilterState, CustomFilterRule, INITIAL_LEAD_FILTERS } from '../../context/LeadSearchContext';
 import { Button } from '../ui/Button';
 import { SearchableMultiSelect } from '../ui/SearchableMultiSelect';
+import { IncludeExcludeFilterGroup } from '../ui/IncludeExcludeFilterGroup';
 import { LeadFinderCompanyDomainFilter } from './LeadFinderCompanyDomainFilter';
 import { leadFilterOptions } from '../../data/leadFilterOptions';
 
@@ -91,27 +92,37 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
   const activeCount = useMemo(() => {
     let count = 0;
     if (draft.companyDomains && draft.companyDomains.length > 0) count += draft.companyDomains.length;
+    if (draft.excludeCompanyDomains && draft.excludeCompanyDomains.length > 0) count += draft.excludeCompanyDomains.length;
+    if (draft.companies && draft.companies.length > 0) count += draft.companies.length;
+    if (draft.excludeCompanies && draft.excludeCompanies.length > 0) count += draft.excludeCompanies.length;
     if (draft.contactTypes.length > 0) count += draft.contactTypes.length;
     if (draft.headcount.length > 0) count += draft.headcount.length;
     if (draft.revenue.length > 0) count += draft.revenue.length;
     if (draft.industries.length > 0) count += draft.industries.length;
+    if (draft.excludeIndustries && draft.excludeIndustries.length > 0) count += draft.excludeIndustries.length;
     if (draft.companyTypes.length > 0) count += draft.companyTypes.length;
     if (draft.fundingStage.length > 0) count += draft.fundingStage.length;
     if (draft.totalFunding.length > 0) count += draft.totalFunding.length;
     if (draft.roles.length > 0) count += draft.roles.length;
+    if (draft.excludeRoles && draft.excludeRoles.length > 0) count += draft.excludeRoles.length;
     if (draft.departments.length > 0) count += draft.departments.length;
+    if (draft.excludeDepartments && draft.excludeDepartments.length > 0) count += draft.excludeDepartments.length;
     if (draft.seniority.length > 0) count += draft.seniority.length;
     if (draft.locations.length > 0) count += draft.locations.length;
+    if (draft.excludeLocations && draft.excludeLocations.length > 0) count += draft.excludeLocations.length;
     if (draft.statesRegions && draft.statesRegions.length > 0) count += draft.statesRegions.length;
     if (draft.cities && draft.cities.length > 0) count += draft.cities.length;
     if (draft.workplaceType.length > 0) count += draft.workplaceType.length;
     if (draft.timeZones.length > 0) count += draft.timeZones.length;
     if (draft.intentSignals.length > 0) count += draft.intentSignals.length;
+    if (draft.excludeIntentSignals && draft.excludeIntentSignals.length > 0) count += draft.excludeIntentSignals.length;
     if (draft.intentTopics.length > 0) count += draft.intentTopics.length;
+    if (draft.excludeIntentTopics && draft.excludeIntentTopics.length > 0) count += draft.excludeIntentTopics.length;
     if (draft.activityRecency.length > 0) count += draft.activityRecency.length;
     if (draft.contactQuality.length > 0) count += draft.contactQuality.length;
     if (draft.qualityScoreMin > 0 || draft.qualityScoreMax < 100) count += 1;
     if (draft.technologies.length > 0) count += draft.technologies.length;
+    if (draft.excludeTechnologies && draft.excludeTechnologies.length > 0) count += draft.excludeTechnologies.length;
     if (draft.techCategories.length > 0) count += draft.techCategories.length;
     if (draft.companySignals.length > 0) count += draft.companySignals.length;
     if (draft.buyingSignals.length > 0) count += draft.buyingSignals.length;
@@ -119,6 +130,10 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
     if (draft.dataFreshness.length > 0) count += draft.dataFreshness.length;
     if (draft.excludeCurrentCustomers) count += 1;
     if (draft.excludeOpenOpportunities) count += 1;
+    if (draft.excludePreviouslyContacted) count += 1;
+    if (draft.includeSimilarTitles) count += 1;
+    if (draft.includePastTitles) count += 1;
+    if (draft.includePastCompanies) count += 1;
     if (draft.engagementStatus.length > 0) count += draft.engagementStatus.length;
     if (draft.customRules.length > 0) count += draft.customRules.length;
     return count;
@@ -378,15 +393,47 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                       </div>
                     </div>
 
+                    {/* Company Name */}
+                    <div className="space-y-1.5">
+                      <IncludeExcludeFilterGroup
+                        label="Company Name"
+                        icon={<Building2 className="w-3.5 h-3.5" />}
+                        options={leadFilterOptions.companies}
+                        include={draft.companies || []}
+                        exclude={draft.excludeCompanies || []}
+                        onIncludeChange={(val) => setDraft((p) => ({ ...p, companies: val }))}
+                        onExcludeChange={(val) => setDraft((p) => ({ ...p, excludeCompanies: val }))}
+                        includePlaceholder="Search company names to include..."
+                        excludePlaceholder="Search company names to exclude..."
+                        searchPlaceholder="Search company (e.g. Stripe, OpenAI, Datadog)..."
+                        allowCustom={true}
+                        extraControls={
+                          <label className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer select-none text-[11px]">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(draft.includePastCompanies)}
+                              onChange={(e) => setDraft((p) => ({ ...p, includePastCompanies: e.target.checked }))}
+                              className="w-3.5 h-3.5 rounded border-slate-300 dark:border-white/20 text-primary focus:ring-primary"
+                            />
+                            <span>Include past companies</span>
+                          </label>
+                        }
+                      />
+                    </div>
+
                     {/* Industry / Vertical */}
                     <div className="space-y-1.5">
-                      <SearchableMultiSelect
-                        options={leadFilterOptions.industries}
-                        selected={draft.industries}
-                        onChange={(newInds) => setDraft((p) => ({ ...p, industries: newInds }))}
-                        placeholder="Search industries or verticals..."
-                        searchPlaceholder="Search industry e.g. SaaS, FinTech, Healthcare..."
+                      <IncludeExcludeFilterGroup
                         label="Industry / Vertical"
+                        options={leadFilterOptions.industries}
+                        include={draft.industries}
+                        exclude={draft.excludeIndustries || []}
+                        onIncludeChange={(newInds) => setDraft((p) => ({ ...p, industries: newInds }))}
+                        onExcludeChange={(newExclude) => setDraft((p) => ({ ...p, excludeIndustries: newExclude }))}
+                        includePlaceholder="Search industries to include..."
+                        excludePlaceholder="Search industries to exclude..."
+                        searchPlaceholder="Search industry e.g. SaaS, FinTech, Healthcare..."
+                        allowCustom={true}
                       />
                     </div>
 
@@ -435,15 +482,41 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
 
                 {!collapsed['person'] && (
                   <div className="space-y-3.5 pl-6">
-                    {/* Job Title / Roles */}
+                    {/* Job Title / Decision Maker Roles */}
                     <div className="space-y-1.5">
-                      <SearchableMultiSelect
-                        options={leadFilterOptions.jobTitles}
-                        selected={draft.roles}
-                        onChange={(newRoles) => setDraft((p) => ({ ...p, roles: newRoles }))}
-                        placeholder="Search job titles e.g. VP Sales, CRO, Head of RevOps..."
-                        searchPlaceholder="Search job titles e.g. Chief Revenue Officer, Founder..."
+                      <IncludeExcludeFilterGroup
                         label="Job Title / Decision Maker Roles"
+                        options={leadFilterOptions.jobTitles}
+                        include={draft.roles}
+                        exclude={draft.excludeRoles || []}
+                        onIncludeChange={(newRoles) => setDraft((p) => ({ ...p, roles: newRoles }))}
+                        onExcludeChange={(newExclude) => setDraft((p) => ({ ...p, excludeRoles: newExclude }))}
+                        includePlaceholder="Search job titles to include..."
+                        excludePlaceholder="Search job titles to exclude..."
+                        searchPlaceholder="Search job titles e.g. Chief Revenue Officer, Founder..."
+                        allowCustom={true}
+                        extraControls={
+                          <div className="flex flex-col gap-1.5 pt-1 border-t border-slate-100 dark:border-white/5">
+                            <label className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer select-none text-[11px]">
+                              <input
+                                type="checkbox"
+                                checked={Boolean(draft.includeSimilarTitles)}
+                                onChange={(e) => setDraft((p) => ({ ...p, includeSimilarTitles: e.target.checked }))}
+                                className="w-3.5 h-3.5 rounded border-slate-300 dark:border-white/20 text-primary focus:ring-primary"
+                              />
+                              <span>Include similar / related job titles</span>
+                            </label>
+                            <label className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer select-none text-[11px]">
+                              <input
+                                type="checkbox"
+                                checked={Boolean(draft.includePastTitles)}
+                                onChange={(e) => setDraft((p) => ({ ...p, includePastTitles: e.target.checked }))}
+                                className="w-3.5 h-3.5 rounded border-slate-300 dark:border-white/20 text-primary focus:ring-primary"
+                              />
+                              <span>Include past job titles</span>
+                            </label>
+                          </div>
+                        }
                       />
                     </div>
 
@@ -473,13 +546,17 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
 
                     {/* Department / Function */}
                     <div className="space-y-1.5">
-                      <SearchableMultiSelect
-                        options={leadFilterOptions.departments}
-                        selected={draft.departments}
-                        onChange={(newDepts) => setDraft((p) => ({ ...p, departments: newDepts }))}
-                        placeholder="Search departments e.g. Sales, Marketing, RevOps..."
-                        searchPlaceholder="Search departments e.g. Engineering, Finance..."
+                      <IncludeExcludeFilterGroup
                         label="Department / Function"
+                        options={leadFilterOptions.departments}
+                        include={draft.departments}
+                        exclude={draft.excludeDepartments || []}
+                        onIncludeChange={(newDepts) => setDraft((p) => ({ ...p, departments: newDepts }))}
+                        onExcludeChange={(newExclude) => setDraft((p) => ({ ...p, excludeDepartments: newExclude }))}
+                        includePlaceholder="Search departments to include..."
+                        excludePlaceholder="Search departments to exclude..."
+                        searchPlaceholder="Search departments e.g. Engineering, Sales..."
+                        allowCustom={true}
                       />
                     </div>
                   </div>
@@ -506,13 +583,17 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
                   <div className="space-y-3.5 pl-6">
                     {/* Country & Region */}
                     <div className="space-y-1.5">
-                      <SearchableMultiSelect
-                        options={leadFilterOptions.countries}
-                        selected={draft.locations}
-                        onChange={(locs) => setDraft((p) => ({ ...p, locations: locs }))}
-                        placeholder="Search countries / regions (e.g. United States, Germany)..."
-                        searchPlaceholder="Search countries / regions..."
+                      <IncludeExcludeFilterGroup
                         label="Country & Region"
+                        options={leadFilterOptions.countries}
+                        include={draft.locations}
+                        exclude={draft.excludeLocations || []}
+                        onIncludeChange={(locs) => setDraft((p) => ({ ...p, locations: locs }))}
+                        onExcludeChange={(newExclude) => setDraft((p) => ({ ...p, excludeLocations: newExclude }))}
+                        includePlaceholder="Search countries to include..."
+                        excludePlaceholder="Search countries to exclude..."
+                        searchPlaceholder="Search countries / regions (e.g. United States, Germany)..."
+                        allowCustom={true}
                       />
                     </div>
 
@@ -585,13 +666,17 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
 
                 {!collapsed['intent'] && (
                   <div className="space-y-3.5 pl-6">
-                    <SearchableMultiSelect
-                      options={leadFilterOptions.intentTopics}
-                      selected={draft.intentTopics}
-                      onChange={(topics) => setDraft((p) => ({ ...p, intentTopics: topics }))}
-                      placeholder="Search buying signals & intent topics..."
-                      searchPlaceholder="Search intent topics e.g. Hiring, Funding, Tech Change..."
+                    <IncludeExcludeFilterGroup
                       label="Buying Signals & Intent Topics"
+                      options={leadFilterOptions.intentTopics}
+                      include={draft.intentTopics}
+                      exclude={draft.excludeIntentTopics || []}
+                      onIncludeChange={(topics) => setDraft((p) => ({ ...p, intentTopics: topics }))}
+                      onExcludeChange={(newExclude) => setDraft((p) => ({ ...p, excludeIntentTopics: newExclude }))}
+                      includePlaceholder="Search buying signals to include..."
+                      excludePlaceholder="Search signals & topics to exclude..."
+                      searchPlaceholder="Search intent topics e.g. Hiring, Funding, Tech..."
+                      allowCustom={true}
                     />
                   </div>
                 )}
@@ -615,13 +700,16 @@ export const LeadFinderAdvancedFiltersDrawer: React.FC<LeadFinderAdvancedFilters
 
                 {!collapsed['tech'] && (
                   <div className="space-y-3.5 pl-6">
-                    <SearchableMultiSelect
-                      options={leadFilterOptions.technologies}
-                      selected={draft.technologies}
-                      onChange={(techs) => setDraft((p) => ({ ...p, technologies: techs }))}
-                      placeholder="Search installed technologies (e.g. Salesforce, AWS, React, Segment)..."
-                      searchPlaceholder="Search technologies..."
+                    <IncludeExcludeFilterGroup
                       label="Installed Technologies"
+                      options={leadFilterOptions.technologies}
+                      include={draft.technologies}
+                      exclude={draft.excludeTechnologies || []}
+                      onIncludeChange={(techs) => setDraft((p) => ({ ...p, technologies: techs }))}
+                      onExcludeChange={(newExclude) => setDraft((p) => ({ ...p, excludeTechnologies: newExclude }))}
+                      includePlaceholder="Search technologies to include..."
+                      excludePlaceholder="Search technologies to exclude..."
+                      searchPlaceholder="Search technologies (e.g. Salesforce, AWS, React)..."
                       allowCustom={true}
                     />
                   </div>
