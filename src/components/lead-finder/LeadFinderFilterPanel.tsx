@@ -34,16 +34,19 @@ export interface LeadFinderFilterPanelProps {
   isOpenMobile: boolean;
   onCloseMobile: () => void;
   onCollapse?: () => void;
+  onOpenDomainModal?: () => void;
 }
 
 export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
   isOpenMobile,
   onCloseMobile,
   onCollapse,
+  onOpenDomainModal,
 }) => {
   const { filters, toggleFilterValue, updateFilters, resetFilters, setIsAdvancedFiltersDrawerOpen } = useLeadSearch();
 
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
+    domains: false,
     roles: false,
     industries: false,
     headcount: false,
@@ -147,6 +150,81 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
         </div>
         <span className="text-[10px] bg-primary text-white px-1.5 py-0.5 rounded font-mono shrink-0 ml-1">Open</span>
       </button>
+      {/* 0. Target Domains / Account Search */}
+      <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-[#202020]">
+        <button
+          type="button"
+          onClick={() => toggleSection('domains')}
+          className="w-full flex items-center justify-between text-left font-bold text-slate-900 dark:text-white cursor-pointer py-1"
+        >
+          <div className="flex items-center gap-2 text-left min-w-0">
+            <Globe className="w-4 h-4 text-primary shrink-0" />
+            <span className="text-left text-xs font-bold truncate">Target Domains</span>
+            {(filters.companyDomains && filters.companyDomains.length > 0) && (
+              <span className="px-1.5 py-0.2 rounded-full font-bold bg-primary/10 text-primary font-mono text-[10px]">
+                {filters.companyDomains.length}
+              </span>
+            )}
+          </div>
+          {collapsedSections['domains'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
+        </button>
+
+        {collapsedSections['domains'] && filters.companyDomains && filters.companyDomains.length > 0 && (
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pl-6">
+            {filters.companyDomains.slice(0, 3).join(', ')}{filters.companyDomains.length > 3 ? ` +${filters.companyDomains.length - 3} more` : ''}
+          </div>
+        )}
+
+        {!collapsedSections['domains'] && (
+          <div className="space-y-2 pt-1">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                Filter by domains:
+              </span>
+              {onOpenDomainModal && (
+                <button
+                  type="button"
+                  onClick={onOpenDomainModal}
+                  className="px-2 py-0.5 rounded-lg bg-primary/10 hover:bg-primary/15 text-primary text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Add / CSV</span>
+                </button>
+              )}
+            </div>
+
+            {filters.companyDomains && filters.companyDomains.length > 0 ? (
+              <div className="flex flex-wrap gap-1 max-h-28 overflow-y-auto p-1.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10">
+                {filters.companyDomains.map((dom) => (
+                  <span
+                    key={dom}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-white dark:bg-[#202020] text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/10 shadow-2xs"
+                  >
+                    <span className="truncate max-w-[120px]">{dom}</span>
+                    <button
+                      type="button"
+                      onClick={() => updateFilters({ companyDomains: filters.companyDomains?.filter(d => d !== dom) })}
+                      className="text-slate-400 hover:text-rose-500 cursor-pointer"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={onOpenDomainModal}
+                className="w-full py-2 px-2.5 rounded-xl border border-dashed border-slate-300 dark:border-[#333] text-slate-500 dark:text-slate-400 hover:border-primary hover:text-primary text-[11px] font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span>Search by domains or CSV</span>
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* 1. Job Titles & Decision Makers */}
       <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-[#202020]">
         <button
@@ -174,6 +252,13 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           </div>
           {collapsedSections['roles'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
+
+        {collapsedSections['roles'] && (filters.roles.length > 0 || (filters.excludeRoles?.length || 0) > 0) && (
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pl-6">
+            {filters.roles.length > 0 ? filters.roles.slice(0, 3).join(', ') + (filters.roles.length > 3 ? ` +${filters.roles.length - 3} more` : '') : ''}
+            {(filters.excludeRoles?.length || 0) > 0 ? ` (Excl: ${filters.excludeRoles!.slice(0, 2).join(', ')})` : ''}
+          </div>
+        )}
 
         {!collapsedSections['roles'] && (
           <div className="pt-1">
@@ -242,6 +327,13 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           {collapsedSections['industries'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
 
+        {collapsedSections['industries'] && (filters.industries.length > 0 || (filters.excludeIndustries?.length || 0) > 0) && (
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pl-6">
+            {filters.industries.length > 0 ? filters.industries.slice(0, 3).join(', ') + (filters.industries.length > 3 ? ` +${filters.industries.length - 3} more` : '') : ''}
+            {(filters.excludeIndustries?.length || 0) > 0 ? ` (Excl: ${filters.excludeIndustries!.slice(0, 2).join(', ')})` : ''}
+          </div>
+        )}
+
         {!collapsedSections['industries'] && (
           <div className="pt-1">
             <IncludeExcludeFilterGroup
@@ -277,6 +369,12 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           </div>
           {collapsedSections['headcount'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
+
+        {collapsedSections['headcount'] && filters.headcount.length > 0 && (
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pl-6">
+            {filters.headcount.join(', ')}
+          </div>
+        )}
 
         {!collapsedSections['headcount'] && (
           <div className="grid grid-cols-2 gap-1.5 pt-1">
@@ -338,6 +436,17 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           {collapsedSections['locations'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
 
+        {collapsedSections['locations'] && (() => {
+          const cInc = (filters.contactLocations && filters.contactLocations.length > 0) ? filters.contactLocations : filters.locations;
+          const allLocs = [...cInc, ...(filters.accountLocations || [])];
+          if (allLocs.length === 0) return null;
+          return (
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pl-6">
+              {allLocs.slice(0, 3).join(', ')}{allLocs.length > 3 ? ` +${allLocs.length - 3} more` : ''}
+            </div>
+          );
+        })()}
+
         {!collapsedSections['locations'] && (
           <div className="pt-1">
             <LeadFinderLocationFilter
@@ -384,6 +493,13 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           {collapsedSections['technologies'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
 
+        {collapsedSections['technologies'] && (filters.technologies.length > 0 || (filters.excludeTechnologies?.length || 0) > 0) && (
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pl-6">
+            {filters.technologies.length > 0 ? filters.technologies.slice(0, 3).join(', ') + (filters.technologies.length > 3 ? ` +${filters.technologies.length - 3} more` : '') : ''}
+            {(filters.excludeTechnologies?.length || 0) > 0 ? ` (Excl: ${filters.excludeTechnologies!.slice(0, 2).join(', ')})` : ''}
+          </div>
+        )}
+
         {!collapsedSections['technologies'] && (
           <div className="pt-1">
             <IncludeExcludeFilterGroup
@@ -429,18 +545,24 @@ export const LeadFinderFilterPanel: React.FC<LeadFinderFilterPanelProps> = ({
           {collapsedSections['intent'] ? <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" /> : <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-2" />}
         </button>
 
+        {collapsedSections['intent'] && (filters.intentSignals.length > 0 || filters.intentTopics.length > 0) && (
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pl-6">
+            {(filters.intentSignals.length > 0 ? filters.intentSignals : filters.intentTopics).slice(0, 2).join(', ')}
+          </div>
+        )}
+
         {!collapsedSections['intent'] && (
           <div className="pt-1">
             <IncludeExcludeFilterGroup
-              options={leadFilterOptions.intentTopics}
+              options={leadFilterOptions.intentSignals}
               include={filters.intentSignals.length > 0 ? filters.intentSignals : filters.intentTopics}
               exclude={filters.excludeIntentSignals?.length ? filters.excludeIntentSignals : (filters.excludeIntentTopics || [])}
               onIncludeChange={(newSignals) => updateFilters({ intentSignals: newSignals, intentTopics: newSignals })}
               onExcludeChange={(newExclude) => updateFilters({ excludeIntentSignals: newExclude, excludeIntentTopics: newExclude })}
               includePlaceholder="Search intent signals to include..."
               excludePlaceholder="Search intent signals to exclude..."
-              searchPlaceholder="Type intent (e.g. Hiring, Funding, Stack Shift)..."
-              allowCustom={true}
+              searchPlaceholder="Select 6 core intent signals (e.g. Hiring, Funding)..."
+              allowCustom={false}
             />
           </div>
         )}

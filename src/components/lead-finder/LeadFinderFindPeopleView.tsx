@@ -10,7 +10,9 @@ import {
   SaveSearchModal, 
   SavedSearchesDrawer,
   LeadFinderAdvancedFiltersDrawer,
-  CampaignEnrollModal
+  CampaignEnrollModal,
+  LeadEnrichmentModal,
+  LeadFinderDomainModal
 } from './index';
 import { Tooltip } from '../ui/Tooltip';
 import { Sliders, ChevronRight } from 'lucide-react';
@@ -28,6 +30,9 @@ export const LeadFinderFindPeopleView: React.FC = () => {
   const [isSaveSearchModalOpen, setIsSaveSearchModalOpen] = useState(false);
   const [isSavedSearchesDrawerOpen, setIsSavedSearchesDrawerOpen] = useState(false);
   const [isCampaignEnrollOpen, setIsCampaignEnrollOpen] = useState(false);
+  const [isEnrichModalOpen, setIsEnrichModalOpen] = useState(false);
+  const [enrichSingleLead, setEnrichSingleLead] = useState<LeadDetailData | null>(null);
+  const [isDomainModalOpen, setIsDomainModalOpen] = useState(false);
 
   // Filter matrix collapse persistence
   const [isFilterCollapsed, setIsFilterCollapsed] = useState<boolean>(() => {
@@ -128,6 +133,7 @@ export const LeadFinderFindPeopleView: React.FC = () => {
               isOpenMobile={isMobileFiltersOpen}
               onCloseMobile={() => setIsMobileFiltersOpen(false)}
               onCollapse={handleToggleFilterCollapse}
+              onOpenDomainModal={() => setIsDomainModalOpen(true)}
             />
           </div>
         )}
@@ -158,6 +164,7 @@ export const LeadFinderFindPeopleView: React.FC = () => {
           <LeadFinderFilterPanel
             isOpenMobile={isMobileFiltersOpen}
             onCloseMobile={() => setIsMobileFiltersOpen(false)}
+            onOpenDomainModal={() => setIsDomainModalOpen(true)}
           />
         </div>
 
@@ -168,6 +175,11 @@ export const LeadFinderFindPeopleView: React.FC = () => {
             onTriggerAddToListModal={() => setIsAddToListModalOpen(true)}
             onPushToSequence={handlePushToSequence}
             onBatchAddToCrm={handleBatchAddToCrm}
+            onTriggerEnrich={(lead) => {
+              setEnrichSingleLead(lead || null);
+              setIsEnrichModalOpen(true);
+            }}
+            onTriggerSaveSearch={() => setIsSaveSearchModalOpen(true)}
             isFilterCollapsed={isFilterCollapsed}
             onToggleFilters={handleToggleFilterCollapse}
           />
@@ -266,6 +278,22 @@ export const LeadFinderFindPeopleView: React.FC = () => {
       <CampaignEnrollModal
         isOpen={isCampaignEnrollOpen}
         onClose={() => setIsCampaignEnrollOpen(false)}
+      />
+
+      {/* 1-Click Lead Enrichment Modal */}
+      <LeadEnrichmentModal
+        isOpen={isEnrichModalOpen}
+        onClose={() => {
+          setIsEnrichModalOpen(false);
+          setEnrichSingleLead(null);
+        }}
+        singleLead={enrichSingleLead}
+      />
+
+      {/* Target Domains & CSV Lead Search Modal */}
+      <LeadFinderDomainModal
+        isOpen={isDomainModalOpen}
+        onClose={() => setIsDomainModalOpen(false)}
       />
     </div>
   );

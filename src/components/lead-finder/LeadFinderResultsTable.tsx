@@ -97,6 +97,8 @@ export interface LeadFinderResultsTableProps {
   onTriggerAddToListModal: () => void;
   onPushToSequence: () => void;
   onBatchAddToCrm: () => void;
+  onTriggerEnrich?: (singleLead?: LeadDetailData | null) => void;
+  onTriggerSaveSearch?: () => void;
   isFilterCollapsed?: boolean;
   onToggleFilters?: () => void;
 }
@@ -106,6 +108,8 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
   onTriggerAddToListModal,
   onPushToSequence,
   onBatchAddToCrm,
+  onTriggerEnrich,
+  onTriggerSaveSearch,
   isFilterCollapsed,
   onToggleFilters,
 }) => {
@@ -298,7 +302,7 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
             <Button
               variant="secondary"
               size="sm"
-              onClick={handleBulkEnrich}
+              onClick={() => onTriggerEnrich ? onTriggerEnrich() : handleBulkEnrich()}
               leftIcon={<Zap className="w-3.5 h-3.5 text-amber-400" />}
             >
               Enrich
@@ -330,24 +334,6 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
             >
               Enroll in Campaign
             </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={exportToCsv}
-              leftIcon={<Download className="w-3.5 h-3.5" />}
-            >
-              Export
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearSelection}
-              className="text-slate-400 hover:text-white"
-            >
-              Deselect
-            </Button>
           </div>
         </div>
       )}
@@ -377,6 +363,32 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          {onTriggerSaveSearch && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onTriggerSaveSearch}
+              className="text-xs font-semibold gap-1.5 hover:border-slate-300 dark:hover:border-[#383838]"
+              title="Save current search criteria snapshot"
+            >
+              <Bookmark className="w-3.5 h-3.5 text-blue-500" />
+              <span>Save Search</span>
+            </Button>
+          )}
+
+          {onTriggerEnrich && selectedIds.length === 0 && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onTriggerEnrich()}
+              className="text-xs font-semibold gap-1.5"
+              title="Enrich results with verified emails and mobile phones"
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>Enrich</span>
+            </Button>
+          )}
+
           <Button
             variant="outline"
             size="sm"
@@ -384,7 +396,7 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
             className="text-xs font-semibold gap-2 hover:border-slate-300 dark:hover:border-[#383838]"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Export CSV</span>
+            <span>Export</span>
           </Button>
         </div>
       </div>
@@ -575,9 +587,9 @@ export const LeadFinderResultsTable: React.FC<LeadFinderResultsTableProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleFullEnrichLead(lead)}
+                      onClick={() => onTriggerEnrich ? onTriggerEnrich(lead) : handleFullEnrichLead(lead)}
                       className="h-7 px-2.5 text-[11px] font-bold text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 gap-1.5 shrink-0"
-                      title="Unlock Email & Phone"
+                      title="Enrich Work Email & Direct Mobile"
                     >
                       <Zap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                       <span>Enrich</span>

@@ -22,3 +22,5 @@ export * from './LeadFinderAdvancedFiltersDrawer';
 export * from './LeadFinderCompanyDomainFilter';
 export * from './CampaignEnrollModal';
 export * from './LeadFinderSearchModesToolbar';
+export * from './LeadEnrichmentModal';
+export * from './LeadFinderDomainModal';
